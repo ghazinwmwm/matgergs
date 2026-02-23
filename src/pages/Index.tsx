@@ -16,9 +16,11 @@ const SAMPLE_PRODUCT: Product = {
   category: "ملابس رجالية",
   price: 35000,
   discount: 15,
-  image: sampleProductImg,
+  images: [sampleProductImg],
   sizes: ["S", "M", "L", "XL"],
   colors: ["#1E3A5F", "#000000", "#FFFFFF"],
+  returnPolicy: "7-days",
+  deliveryDays: 3,
 };
 
 let sharedProducts: Product[] = [SAMPLE_PRODUCT];

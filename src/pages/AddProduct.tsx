@@ -11,23 +11,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Upload, X } from "lucide-react";
+import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus } from "lucide-react";
 import type { Product } from "@/types/product";
 
-const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "36", "37", "38", "39", "40", "41", "42", "43", "44"];
-const AVAILABLE_COLORS = [
+const EXAMPLE_SIZES = ["S", "M", "L", "XL"];
+const EXAMPLE_COLORS = [
   { name: "أسود", value: "#000000" },
   { name: "أبيض", value: "#FFFFFF" },
-  { name: "أحمر", value: "#EF4444" },
   { name: "أزرق", value: "#3B82F6" },
-  { name: "أخضر", value: "#22C55E" },
-  { name: "أصفر", value: "#EAB308" },
-  { name: "برتقالي", value: "#F97316" },
-  { name: "وردي", value: "#EC4899" },
-  { name: "بنفسجي", value: "#8B5CF6" },
-  { name: "بني", value: "#92400E" },
-  { name: "رمادي", value: "#6B7280" },
-  { name: "كحلي", value: "#1E3A5F" },
+  { name: "أحمر", value: "#EF4444" },
+];
+
+const RETURN_POLICIES = [
+  { label: "لا يوجد استرجاع", value: "no-return" },
+  { label: "استرجاع خلال 3 أيام", value: "3-days" },
+  { label: "استرجاع خلال 7 أيام", value: "7-days" },
+  { label: "استرجاع خلال 14 يوم", value: "14-days" },
+  { label: "استرجاع خلال 30 يوم", value: "30-days" },
 ];
 
 interface AddProductPageProps {
@@ -38,13 +38,17 @@ interface AddProductPageProps {
 
 const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProps) => {
   const navigate = useNavigate();
+  
+  // Basic
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [newCategory, setNewCategory] = useState("");
   const [price, setPrice] = useState("");
   const [discount, setDiscount] = useState("");
-  const [image, setImage] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+
+  // Advanced
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [customSize, setCustomSize] = useState("");
@@ -52,31 +56,39 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [customColorName, setCustomColorName] = useState("");
   const [extraColors, setExtraColors] = useState<{ name: string; value: string }[]>([]);
   const [extraSizes, setExtraSizes] = useState<string[]>([]);
+  const [returnPolicy, setReturnPolicy] = useState("");
+  const [deliveryDays, setDeliveryDays] = useState("");
+
+  // Category suggestions
+  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+  const filteredCategories = category.trim()
+    ? categories.filter((c) => c.includes(category) && c !== category)
+    : [];
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const allSizes = [...AVAILABLE_SIZES, ...extraSizes];
-  const allColors = [...AVAILABLE_COLORS, ...extraColors];
+  const allSizes = [...EXAMPLE_SIZES, ...extraSizes];
+  const allColors = [...EXAMPLE_COLORS, ...extraColors];
 
-  const toggleSize = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
-    );
-  };
+  const toggleSize = (size: string) =>
+    setSelectedSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]);
 
-  const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-    );
-  };
+  const toggleColor = (color: string) =>
+    setSelectedColors((prev) => prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result as string);
+      reader.onloadend = () => setImages((prev) => [...prev, reader.result as string]);
       reader.readAsDataURL(file);
-    }
+    });
+    // Reset input so same file can be selected again
+    e.target.value = "";
   };
+
+  const removeImage = (index: number) => setImages((prev) => prev.filter((_, i) => i !== index));
 
   const addCustomSize = () => {
     const s = customSize.trim();
@@ -96,13 +108,18 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
     }
   };
 
-  const handleAddCategory = () => {
-    const c = newCategory.trim();
-    if (c && !categories.includes(c)) {
-      onAddCategory(c);
-      setCategory(c);
-      setNewCategory("");
+  const handleCategoryChange = (val: string) => {
+    setCategory(val);
+    setShowCategorySuggestions(true);
+    // Auto-add new category when it doesn't exist
+    if (val.trim() && !categories.includes(val.trim())) {
+      onAddCategory(val.trim());
     }
+  };
+
+  const selectCategorySuggestion = (cat: string) => {
+    setCategory(cat);
+    setShowCategorySuggestions(false);
   };
 
   const handleSubmit = () => {
@@ -111,12 +128,14 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
       id: crypto.randomUUID(),
       name: name.trim(),
       description: description.trim(),
-      category: category || "أخرى",
+      category: category.trim() || "أخرى",
       price: parseFloat(price),
       discount: discount ? parseFloat(discount) : 0,
-      image,
+      images,
       sizes: selectedSizes,
       colors: selectedColors,
+      returnPolicy: returnPolicy || "",
+      deliveryDays: deliveryDays ? parseInt(deliveryDays) : null,
     };
     onAdd(product);
     navigate("/");
@@ -124,7 +143,6 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto max-w-2xl px-4 py-4 flex items-center gap-3">
           <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary transition-colors">
@@ -135,167 +153,187 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
       </header>
 
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="space-y-5">
-          {/* Name */}
-          <div className="space-y-2">
-            <Label>اسم المنتج *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: قميص رجالي" />
-          </div>
+        <div className="space-y-6">
+          {/* ===== التفاصيل الأساسية ===== */}
+          <section className="space-y-5">
+            <h2 className="text-sm font-semibold text-muted-foreground tracking-wide">التفاصيل الأساسية</h2>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <Label>وصف المنتج</Label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="أدخل وصف تفصيلي للمنتج..."
-              rows={3}
-            />
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <Label>الصنف</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="اختر صنف" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
+            {/* Images */}
+            <div className="space-y-2">
+              <Label>صور المنتج</Label>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+              <div className="flex gap-3 flex-wrap">
+                {images.map((img, i) => (
+                  <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-border group">
+                    <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 left-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Input
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="أضف صنف جديد..."
-                className="flex-1"
-                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
-              />
-              <Button type="button" variant="outline" size="sm" onClick={handleAddCategory} disabled={!newCategory.trim()}>
-                أضف
-              </Button>
-            </div>
-          </div>
-
-          {/* Price & Discount */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>السعر (د.ع) *</Label>
-              <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="25000" />
-            </div>
-            <div className="space-y-2">
-              <Label>الخصم (%)</Label>
-              <Input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" />
-            </div>
-          </div>
-
-          {/* Image */}
-          <div className="space-y-2">
-            <Label>صورة المنتج</Label>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            {image ? (
-              <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border">
-                <img src={image} alt="معاينة" className="w-full h-full object-cover" />
                 <button
-                  onClick={() => setImage("")}
-                  className="absolute top-2 left-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <Upload className="h-5 w-5" />
+                  <span className="text-[10px]">رفع صورة</span>
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-              >
-                <Upload className="h-8 w-8" />
-                <span className="text-sm">اضغط لرفع صورة</span>
-              </button>
+            </div>
+
+            {/* Name */}
+            <div className="space-y-2">
+              <Label>اسم المنتج *</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: قميص رجالي" />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label>وصف المنتج</Label>
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="وصف مختصر للمنتج..." rows={3} />
+            </div>
+
+            {/* Category - autocomplete */}
+            <div className="space-y-2 relative">
+              <Label>الصنف</Label>
+              <Input
+                value={category}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                onFocus={() => setShowCategorySuggestions(true)}
+                onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 150)}
+                placeholder="اكتب اسم الصنف..."
+              />
+              {showCategorySuggestions && filteredCategories.length > 0 && (
+                <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-card border border-border rounded-lg shadow-lg py-1 max-h-40 overflow-y-auto">
+                  {filteredCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      onMouseDown={() => selectCategorySuggestion(cat)}
+                      className="w-full text-right px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Price & Discount */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>السعر (د.ع) *</Label>
+                <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="25000" />
+              </div>
+              <div className="space-y-2">
+                <Label>الخصم (%)</Label>
+                <Input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" />
+              </div>
+            </div>
+          </section>
+
+          {/* ===== التفاصيل المتقدمة ===== */}
+          <section>
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full flex items-center justify-between py-3 border-t border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span>التفاصيل المتقدمة (اختياري)</span>
+              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+
+            {showAdvanced && (
+              <div className="space-y-5 pt-2 animate-slide-in">
+                {/* Sizes */}
+                <div className="space-y-2">
+                  <Label className="text-sm">الأحجام</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {allSizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => toggleSize(size)}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                          selectedSizes.includes(size)
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary text-secondary-foreground border-border hover:border-primary"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={customSize}
+                      onChange={(e) => setCustomSize(e.target.value)}
+                      placeholder="حجم مخصص..."
+                      className="flex-1 max-w-[180px]"
+                      onKeyDown={(e) => e.key === "Enter" && addCustomSize()}
+                    />
+                    <Button type="button" variant="outline" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
+                      أضف
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Colors */}
+                <div className="space-y-2">
+                  <Label className="text-sm">الألوان</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {allColors.map((color) => (
+                      <button
+                        key={color.value}
+                        onClick={() => toggleColor(color.value)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                          selectedColors.includes(color.value)
+                            ? "border-primary ring-2 ring-primary/30"
+                            : "border-border hover:border-primary"
+                        }`}
+                      >
+                        <span className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: color.value }} />
+                        {color.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={customColor} onChange={(e) => setCustomColor(e.target.value)} className="w-9 h-9 rounded border border-border cursor-pointer" />
+                    <Input value={customColorName} onChange={(e) => setCustomColorName(e.target.value)} placeholder="اسم اللون..." className="flex-1" onKeyDown={(e) => e.key === "Enter" && addCustomColor()} />
+                    <Button type="button" variant="outline" size="sm" onClick={addCustomColor} disabled={!customColorName.trim()}>أضف</Button>
+                  </div>
+                </div>
+
+                {/* Return Policy */}
+                <div className="space-y-2">
+                  <Label className="text-sm">سياسة الاسترجاع</Label>
+                  <Select value={returnPolicy} onValueChange={setReturnPolicy}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر سياسة الاسترجاع" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RETURN_POLICIES.map((p) => (
+                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Delivery Days */}
+                <div className="space-y-2">
+                  <Label className="text-sm">مدة التوصيل (بالأيام)</Label>
+                  <Input type="number" min="0" value={deliveryDays} onChange={(e) => setDeliveryDays(e.target.value)} placeholder="مثال: 3" />
+                </div>
+              </div>
             )}
-          </div>
+          </section>
 
-          {/* Sizes */}
-          <div className="space-y-2">
-            <Label>الأحجام</Label>
-            <div className="flex flex-wrap gap-2">
-              {allSizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => toggleSize(size)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                    selectedSizes.includes(size)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-secondary text-secondary-foreground border-border hover:border-primary"
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={customSize}
-                onChange={(e) => setCustomSize(e.target.value)}
-                placeholder="حجم مخصص..."
-                className="flex-1"
-                onKeyDown={(e) => e.key === "Enter" && addCustomSize()}
-              />
-              <Button type="button" variant="outline" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
-                أضف
-              </Button>
-            </div>
+          {/* Submit */}
+          <div className="pt-2 pb-8">
+            <Button onClick={handleSubmit} className="w-full h-12 text-base" disabled={!name.trim() || !price}>
+              إضافة المنتج
+            </Button>
           </div>
-
-          {/* Colors */}
-          <div className="space-y-2">
-            <Label>الألوان</Label>
-            <div className="flex flex-wrap gap-2">
-              {allColors.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => toggleColor(color.value)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors ${
-                    selectedColors.includes(color.value)
-                      ? "border-primary ring-2 ring-primary/30"
-                      : "border-border hover:border-primary"
-                  }`}
-                >
-                  <span
-                    className="w-4 h-4 rounded-full border border-border"
-                    style={{ backgroundColor: color.value }}
-                  />
-                  {color.name}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="color"
-                value={customColor}
-                onChange={(e) => setCustomColor(e.target.value)}
-                className="w-9 h-9 rounded border border-border cursor-pointer"
-              />
-              <Input
-                value={customColorName}
-                onChange={(e) => setCustomColorName(e.target.value)}
-                placeholder="اسم اللون..."
-                className="flex-1"
-                onKeyDown={(e) => e.key === "Enter" && addCustomColor()}
-              />
-              <Button type="button" variant="outline" size="sm" onClick={addCustomColor} disabled={!customColorName.trim()}>
-                أضف
-              </Button>
-            </div>
-          </div>
-
-          <Button onClick={handleSubmit} className="w-full" disabled={!name.trim() || !price}>
-            إضافة المنتج
-          </Button>
         </div>
       </main>
     </div>

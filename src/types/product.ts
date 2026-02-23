@@ -5,9 +5,11 @@ export interface Product {
   category: string;
   price: number;
   discount: number;
-  image: string;
+  images: string[];
   sizes: string[];
   colors: string[];
+  returnPolicy: string;
+  deliveryDays: number | null;
 }
 
 export const DEFAULT_CATEGORIES = [

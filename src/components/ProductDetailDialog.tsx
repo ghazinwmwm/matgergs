@@ -41,8 +41,8 @@ const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDetailDialo
         <div className="space-y-4">
           {/* Image */}
           <div className="w-full h-56 rounded-lg overflow-hidden bg-muted">
-            {product.image ? (
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+            {product.images.length > 0 ? (
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                 <Package className="h-16 w-16" />
