@@ -47,6 +47,7 @@ export function useInventory() {
   };
 }
 
+// Inventory management page
 const Index = () => {
   const navigate = useNavigate();
   const { products, deleteProduct } = useInventory();
