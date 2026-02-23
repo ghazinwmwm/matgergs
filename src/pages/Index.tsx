@@ -119,6 +119,10 @@ const Index = () => {
 
         {/* Action row: Store selector + Add button */}
         <div className="flex items-center justify-between gap-3">
+          <Button onClick={() => navigate("/add")} className="gap-2">
+            <Plus className="h-4 w-4" />
+            إضافة منتج
+          </Button>
           <div className="relative">
             <button
               onClick={() => setStoreMenuOpen(!storeMenuOpen)}
@@ -129,7 +133,7 @@ const Index = () => {
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {storeMenuOpen && (
-              <div className="absolute top-full mt-1 right-0 z-20 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[160px]">
+              <div className="absolute top-full mt-1 left-0 z-20 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[160px]">
                 {stores.map((store) => (
                   <button
                     key={store}
@@ -144,10 +148,6 @@ const Index = () => {
               </div>
             )}
           </div>
-          <Button onClick={() => navigate("/add")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            إضافة منتج
-          </Button>
         </div>
 
         {/* Search & Filter */}
