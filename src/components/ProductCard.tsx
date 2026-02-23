@@ -3,18 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import type { Product } from "@/types/product";
 
 const COLORS_MAP: Record<string, string> = {
-  "#000000": "أسود",
-  "#FFFFFF": "أبيض",
-  "#EF4444": "أحمر",
-  "#3B82F6": "أزرق",
-  "#22C55E": "أخضر",
-  "#EAB308": "أصفر",
-  "#F97316": "برتقالي",
-  "#EC4899": "وردي",
-  "#8B5CF6": "بنفسجي",
-  "#92400E": "بني",
-  "#6B7280": "رمادي",
-  "#1E3A5F": "كحلي",
+  "#000000": "أسود", "#FFFFFF": "أبيض", "#EF4444": "أحمر", "#3B82F6": "أزرق",
+  "#22C55E": "أخضر", "#EAB308": "أصفر", "#F97316": "برتقالي", "#EC4899": "وردي",
+  "#8B5CF6": "بنفسجي", "#92400E": "بني", "#6B7280": "رمادي", "#1E3A5F": "كحلي",
 };
 
 interface ProductCardProps {
@@ -29,81 +20,57 @@ const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
     : product.price;
 
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden animate-slide-in hover:shadow-lg transition-shadow group">
+    <div
+      onClick={() => onView(product)}
+      className="bg-card rounded-lg border border-border overflow-hidden animate-slide-in hover:shadow-md transition-shadow cursor-pointer flex flex-row h-24"
+    >
       {/* Image */}
-      <div className="relative h-48 bg-muted cursor-pointer" onClick={() => onView(product)}>
+      <div className="relative w-24 h-full flex-shrink-0 bg-muted">
         {product.image ? (
           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Package className="h-12 w-12" />
+            <Package className="h-6 w-6" />
           </div>
         )}
         {product.discount > 0 && (
-          <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground">
+          <span className="absolute top-1 right-1 text-[10px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">
             -{product.discount}%
-          </Badge>
+          </span>
         )}
-        <Badge variant="secondary" className="absolute bottom-2 right-2 text-xs">
-          {product.category}
-        </Badge>
-        {/* Actions overlay */}
-        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-          <button
-            onClick={(e) => { e.stopPropagation(); onView(product); }}
-            className="p-2 rounded-full bg-card/90 backdrop-blur-sm text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            <Eye className="h-4 w-4" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
-            className="p-2 rounded-full bg-card/90 backdrop-blur-sm text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
       </div>
 
       {/* Info */}
-      <div className="p-4 space-y-2">
-        <h3 className="font-semibold text-card-foreground truncate">{product.name}</h3>
-        {product.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
-        )}
-
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">
+      <div className="flex-1 p-3 flex flex-col justify-center min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm text-card-foreground truncate">{product.name}</h3>
+            <span className="text-[11px] text-muted-foreground">{product.category}</span>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+            className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-sm font-bold text-primary">
             {finalPrice.toLocaleString("ar-IQ")} د.ع
           </span>
           {product.discount > 0 && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-[11px] text-muted-foreground line-through">
               {product.price.toLocaleString("ar-IQ")}
             </span>
           )}
+          {product.colors.length > 0 && (
+            <div className="flex gap-0.5 mr-auto">
+              {product.colors.slice(0, 4).map((color) => (
+                <span key={color} className="w-3.5 h-3.5 rounded-full border border-border" style={{ backgroundColor: color }} />
+              ))}
+            </div>
+          )}
         </div>
-
-        {product.sizes.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {product.sizes.map((size) => (
-              <span key={size} className="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
-                {size}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {product.colors.length > 0 && (
-          <div className="flex gap-1.5">
-            {product.colors.map((color) => (
-              <span
-                key={color}
-                title={COLORS_MAP[color] || color}
-                className="w-5 h-5 rounded-full border border-border"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
