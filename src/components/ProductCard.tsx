@@ -26,8 +26,8 @@ const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
     >
       {/* Image */}
       <div className="relative w-24 h-full flex-shrink-0 bg-muted">
-        {product.image ? (
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        {product.images.length > 0 ? (
+          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             <Package className="h-6 w-6" />
