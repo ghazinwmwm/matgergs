@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowRight, Upload, X } from "lucide-react";
 import type { Product } from "@/types/product";
 
@@ -41,7 +48,14 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [customSize, setCustomSize] = useState("");
+  const [customColor, setCustomColor] = useState("#000000");
+  const [customColorName, setCustomColorName] = useState("");
+  const [extraColors, setExtraColors] = useState<{ name: string; value: string }[]>([]);
+  const [extraSizes, setExtraSizes] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const allSizes = [...AVAILABLE_SIZES, ...extraSizes];
+  const allColors = [...AVAILABLE_COLORS, ...extraColors];
 
   const toggleSize = (size: string) => {
     setSelectedSizes((prev) =>
@@ -66,9 +80,19 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
 
   const addCustomSize = () => {
     const s = customSize.trim();
-    if (s && !AVAILABLE_SIZES.includes(s) && !selectedSizes.includes(s)) {
+    if (s && !allSizes.includes(s)) {
+      setExtraSizes((prev) => [...prev, s]);
       setSelectedSizes((prev) => [...prev, s]);
       setCustomSize("");
+    }
+  };
+
+  const addCustomColor = () => {
+    const n = customColorName.trim();
+    if (n && customColor) {
+      setExtraColors((prev) => [...prev, { name: n, value: customColor }]);
+      setSelectedColors((prev) => [...prev, customColor]);
+      setCustomColorName("");
     }
   };
 
@@ -111,17 +135,75 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
       </header>
 
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="space-y-8">
+        <div className="space-y-5">
+          {/* Name */}
+          <div className="space-y-2">
+            <Label>اسم المنتج *</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: قميص رجالي" />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label>وصف المنتج</Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="أدخل وصف تفصيلي للمنتج..."
+              rows={3}
+            />
+          </div>
+
+          {/* Category */}
+          <div className="space-y-2">
+            <Label>الصنف</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="اختر صنف" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Input
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="أضف صنف جديد..."
+                className="flex-1"
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={handleAddCategory} disabled={!newCategory.trim()}>
+                أضف
+              </Button>
+            </div>
+          </div>
+
+          {/* Price & Discount */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>السعر (د.ع) *</Label>
+              <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="25000" />
+            </div>
+            <div className="space-y-2">
+              <Label>الخصم (%)</Label>
+              <Input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" />
+            </div>
+          </div>
+
           {/* Image */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">صورة المنتج</Label>
+          <div className="space-y-2">
+            <Label>صورة المنتج</Label>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             {image ? (
-              <div className="relative w-full h-52 rounded-lg overflow-hidden border border-border">
+              <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border">
                 <img src={image} alt="معاينة" className="w-full h-full object-cover" />
                 <button
                   onClick={() => setImage("")}
-                  className="absolute top-3 left-3 bg-destructive text-destructive-foreground rounded-full p-1.5"
+                  className="absolute top-2 left-2 bg-destructive text-destructive-foreground rounded-full p-1"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -129,7 +211,7 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
                 <Upload className="h-8 w-8" />
                 <span className="text-sm">اضغط لرفع صورة</span>
@@ -137,63 +219,18 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
             )}
           </div>
 
-          {/* Name & Description */}
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium mb-2 block">اسم المنتج *</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: قميص رجالي" />
-            </div>
-            <div>
-              <Label className="text-sm font-medium mb-2 block">وصف المنتج</Label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="وصف مختصر للمنتج..."
-                rows={3}
-              />
-            </div>
-          </div>
-
-          {/* Category - simplified as text input with suggestions */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">الصنف</Label>
-            <Input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="مثال: ملابس رجالية"
-              list="categories-list"
-            />
-            <datalist id="categories-list">
-              {categories.map((cat) => (
-                <option key={cat} value={cat} />
-              ))}
-            </datalist>
-          </div>
-
-          {/* Price & Discount */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-sm font-medium mb-2 block">السعر (د.ع) *</Label>
-              <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="25000" />
-            </div>
-            <div>
-              <Label className="text-sm font-medium mb-2 block">الخصم (%)</Label>
-              <Input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" />
-            </div>
-          </div>
-
-          {/* Sizes - simplified chips */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">الأحجام</Label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {AVAILABLE_SIZES.map((size) => (
+          {/* Sizes */}
+          <div className="space-y-2">
+            <Label>الأحجام</Label>
+            <div className="flex flex-wrap gap-2">
+              {allSizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => toggleSize(size)}
-                  className={`min-w-[40px] px-2.5 py-1 rounded text-sm transition-colors ${
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
                     selectedSizes.includes(size)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-secondary text-secondary-foreground border-border hover:border-primary"
                   }`}
                 >
                   {size}
@@ -205,41 +242,60 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
                 value={customSize}
                 onChange={(e) => setCustomSize(e.target.value)}
                 placeholder="حجم مخصص..."
-                className="max-w-[180px]"
+                className="flex-1"
                 onKeyDown={(e) => e.key === "Enter" && addCustomSize()}
               />
-              <Button type="button" variant="ghost" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
+              <Button type="button" variant="outline" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
                 أضف
               </Button>
             </div>
           </div>
 
           {/* Colors */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">الألوان</Label>
+          <div className="space-y-2">
+            <Label>الألوان</Label>
             <div className="flex flex-wrap gap-2">
-              {AVAILABLE_COLORS.map((color) => (
+              {allColors.map((color) => (
                 <button
                   key={color.value}
                   onClick={() => toggleColor(color.value)}
-                  title={color.name}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors ${
                     selectedColors.includes(color.value)
-                      ? "border-primary scale-110 ring-2 ring-primary/30"
-                      : "border-border hover:scale-105"
+                      ? "border-primary ring-2 ring-primary/30"
+                      : "border-border hover:border-primary"
                   }`}
-                  style={{ backgroundColor: color.value }}
-                />
+                >
+                  <span
+                    className="w-4 h-4 rounded-full border border-border"
+                    style={{ backgroundColor: color.value }}
+                  />
+                  {color.name}
+                </button>
               ))}
+            </div>
+            <div className="flex gap-2 items-center">
+              <input
+                type="color"
+                value={customColor}
+                onChange={(e) => setCustomColor(e.target.value)}
+                className="w-9 h-9 rounded border border-border cursor-pointer"
+              />
+              <Input
+                value={customColorName}
+                onChange={(e) => setCustomColorName(e.target.value)}
+                placeholder="اسم اللون..."
+                className="flex-1"
+                onKeyDown={(e) => e.key === "Enter" && addCustomColor()}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addCustomColor} disabled={!customColorName.trim()}>
+                أضف
+              </Button>
             </div>
           </div>
 
-          {/* Submit */}
-          <div className="pt-4 pb-8">
-            <Button onClick={handleSubmit} className="w-full h-12 text-base" disabled={!name.trim() || !price}>
-              إضافة المنتج
-            </Button>
-          </div>
+          <Button onClick={handleSubmit} className="w-full" disabled={!name.trim() || !price}>
+            إضافة المنتج
+          </Button>
         </div>
       </main>
     </div>

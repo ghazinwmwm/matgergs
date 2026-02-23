@@ -61,17 +61,23 @@ const Index = () => {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-            <Package className="h-5 w-5" />
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+              <Package className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-foreground">إدارة المخزون</h1>
+              <p className="text-xs text-muted-foreground">{products.length} منتج</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-foreground">إدارة المخزون</h1>
-            <p className="text-xs text-muted-foreground">{products.length} منتج</p>
-          </div>
+          <Button onClick={() => navigate("/add")} className="gap-2">
+            <Plus className="h-4 w-4" />
+            إضافة منتج
+          </Button>
         </div>
       </header>
 
@@ -138,15 +144,6 @@ const Index = () => {
           </div>
         )}
       </main>
-
-      {/* FAB - Add Button */}
-      <button
-        onClick={() => navigate("/add")}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 bg-primary text-primary-foreground shadow-lg hover:shadow-xl rounded-full px-6 py-3 flex items-center gap-2 text-sm font-medium transition-all hover:scale-105 active:scale-95"
-      >
-        <Plus className="h-5 w-5" />
-        إضافة منتج
-      </button>
 
       <ProductDetailDialog product={selectedProduct} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
