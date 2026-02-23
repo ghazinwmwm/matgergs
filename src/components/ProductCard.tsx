@@ -1,4 +1,4 @@
-import { Trash2, Package } from "lucide-react";
+import { Trash2, Package, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Product } from "@/types/product";
 
@@ -13,14 +13,17 @@ const COLORS_MAP: Record<string, string> = {
   "#EC4899": "وردي",
   "#8B5CF6": "بنفسجي",
   "#92400E": "بني",
+  "#6B7280": "رمادي",
+  "#1E3A5F": "كحلي",
 };
 
 interface ProductCardProps {
   product: Product;
   onDelete: (id: string) => void;
+  onView: (product: Product) => void;
 }
 
-const ProductCard = ({ product, onDelete }: ProductCardProps) => {
+const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
   const finalPrice = product.discount
     ? product.price - (product.price * product.discount) / 100
     : product.price;
@@ -28,7 +31,7 @@ const ProductCard = ({ product, onDelete }: ProductCardProps) => {
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden animate-slide-in hover:shadow-lg transition-shadow group">
       {/* Image */}
-      <div className="relative h-48 bg-muted">
+      <div className="relative h-48 bg-muted cursor-pointer" onClick={() => onView(product)}>
         {product.image ? (
           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
         ) : (
@@ -41,17 +44,32 @@ const ProductCard = ({ product, onDelete }: ProductCardProps) => {
             -{product.discount}%
           </Badge>
         )}
-        <button
-          onClick={() => onDelete(product.id)}
-          className="absolute top-2 left-2 p-2 rounded-full bg-card/80 backdrop-blur-sm text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        <Badge variant="secondary" className="absolute bottom-2 right-2 text-xs">
+          {product.category}
+        </Badge>
+        {/* Actions overlay */}
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <button
+            onClick={(e) => { e.stopPropagation(); onView(product); }}
+            className="p-2 rounded-full bg-card/90 backdrop-blur-sm text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+            className="p-2 rounded-full bg-card/90 backdrop-blur-sm text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Info */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-2">
         <h3 className="font-semibold text-card-foreground truncate">{product.name}</h3>
+        {product.description && (
+          <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+        )}
 
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-primary">
