@@ -7,8 +7,21 @@ import ProductCard from "@/components/ProductCard";
 import ProductDetailDialog from "@/components/ProductDetailDialog";
 import type { Product } from "@/types/product";
 import { DEFAULT_CATEGORIES } from "@/types/product";
+import sampleProductImg from "@/assets/sample-product.jpg";
 
-let sharedProducts: Product[] = [];
+const SAMPLE_PRODUCT: Product = {
+  id: "sample-1",
+  name: "قميص بولو رجالي كلاسيكي",
+  description: "قميص بولو أنيق مصنوع من القطن الممتاز، مريح للارتداء اليومي والمناسبات غير الرسمية.",
+  category: "ملابس رجالية",
+  price: 35000,
+  discount: 15,
+  image: sampleProductImg,
+  sizes: ["S", "M", "L", "XL"],
+  colors: ["#1E3A5F", "#000000", "#FFFFFF"],
+};
+
+let sharedProducts: Product[] = [SAMPLE_PRODUCT];
 let sharedCategories: string[] = [...DEFAULT_CATEGORIES];
 const listeners: Set<() => void> = new Set();
 
