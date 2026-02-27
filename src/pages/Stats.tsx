@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { BarChart3, TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Package, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Package, Calendar, Wallet, CheckCircle2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, Area } from "recharts";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -33,7 +37,20 @@ const PERIODS = ["اليوم", "هذا الأسبوع", "هذا الشهر", "ه
 
 const Stats = () => {
   const [period, setPeriod] = useState("هذا الأسبوع");
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const availableBalance = 3050000;
 
+  const handleWithdraw = () => {
+    const amount = parseInt(withdrawAmount);
+    if (!amount || amount <= 0 || amount > availableBalance) {
+      toast({ title: "خطأ", description: "يرجى إدخال مبلغ صحيح", variant: "destructive" });
+      return;
+    }
+    toast({ title: "تم إرسال الطلب ✓", description: `طلب سحب ${amount.toLocaleString("ar-IQ")} د.ع قيد المراجعة` });
+    setWithdrawAmount("");
+    setWithdrawOpen(false);
+  };
   const summaryStats = [
     { label: "الإيرادات", value: "3,050K", sub: "د.ع", change: 12.5, icon: DollarSign, color: "text-primary" },
     { label: "الطلبات", value: "60", change: 8.3, icon: ShoppingCart, color: "text-accent-foreground" },
@@ -62,6 +79,48 @@ const Stats = () => {
               {p}
             </button>
           ))}
+        </div>
+
+        {/* Withdraw Button */}
+        <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-muted-foreground">الرصيد المتاح للسحب</p>
+            <p className="text-lg font-bold text-foreground">{availableBalance.toLocaleString("ar-IQ")} <span className="text-[10px] text-muted-foreground">د.ع</span></p>
+          </div>
+          <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1.5 rounded-lg">
+                <Wallet className="h-4 w-4" />
+                طلب سحب
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[340px] rounded-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-center">طلب سحب أرباح</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="bg-secondary/50 rounded-xl p-3 text-center">
+                  <p className="text-[11px] text-muted-foreground">الرصيد المتاح</p>
+                  <p className="text-xl font-bold text-foreground">{availableBalance.toLocaleString("ar-IQ")} <span className="text-xs text-muted-foreground">د.ع</span></p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1.5 block">المبلغ المطلوب (د.ع)</label>
+                  <Input
+                    type="number"
+                    placeholder="أدخل المبلغ"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    className="text-center text-lg font-bold"
+                  />
+                </div>
+                <Button onClick={handleWithdraw} className="w-full gap-2 rounded-lg">
+                  <CheckCircle2 className="h-4 w-4" />
+                  تأكيد طلب السحب
+                </Button>
+                <p className="text-[10px] text-muted-foreground text-center">سيتم تحويل المبلغ خلال 24-48 ساعة عمل</p>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Summary Stats */}
