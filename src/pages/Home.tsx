@@ -1,20 +1,38 @@
+import { useState } from "react";
 import { 
   TrendingUp, TrendingDown, ShoppingCart, Users, Package, 
-  DollarSign, ArrowLeft, Clock, Eye, MoreHorizontal 
+  DollarSign, Clock, Eye, Bell, ExternalLink, ChevronDown,
+  LogOut, Settings, User, CreditCard
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+const NOTIFICATIONS = [
+  { id: "1", text: "طلب جديد #1042 من أحمد محمد", time: "منذ 5 دقائق", read: false },
+  { id: "2", text: "تم اكتمال توصيل الطلب #1038", time: "منذ ساعة", read: false },
+  { id: "3", text: "منتج 'قميص بولو' نفد من المخزون", time: "منذ 3 ساعات", read: true },
+  { id: "4", text: "عميل جديد سجّل في المتجر", time: "أمس", read: true },
+];
 
 const Home = () => {
   const { products } = useInventory();
   const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const totalValue = products.reduce((sum, p) => {
     const final = p.discount ? p.price - (p.price * p.discount) / 100 : p.price;
     return sum + final;
   }, 0);
 
-  // Mock merchant data
   const stats = {
     revenue: 2450000,
     revenueChange: 12.5,
@@ -42,12 +60,128 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="container mx-auto px-4 pt-10 pb-6">
-        <p className="text-sm text-muted-foreground">مرحباً بك 👋</p>
-        <h1 className="text-xl font-bold text-foreground mt-0.5">لوحة التحكم</h1>
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-muted-foreground">مرحباً بك 👋</p>
+            <h1 className="text-base font-bold text-foreground">لوحة التحكم</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Notifications */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowNotifications(!showNotifications); setShowAccountMenu(false); }}
+                className="relative w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors"
+              >
+                <Bell className="h-4 w-4 text-foreground" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowNotifications(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-40 w-72 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                      <span className="text-sm font-semibold text-foreground">الإشعارات</span>
+                      {unreadCount > 0 && (
+                        <button onClick={markAllRead} className="text-[11px] text-primary font-medium">قراءة الكل</button>
+                      )}
+                    </div>
+                    <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                      {notifications.map((n) => (
+                        <div key={n.id} className={`px-4 py-3 ${!n.read ? "bg-primary/5" : ""}`}>
+                          <p className="text-xs text-foreground leading-relaxed">{n.text}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">{n.time}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Account Avatar */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowAccountMenu(!showAccountMenu); setShowNotifications(false); }}
+                className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold hover:opacity-90 transition-opacity"
+              >
+                أ
+              </button>
+
+              {showAccountMenu && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowAccountMenu(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-40 w-56 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground">أحمد التاجر</p>
+                      <p className="text-[11px] text-muted-foreground">ahmed@example.com</p>
+                    </div>
+                    <div className="py-1">
+                      {[
+                        { icon: User, label: "حسابي", path: "/profile" },
+                        { icon: CreditCard, label: "الباقة والاشتراك", path: "/plans" },
+                        { icon: Settings, label: "الإعدادات", path: "/profile" },
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => { navigate(item.path); setShowAccountMenu(false); }}
+                          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        >
+                          <item.icon className="h-4 w-4 text-muted-foreground" />
+                          {item.label}
+                        </button>
+                      ))}
+                      <div className="border-t border-border mt-1 pt-1">
+                        <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
+                          <LogOut className="h-4 w-4" />
+                          تسجيل الخروج
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <main className="container mx-auto px-4 space-y-6">
+      <main className="container mx-auto px-4 pt-4 space-y-5">
+        {/* Open Store Button */}
+        <Button
+          onClick={() => window.open("https://mystore.matager.store", "_blank")}
+          variant="outline"
+          className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold"
+        >
+          <span className="flex items-center gap-2">
+            <ExternalLink className="h-4 w-4" />
+            فتح المتجر
+          </span>
+          <span className="text-[11px] font-normal text-muted-foreground" dir="ltr">mystore.matager.store</span>
+        </Button>
+
+        {/* Plan Banner */}
+        <button
+          onClick={() => navigate("/plans")}
+          className="w-full bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl p-3.5 flex items-center justify-between hover:border-primary/40 transition-colors"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <CreditCard className="h-4 w-4 text-primary" />
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-bold text-foreground">الباقة الأساسية</p>
+              <p className="text-[10px] text-muted-foreground">ترقية للباقة الاحترافية للمزيد من الميزات</p>
+            </div>
+          </div>
+          <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
+        </button>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           {[
