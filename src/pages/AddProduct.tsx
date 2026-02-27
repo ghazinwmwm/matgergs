@@ -142,7 +142,7 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28">
       <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto max-w-2xl px-4 py-4 flex items-center gap-3">
           <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary transition-colors">
