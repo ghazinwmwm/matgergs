@@ -17,6 +17,7 @@ import Tracking from "./pages/Tracking";
 import Stats from "./pages/Stats";
 import Profile from "./pages/Profile";
 import More from "./pages/More";
+import Plans from "./pages/Plans";
 import NotFound from "./pages/NotFound";
 import BottomBar from "./components/BottomBar";
 import { useInventory } from "./hooks/useInventory";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/more" element={<More />} />
+          <Route path="/plans" element={<Plans />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <BottomBar />
