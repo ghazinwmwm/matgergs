@@ -8,6 +8,12 @@ import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
 import Orders from "./pages/Orders";
 import Customers from "./pages/Customers";
+import Coupons from "./pages/Coupons";
+import Stores from "./pages/Stores";
+import Team from "./pages/Team";
+import Templates from "./pages/Templates";
+import Delivery from "./pages/Delivery";
+import Tracking from "./pages/Tracking";
 import Stats from "./pages/Stats";
 import Profile from "./pages/Profile";
 import More from "./pages/More";
@@ -34,6 +40,12 @@ const App = () => (
           <Route path="/add" element={<AddProductWrapper />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/customers" element={<Customers />} />
+          <Route path="/coupons" element={<Coupons />} />
+          <Route path="/stores" element={<Stores />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/delivery" element={<Delivery />} />
+          <Route path="/tracking" element={<Tracking />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/more" element={<More />} />
