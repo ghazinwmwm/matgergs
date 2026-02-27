@@ -1,13 +1,13 @@
-import { Home, Package, ShoppingCart, Users, Menu } from "lucide-react";
+import { House, ShoppingBag, Box, UsersRound, Ellipsis } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { path: "/", icon: Home, label: "الرئيسية" },
-  { path: "/orders", icon: ShoppingCart, label: "الطلبات" },
-  { path: "/inventory", icon: Package, label: "المنتجات" },
-  { path: "/customers", icon: Users, label: "العملاء" },
-  { path: "/more", icon: Menu, label: "المزيد" },
+  { path: "/", icon: House, label: "الرئيسية" },
+  { path: "/orders", icon: ShoppingBag, label: "الطلبات" },
+  { path: "/inventory", icon: Box, label: "المنتجات" },
+  { path: "/customers", icon: UsersRound, label: "العملاء" },
+  { path: "/more", icon: Ellipsis, label: "المزيد" },
 ];
 
 const BottomBar = () => {
