@@ -6,11 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
+import Orders from "./pages/Orders";
+import Customers from "./pages/Customers";
 import Stats from "./pages/Stats";
 import Profile from "./pages/Profile";
+import More from "./pages/More";
 import NotFound from "./pages/NotFound";
 import BottomBar from "./components/BottomBar";
-import { useInventory } from "./pages/Index";
+import { useInventory } from "./hooks/useInventory";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +32,11 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/inventory" element={<Index />} />
           <Route path="/add" element={<AddProductWrapper />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/customers" element={<Customers />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/more" element={<More />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <BottomBar />
