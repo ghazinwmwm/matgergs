@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus, Store, Globe, MapPin, ShoppingCart, Package, Users, TrendingUp,
   ExternalLink, Settings, Trash2, ToggleLeft, ToggleRight, ChevronLeft,
@@ -23,6 +24,7 @@ const STORE_CATEGORIES = [
 type View = "list" | "detail" | "add";
 
 const Stores = () => {
+  const navigate = useNavigate();
   const { isPro } = usePlan();
   const { stores, activeStoreId, setActiveStoreId, addStore, deleteStore, toggleStoreActive } = useStores();
   const { t, lang } = useLanguage();
@@ -328,7 +330,7 @@ const Stores = () => {
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1 gap-2 h-11">
+            <Button variant="outline" className="flex-1 gap-2 h-11" onClick={() => navigate(`/stores/${selectedStore.id}/settings`)}>
               <Settings className="h-4 w-4" />
               {lang === "ku" ? "ڕێکخستنەکان" : "الإعدادات"}
             </Button>

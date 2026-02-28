@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
+import StoreSwitcher from "@/components/StoreSwitcher";
 
 const MOCK_CUSTOMERS = [
   { id: "c1", name: "أحمد محمد", phone: "0770 123 4567", orders: 12, total: 1450000, lastOrder: "27 فبراير 2026" },
@@ -22,7 +23,7 @@ const Customers = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
+      <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} actions={<StoreSwitcher compact />} />
       <main className="container mx-auto px-4 space-y-4">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">

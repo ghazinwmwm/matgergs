@@ -15,6 +15,7 @@ import Orders from "./pages/Orders";
 import Customers from "./pages/Customers";
 import Coupons from "./pages/Coupons";
 import Stores from "./pages/Stores";
+import StoreSettings from "./pages/StoreSettings";
 import Team from "./pages/Team";
 import Templates from "./pages/Templates";
 import Delivery from "./pages/Delivery";
@@ -57,6 +58,7 @@ const AppRoutes = () => {
         <Route path="/customers" element={<Customers />} />
         <Route path="/coupons" element={<Coupons />} />
         <Route path="/stores" element={<Stores />} />
+        <Route path="/stores/:id/settings" element={<StoreSettings />} />
         <Route path="/team" element={<Team />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/delivery" element={<Delivery />} />
