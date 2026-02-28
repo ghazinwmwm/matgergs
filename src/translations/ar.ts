@@ -44,6 +44,10 @@ export const ar = {
     planAndSub: "الباقة والاشتراك",
     settings: "الإعدادات",
     logout: "تسجيل الخروج",
+    addFirstProduct: "أضف أول منتج لمتجرك",
+    addFirstProductDesc: "ابدأ ببيع منتجاتك عبر إضافة أول منتج الآن",
+    addProductNow: "أضف منتج الآن",
+    later: "لاحقاً",
   },
 
   // Orders

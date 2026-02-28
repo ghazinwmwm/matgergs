@@ -44,6 +44,10 @@ export const ku = {
     planAndSub: "پلان و بەشداری",
     settings: "ڕێکخستنەکان",
     logout: "چوونەدەرەوە",
+    addFirstProduct: "یەکەم بەرهەمت زیادبکە",
+    addFirstProductDesc: "دەستبکە بە فرۆشتنی بەرهەمەکانت بە زیادکردنی یەکەم بەرهەم",
+    addProductNow: "بەرهەم زیادبکە ئێستا",
+    later: "دواتر",
   },
 
   // Orders
