@@ -52,13 +52,14 @@ const Tracking = () => {
         title="البيكسل والتتبع"
         subtitle={`${pixels.length} بيكسل`}
         actions={
-          <>
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
             <StoreSwitcher compact showAll={false} />
-            <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
-              <Plus className="h-4 w-4" />
-              إضافة بيكسل
+            <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1 text-xs px-2.5">
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">إضافة بيكسل</span>
+              <span className="sm:hidden">إضافة</span>
             </Button>
-          </>
+          </div>
         }
       />
 
@@ -69,7 +70,7 @@ const Tracking = () => {
               <h3 className="text-sm font-semibold text-foreground">إضافة بيكسل جديد</h3>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">المنصة</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {(Object.keys(PLATFORM_INFO) as Pixel["platform"][]).map((platform) => {
                     const info = PLATFORM_INFO[platform];
                     const Icon = info.icon;
@@ -117,8 +118,8 @@ const Tracking = () => {
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${info.color}`}><Icon className="h-5 w-5" /></div>
                       <div>
                         <h3 className="text-sm font-bold text-foreground">{pixel.name}</h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[11px] text-muted-foreground font-mono" dir="ltr">{pixel.pixelId}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5 overflow-hidden">
+                          <span className="text-[11px] text-muted-foreground font-mono truncate max-w-[140px] sm:max-w-none" dir="ltr">{pixel.pixelId}</span>
                           <button onClick={() => copyId(pixel.pixelId)} className="text-muted-foreground hover:text-foreground"><Copy className="h-3 w-3" /></button>
                         </div>
                       </div>
