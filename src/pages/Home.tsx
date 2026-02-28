@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { 
-  TrendingUp, TrendingDown, ShoppingCart, Users, Package, 
+  TrendingUp, TrendingDown, ShoppingCart, Users, Package, Store, 
   DollarSign, Clock, Eye, Bell, ExternalLink, ChevronDown,
   LogOut, Settings, User, CreditCard
 } from "lucide-react";
@@ -76,19 +76,6 @@ const Home = () => {
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-						{stores.length > 1 && (
-							<select
-								value={activeStoreId}
-								onChange={(e) => switchStore(e.target.value)}
-								className="bg-transparent border-none text-base font-bold text-foreground outline-none focus-visible:ring-0"
-							>
-								{stores.map((store) => (
-									<option key={store.id} value={store.id}>
-										{store.name}
-									</option>
-								))}
-							</select>
-						)}
             <div>
               <p className="text-[11px] text-muted-foreground">{t.home.welcome}</p>
               <h1 className="text-base font-bold text-foreground">{t.home.dashboard}</h1>
@@ -155,6 +142,31 @@ const Home = () => {
       </div>
 
       <main className="container mx-auto px-4 pt-4 space-y-5">
+        {stores.length > 1 && (
+          <div className="bg-card border border-border rounded-xl p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Store className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <select
+                  value={activeStoreId}
+                  onChange={(e) => switchStore(e.target.value)}
+                  className="w-full bg-transparent text-sm font-bold text-foreground outline-none border-none focus-visible:ring-0"
+                >
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.id}>{store.name}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {lang === "ku" ? "⚠ گۆڕینی فرۆشگا هەموو زانیارییەکان دەگۆڕێت" : "⚠ تغيير المتجر سيغيّر جميع المعلومات المعروضة"}
+                </p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            </div>
+          </div>
+        )}
+
         <Button onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")} variant="outline" className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold">
           <span className="flex items-center gap-2"><ExternalLink className="h-4 w-4" />{t.home.openStore}</span>
           <span className="text-[11px] font-normal text-muted-foreground" dir="ltr">{activeStore?.domain || "mystore"}.matager.store</span>
