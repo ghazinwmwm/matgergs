@@ -39,7 +39,7 @@ const More = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="المزيد" />
+      <PageHeader title="المزيد" showBack={false} />
 
       <main className="container mx-auto px-4 space-y-5">
         {sections.map((section) => (
