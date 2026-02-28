@@ -7,6 +7,7 @@ import { PlanProvider } from "./hooks/usePlan";
 import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./hooks/useTheme";
 import { OnboardingProvider, useOnboarding } from "./hooks/useOnboarding";
+import { StoreProvider } from "./hooks/useStores";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
@@ -79,11 +80,13 @@ const App = () => (
       <ThemeProvider>
       <LanguageProvider>
       <OnboardingProvider>
+      <StoreProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+      </StoreProvider>
       </OnboardingProvider>
       </LanguageProvider>
       </ThemeProvider>

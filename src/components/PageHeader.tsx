@@ -6,9 +6,10 @@ interface PageHeaderProps {
   subtitle?: string;
   actions?: React.ReactNode;
   showBack?: boolean;
+  onBack?: () => void;
 }
 
-const PageHeader = ({ title, subtitle, actions, showBack = true }: PageHeaderProps) => {
+const PageHeader = ({ title, subtitle, actions, showBack = true, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -17,7 +18,7 @@ const PageHeader = ({ title, subtitle, actions, showBack = true }: PageHeaderPro
         <div className="flex items-center gap-3">
           {showBack && (
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => onBack ? onBack() : navigate(-1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
             >
               <ChevronLeft className="h-5 w-5 text-foreground" />
