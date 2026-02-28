@@ -47,7 +47,6 @@ const PRO_FEATURES = [
 const SOCIAL_PLATFORMS = [
   { id: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/yourstore", color: "text-pink-500" },
   { id: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/yourstore", color: "text-blue-500" },
-  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, placeholder: "07XX XXX XXXX", color: "text-green-500" },
   { id: "tiktok", label: "TikTok", icon: ShoppingBag, placeholder: "https://tiktok.com/@yourstore", color: "text-foreground" },
   { id: "website", label: "موقع إلكتروني", icon: Globe, placeholder: "https://yourwebsite.com", color: "text-primary" },
 ];
@@ -63,6 +62,7 @@ const Register = () => {
   const [storeSlug, setStoreSlug] = useState("");
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
   const [customDomain, setCustomDomain] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   // Step 2: Social Links
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
@@ -218,7 +218,23 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Store Description */}
+              {/* WhatsApp */}
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">
+                  <MessageCircle className="h-3.5 w-3.5 inline-block ml-1 text-green-500" />
+                  رقم الواتساب *
+                </label>
+                <Input
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="07XX XXX XXXX"
+                  className="h-11 text-xs"
+                  dir="ltr"
+                  type="tel"
+                />
+              </div>
+
+
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">
                   <FileText className="h-3.5 w-3.5 inline-block ml-1" />
