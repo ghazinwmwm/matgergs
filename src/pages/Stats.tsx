@@ -310,14 +310,14 @@ const Stats = () => {
                 <div className="p-4">
                   {/* Donut Chart */}
                   <div className="flex items-center justify-center mb-5">
-                    <div className="relative">
-                      <PieChart width={180} height={180}>
+                    <div className="relative w-[200px] h-[200px]">
+                      <PieChart width={200} height={200}>
                         <Pie
                           data={DEVICE_DATA}
-                          cx={90}
-                          cy={90}
-                          innerRadius={55}
-                          outerRadius={80}
+                          cx={100}
+                          cy={100}
+                          innerRadius={60}
+                          outerRadius={90}
                           paddingAngle={4}
                           dataKey="value"
                           strokeWidth={0}
@@ -326,11 +326,15 @@ const Stats = () => {
                             <Cell key={index} fill={entry.color} />
                           ))}
                         </Pie>
+                        <Tooltip
+                          contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
+                          formatter={(value: number, name: string) => [`${value}%`, name]}
+                        />
                       </PieChart>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <Smartphone className="h-5 w-5 text-primary mb-0.5" />
-                        <span className="text-lg font-bold text-foreground">68%</span>
-                        <span className="text-[9px] text-muted-foreground">موبايل</span>
+                        <span className="text-xl font-bold text-foreground">{DEVICE_DATA[0].value}%</span>
+                        <span className="text-[10px] text-muted-foreground">{DEVICE_DATA[0].name}</span>
                       </div>
                     </div>
                   </div>
@@ -341,10 +345,10 @@ const Stats = () => {
                       const Icon = device.icon;
                       return (
                         <div key={device.name} className="flex items-center gap-3 bg-muted/30 rounded-xl p-3">
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${device.color}15` }}>
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${device.color}15` }}>
                             <Icon className="h-4 w-4" style={{ color: device.color }} />
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-xs font-medium text-foreground">{device.name}</span>
                               <span className="text-xs font-bold text-foreground">{device.value}%</span>
@@ -378,16 +382,16 @@ const Stats = () => {
 
                 {/* Bar chart for visits */}
                 <div className="p-4 pb-2">
-                  <div className="h-44">
+                  <div className="h-52">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={PAGE_VISITS.slice(0, 5)} layout="vertical" margin={{ left: 0, right: 10 }}>
+                      <BarChart data={PAGE_VISITS.slice(0, 5)} layout="vertical" margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
                         <XAxis type="number" hide />
-                        <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={100} />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 9, width: 90 }} axisLine={false} tickLine={false} width={110} />
                         <Tooltip
                           contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
                           formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} زيارة`]}
                         />
-                        <Bar dataKey="visits" fill="hsl(191, 80%, 42%)" radius={[0, 6, 6, 0]} barSize={14} />
+                        <Bar dataKey="visits" fill="hsl(191, 80%, 42%)" radius={[0, 6, 6, 0]} barSize={16} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
