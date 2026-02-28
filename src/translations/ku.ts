@@ -36,6 +36,7 @@ export const ku = {
     orders: "داواکاریەکان",
     customers: "کڕیارەکان",
     visitors: "سەردانکەران",
+    weeklySales: "فرۆشتنی هەفتانە",
     recentOrders: "دوایین داواکاریەکان",
     viewAll: "بینینی هەموو",
     recentProducts: "دوایین بەرهەمەکان",
@@ -56,6 +57,10 @@ export const ku = {
     delivering: "لە گەیاندندا",
     completed: "تەواوبوو",
     cancelled: "هەڵوەشێنراوە",
+    orderDetails: "وردەکاری داواکاری",
+    products: "بەرهەمەکان",
+    deliveryStatus: "دۆخی گەیاندن",
+    total: "کۆی گشتی",
   },
 
   // Customers
@@ -64,6 +69,9 @@ export const ku = {
     customer: "کڕیار",
     searchPlaceholder: "بگەڕێ بۆ کڕیار...",
     noCustomers: "هیچ کڕیارێک نییە",
+    newCustomers: "کڕیاری نوێ",
+    topBuyer: "زۆرترین کڕین",
+    totalSpent: "کۆی خەرجکراو",
   },
 
   // Inventory
@@ -79,6 +87,10 @@ export const ku = {
     noProducts: "هێشتا هیچ بەرهەمێک نییە",
     pressToStart: "دەستپێبکە بە +",
     changeCategoryOrSearch: "جۆر یان گەڕان بگۆڕە",
+    lowStock: "کۆگای کەم",
+    outOfStock: "تەواوبوو لە کۆگا",
+    editProduct: "دەستکاری بەرهەم",
+    stock: "کۆگا",
   },
 
   // More
@@ -136,6 +148,9 @@ export const ku = {
     savedDesc: "داتاکان بەسەرکەوتوویی نوێکرانەوە",
     language: "زمان",
     languageDesc: "گۆڕینی زمانی بەرنامە",
+    appearance: "ڕووکار",
+    lightMode: "ڕووناک",
+    darkMode: "تاریک",
   },
 
   // Plans

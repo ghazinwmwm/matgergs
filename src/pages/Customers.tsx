@@ -1,4 +1,4 @@
-import { Users, Search, ShoppingCart } from "lucide-react";
+import { Users, Search, ShoppingCart, TrendingUp, Crown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
@@ -17,10 +17,32 @@ const Customers = () => {
   const [search, setSearch] = useState("");
   const filtered = MOCK_CUSTOMERS.filter((c) => !search || c.name.includes(search) || c.phone.includes(search));
 
+  const topBuyer = MOCK_CUSTOMERS.reduce((a, b) => (a.total > b.total ? a : b));
+  const totalSpent = MOCK_CUSTOMERS.reduce((sum, c) => sum + c.total, 0);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
       <main className="container mx-auto px-4 space-y-4">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-card border border-border rounded-lg p-3 text-center">
+            <Users className="h-4 w-4 text-primary mx-auto mb-1" />
+            <span className="text-lg font-bold text-foreground block">{MOCK_CUSTOMERS.length}</span>
+            <span className="text-[10px] text-muted-foreground">{t.customers.title}</span>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-3 text-center">
+            <Crown className="h-4 w-4 text-accent mx-auto mb-1" />
+            <span className="text-xs font-bold text-foreground block truncate">{topBuyer.name}</span>
+            <span className="text-[10px] text-muted-foreground">{t.customers.topBuyer}</span>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-3 text-center">
+            <TrendingUp className="h-4 w-4 text-success mx-auto mb-1" />
+            <span className="text-xs font-bold text-foreground block">{(totalSpent / 1000000).toFixed(1)}M</span>
+            <span className="text-[10px] text-muted-foreground">{t.customers.totalSpent}</span>
+          </div>
+        </div>
+
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.customers.searchPlaceholder} className="pr-10" />

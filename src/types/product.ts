@@ -10,6 +10,7 @@ export interface Product {
   colors: string[];
   returnPolicy: string;
   deliveryDays: number | null;
+  stock?: number;
 }
 
 export const DEFAULT_CATEGORIES = [

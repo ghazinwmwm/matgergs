@@ -8,6 +8,7 @@ import { useInventory } from "@/hooks/useInventory";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
+import SalesChart from "@/components/SalesChart";
 
 const NOTIFICATIONS_AR = [
   { id: "1", text: "طلب جديد #1042 من أحمد محمد", time: "منذ 5 دقائق", read: false },
@@ -166,6 +167,8 @@ const Home = () => {
             </div>
           ))}
         </div>
+
+        <SalesChart />
 
         <div className="bg-card border border-border rounded-xl">
           <div className="flex items-center justify-between p-4 pb-3">

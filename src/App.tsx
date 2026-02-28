@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PlanProvider } from "./hooks/usePlan";
 import { LanguageProvider } from "./hooks/useLanguage";
+import { ThemeProvider } from "./hooks/useTheme";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
@@ -36,6 +37,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <PlanProvider>
+      <ThemeProvider>
       <LanguageProvider>
         <Toaster />
         <Sonner />
@@ -62,6 +64,7 @@ const App = () => (
           <BottomBar />
         </BrowserRouter>
       </LanguageProvider>
+      </ThemeProvider>
       </PlanProvider>
     </TooltipProvider>
   </QueryClientProvider>

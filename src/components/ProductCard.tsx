@@ -1,4 +1,4 @@
-import { Trash2, Package, Eye } from "lucide-react";
+import { Trash2, Package, Eye, Edit2, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Product } from "@/types/product";
 
@@ -12,9 +12,10 @@ interface ProductCardProps {
   product: Product;
   onDelete: (id: string) => void;
   onView: (product: Product) => void;
+  onEdit?: (product: Product) => void;
 }
 
-const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
+const ProductCard = ({ product, onDelete, onView, onEdit }: ProductCardProps) => {
   const finalPrice = product.discount
     ? product.price - (product.price * product.discount) / 100
     : product.price;
@@ -38,6 +39,11 @@ const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
             -{product.discount}%
           </span>
         )}
+        {product.stock !== undefined && product.stock <= 5 && (
+          <span className="absolute bottom-1 right-1 text-[9px] font-bold bg-destructive/90 text-destructive-foreground px-1 py-0.5 rounded flex items-center gap-0.5">
+            <AlertTriangle className="h-2.5 w-2.5" />{product.stock}
+          </span>
+        )}
       </div>
 
       {/* Info */}
@@ -47,12 +53,22 @@ const ProductCard = ({ product, onDelete, onView }: ProductCardProps) => {
             <h3 className="font-semibold text-sm text-card-foreground truncate">{product.name}</h3>
             <span className="text-[11px] text-muted-foreground">{product.category}</span>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
-            className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {onEdit && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(product); }}
+                className="p-1 rounded text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+              className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-sm font-bold text-primary">
