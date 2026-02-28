@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
+import StoreSwitcher from "@/components/StoreSwitcher";
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -62,7 +63,7 @@ const Stats = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" />
+      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" actions={<StoreSwitcher compact showAll={false} />} />
 
       <main className="container mx-auto px-4 space-y-5">
         {/* Period Filter */}

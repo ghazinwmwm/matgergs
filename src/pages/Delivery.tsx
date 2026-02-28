@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import PageHeader from "@/components/PageHeader";
+import StoreSwitcher from "@/components/StoreSwitcher";
 
 interface DeliveryCompany {
   id: string; name: string; logo: string; areas: string[]; baseFee: number; perKm: number; estimatedDays: string; active: boolean; phone: string;
@@ -36,10 +37,13 @@ const Delivery = () => {
         title="شركات التوصيل"
         subtitle={`${companies.length} شركة`}
         actions={
-          <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            إضافة شركة
-          </Button>
+          <>
+            <StoreSwitcher compact showAll={false} />
+            <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              إضافة شركة
+            </Button>
+          </>
         }
       />
 
