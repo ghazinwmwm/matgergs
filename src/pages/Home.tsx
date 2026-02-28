@@ -37,15 +37,7 @@ const Home = () => {
   const [notifications, setNotifications] = useState(lang === "ku" ? NOTIFICATIONS_KU : NOTIFICATIONS_AR);
 	const [searchParams, setSearchParams] = useSearchParams();
 
-  const [dismissedProductReminder, setDismissedProductReminder] = useState(() => {
-    return localStorage.getItem("matager_dismissed_product_reminder") === "true";
-  });
-  const showProductReminder = products.length <= 1 && !dismissedProductReminder;
-
-  const dismissReminder = () => {
-    localStorage.setItem("matager_dismissed_product_reminder", "true");
-    setDismissedProductReminder(true);
-  };
+  const showProductReminder = products.length <= 1;
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -175,9 +167,6 @@ const Home = () => {
 
         {showProductReminder && (
           <div className="relative bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-4 overflow-hidden">
-            <button onClick={dismissReminder} className="absolute top-3 left-3 p-1 rounded-full hover:bg-muted transition-colors">
-              <X className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -189,9 +178,6 @@ const Home = () => {
                   <Button onClick={() => navigate("/add")} size="sm" className="h-8 rounded-lg text-xs gap-1.5">
                     <Plus className="h-3.5 w-3.5" />{t.home.addProductNow}
                   </Button>
-                  <button onClick={dismissReminder} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1">
-                    {t.home.later}
-                  </button>
                 </div>
               </div>
             </div>
