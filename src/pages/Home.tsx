@@ -2,7 +2,7 @@ import { useState } from "react";
 import { 
   TrendingUp, TrendingDown, ShoppingCart, Users, Package, Store, 
   DollarSign, Clock, Eye, Bell, ExternalLink, ChevronDown,
-  LogOut, Settings, User, CreditCard
+  LogOut, Settings, User, CreditCard, Plus, X, Sparkles
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +36,16 @@ const Home = () => {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [notifications, setNotifications] = useState(lang === "ku" ? NOTIFICATIONS_KU : NOTIFICATIONS_AR);
 	const [searchParams, setSearchParams] = useSearchParams();
+
+  const [dismissedProductReminder, setDismissedProductReminder] = useState(() => {
+    return localStorage.getItem("matager_dismissed_product_reminder") === "true";
+  });
+  const showProductReminder = products.length <= 1 && !dismissedProductReminder;
+
+  const dismissReminder = () => {
+    localStorage.setItem("matager_dismissed_product_reminder", "true");
+    setDismissedProductReminder(true);
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -163,7 +173,30 @@ const Home = () => {
 
       <main className="container mx-auto px-4 pt-4 space-y-5">
 
-
+        {showProductReminder && (
+          <div className="relative bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-4 overflow-hidden">
+            <button onClick={dismissReminder} className="absolute top-3 left-3 p-1 rounded-full hover:bg-muted transition-colors">
+              <X className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-foreground">{t.home.addFirstProduct}</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{t.home.addFirstProductDesc}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Button onClick={() => navigate("/add")} size="sm" className="h-8 rounded-lg text-xs gap-1.5">
+                    <Plus className="h-3.5 w-3.5" />{t.home.addProductNow}
+                  </Button>
+                  <button onClick={dismissReminder} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1">
+                    {t.home.later}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Button onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")} variant="outline" className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold">
           <span className="flex items-center gap-2"><ExternalLink className="h-4 w-4" />{t.home.openStore}</span>
