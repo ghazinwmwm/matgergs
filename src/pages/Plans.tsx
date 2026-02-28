@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { 
   Check, Crown, Zap, Star, Shield, Truck, Users, Palette, Activity, 
-  Ticket, Store, Globe, Headphones, Sparkles, X
+  Ticket, Store, Globe, Headphones, Sparkles, X, Calendar, Clock, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -50,9 +50,9 @@ const COMPARISON = [
 ];
 
 const Plans = () => {
-  const { plan, setPlan } = usePlan();
+  const { plan, setPlan, subscription, daysRemaining, isExpiringSoon } = usePlan();
   const [selectedPlan, setSelectedPlan] = useState(plan);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(subscription.billingPeriod);
   const [showComparison, setShowComparison] = useState(false);
 
   const basicPrice = billingPeriod === "yearly" ? 12000 : 15000;
@@ -63,15 +63,17 @@ const Plans = () => {
   };
 
   const handleSubscribe = () => {
-    setPlan(selectedPlan as "basic" | "pro");
+    setPlan(selectedPlan as "basic" | "pro", billingPeriod);
     if (selectedPlan === "pro" && plan !== "pro") {
       toast({ title: "🎉 تم الترقية للاحترافية!", description: "يمكنك الآن الاستفادة من جميع الميزات المتقدمة" });
     } else if (selectedPlan === "basic" && plan !== "basic") {
       toast({ title: "تم تغيير الباقة", description: "تم التحويل للباقة الأساسية" });
     } else {
-      toast({ title: "✓ أنت مشترك بالفعل في هذه الباقة" });
+      toast({ title: "✓ تم تجديد الاشتراك بنجاح" });
     }
   };
+
+  const formatDate = (date: Date) => date.toLocaleDateString("ar-IQ", { year: "numeric", month: "long", day: "numeric" });
 
   const currentFeatures = selectedPlan === "basic" ? BASIC_FEATURES : PRO_FEATURES;
 
@@ -80,16 +82,67 @@ const Plans = () => {
       <PageHeader title="الباقات والأسعار" subtitle="اختر الباقة المناسبة لمتجرك" />
 
       <main className="container mx-auto px-4 pt-4 space-y-5">
-        {/* Current Plan Badge */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-foreground">
-              باقتك الحالية: {plan === "basic" ? "الأساسية" : "الاحترافية"}
+        {/* Subscription Status Card */}
+        <div className={`border rounded-2xl p-4 space-y-3 ${isExpiringSoon ? "bg-destructive/5 border-destructive/30" : "bg-primary/5 border-primary/20"}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isExpiringSoon ? (
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              ) : (
+                <Sparkles className="h-4 w-4 text-primary" />
+              )}
+              <span className="text-xs font-bold text-foreground">
+                باقتك الحالية: {plan === "basic" ? "الأساسية" : "الاحترافية"}
+              </span>
+            </div>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isExpiringSoon ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
+              {isExpiringSoon ? "ينتهي قريباً" : "نشط"}
             </span>
           </div>
-          {plan === "basic" && (
-            <span className="text-[10px] text-primary font-medium">يمكنك الترقية</span>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-background/60 rounded-xl p-2.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                <span className="text-[10px]">تاريخ البدء</span>
+              </div>
+              <p className="text-[11px] font-semibold text-foreground">{formatDate(subscription.startDate)}</p>
+            </div>
+            <div className="bg-background/60 rounded-xl p-2.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                <span className="text-[10px]">تاريخ الانتهاء</span>
+              </div>
+              <p className="text-[11px] font-semibold text-foreground">{formatDate(subscription.endDate)}</p>
+            </div>
+          </div>
+
+          {/* Days Remaining Bar */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">المدة المتبقية</span>
+              </div>
+              <span className={`text-xs font-bold ${isExpiringSoon ? "text-destructive" : "text-foreground"}`}>
+                {daysRemaining} يوم
+              </span>
+            </div>
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${isExpiringSoon ? "bg-destructive" : "bg-primary"}`}
+                style={{ width: `${Math.min(100, (daysRemaining / (subscription.billingPeriod === "yearly" ? 365 : 30)) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {isExpiringSoon && (
+            <div className="bg-destructive/10 rounded-lg p-2.5 flex items-center gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
+              <p className="text-[11px] text-destructive font-medium">
+                اشتراكك سينتهي خلال {daysRemaining} يوم. جدد الآن لتجنب انقطاع الخدمة.
+              </p>
+            </div>
           )}
         </div>
 
