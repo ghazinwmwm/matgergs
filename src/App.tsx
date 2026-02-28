@@ -22,6 +22,8 @@ import Delivery from "./pages/Delivery";
 import Tracking from "./pages/Tracking";
 import Stats from "./pages/Stats";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
 import More from "./pages/More";
 import Plans from "./pages/Plans";
 import Register from "./pages/Register";
@@ -65,6 +67,8 @@ const AppRoutes = () => {
         <Route path="/tracking" element={<Tracking />} />
         <Route path="/stats" element={<Stats />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/more" element={<More />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
