@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
-import { useStores } from "@/hooks/useStores";
-import { useNavigate } from "react-router-dom";
+
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -44,9 +43,7 @@ const Stats = () => {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const availableBalance = 3050000;
-  const { activeStore } = useStores();
-  const navigate = useNavigate();
-
+  
   const handleWithdraw = () => {
     const amount = parseInt(withdrawAmount);
     if (!amount || amount <= 0 || amount > availableBalance) {
@@ -196,22 +193,6 @@ const Stats = () => {
             </div>
           </div>
         </ProGate>
-        <div className="fixed bottom-0 inset-x-0 bg-background border-t border-border/40 py-2 px-4">
-          <div className="container mx-auto flex items-center justify-between">
-            <button onClick={() => navigate("/")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
-              الرئيسية
-            </button>
-            <button onClick={() => navigate("/inventory")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
-              المنتجات
-            </button>
-            <button onClick={() => navigate("/orders")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
-              الطلبات
-            </button>
-            <button onClick={() => navigate("/customers")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
-              العملاء
-            </button>
-          </div>
-        </div>
       </main>
     </div>
   );

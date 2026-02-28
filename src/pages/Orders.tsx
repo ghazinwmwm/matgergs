@@ -4,8 +4,6 @@ import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
 import OrderDetailDialog from "@/components/OrderDetailDialog";
-import { useStores } from "@/hooks/useStores";
-import { Link } from "react-router-dom";
 
 const MOCK_ORDERS = [
   { id: "#1042", customer: "أحمد محمد", amount: 85000, status_ar: "جديد", status_ku: "نوێ", items: 2, date: "27 فبراير 2026" },
@@ -22,8 +20,6 @@ const Orders = () => {
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<typeof MOCK_ORDERS[0] | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const { stores } = useStores();
-  const [activeStore, setActiveStore] = useState(stores[0]?.id);
 
   const statusColor: Record<string, string> = {
     "جديد": "bg-primary/10 text-primary", "نوێ": "bg-primary/10 text-primary",
@@ -83,14 +79,6 @@ const Orders = () => {
           )}
         </div>
       </main>
-      <div className="fixed bottom-0 left-0 w-full bg-card border-t border-border px-4 py-3 flex items-center justify-between gap-3">
-        <select value={activeStore} onChange={(e) => setActiveStore(e.target.value)} className="bg-secondary rounded-md text-secondary-foreground text-sm px-3 py-1.5 outline-none">
-          {stores.map((store) => (
-            <option key={store.id} value={store.id}>{store.name}</option>
-          ))}
-        </select>
-        <Link to="/" className="text-primary text-sm font-medium">تغيير المتجر</Link>
-      </div>
       <OrderDetailDialog order={selectedOrder} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
   );
