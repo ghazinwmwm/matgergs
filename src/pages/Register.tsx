@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  User, Store, CreditCard, ChevronLeft, Check, Eye, EyeOff,
-  Crown, Zap, Truck, Palette, Headphones, Users, Activity, Globe, Shield, Star, Ticket, Sparkles
+  Store, CreditCard, ChevronLeft, Check, 
+  Crown, Zap, Truck, Palette, Headphones, Users, Activity, Globe, Shield, Star, Ticket, Sparkles,
+  Instagram, Facebook, MessageCircle, Link2, Image, FileText, ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
 const STEPS = [
-  { id: 1, label: "الحساب", icon: User },
-  { id: 2, label: "المتجر", icon: Store },
+  { id: 1, label: "المتجر", icon: Store },
+  { id: 2, label: "التواصل", icon: Link2 },
   { id: 3, label: "الباقة", icon: CreditCard },
 ];
 
@@ -42,29 +44,47 @@ const PRO_FEATURES = [
   { text: "حماية SSL مجانية", icon: Shield },
 ];
 
+const SOCIAL_PLATFORMS = [
+  { id: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/yourstore", color: "text-pink-500" },
+  { id: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/yourstore", color: "text-blue-500" },
+  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, placeholder: "07XX XXX XXXX", color: "text-green-500" },
+  { id: "tiktok", label: "TikTok", icon: ShoppingBag, placeholder: "https://tiktok.com/@yourstore", color: "text-foreground" },
+  { id: "website", label: "موقع إلكتروني", icon: Globe, placeholder: "https://yourwebsite.com", color: "text-primary" },
+];
+
 const Register = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [showPassword, setShowPassword] = useState(false);
 
-  // Step 1: Account
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-
-  // Step 2: Store
+  // Step 1: Store Info
   const [storeName, setStoreName] = useState("");
+  const [storeDescription, setStoreDescription] = useState("");
   const [storeCategory, setStoreCategory] = useState("");
   const [storeSlug, setStoreSlug] = useState("");
+  const [storeLogo, setStoreLogo] = useState<string | null>(null);
+
+  // Step 2: Social Links
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
 
   // Step 3: Plan
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "pro">("basic");
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setStoreLogo(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const updateSocialLink = (id: string, value: string) => {
+    setSocialLinks(prev => ({ ...prev, [id]: value }));
+  };
+
   const canNext = () => {
-    if (step === 1) return name.trim() && email.trim() && password.length >= 6;
-    if (step === 2) return storeName.trim() && storeCategory;
+    if (step === 1) return storeName.trim() && storeCategory;
     return true;
   };
 
@@ -86,14 +106,14 @@ const Register = () => {
   const proPrice = billingPeriod === "yearly" ? 28000 : 35000;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col" dir="rtl">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
-            <ChevronLeft className="h-5 w-5 text-foreground rotate-180" />
+            <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
-          <span className="text-sm font-bold text-foreground">إنشاء حساب</span>
+          <span className="text-sm font-bold text-foreground">إكمال إعداد المتجر</span>
           <span className="text-xs text-muted-foreground">{step}/3</span>
         </div>
       </header>
@@ -101,7 +121,6 @@ const Register = () => {
       {/* Progress Steps */}
       <div className="container mx-auto px-6 pt-5 pb-2">
         <div className="flex items-center justify-between relative">
-          {/* Line behind */}
           <div className="absolute top-4 right-8 left-8 h-0.5 bg-border" />
           <div className="absolute top-4 right-8 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 2) * (100 - 20)}%` }} />
           
@@ -121,64 +140,38 @@ const Register = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 container mx-auto px-4 py-6">
-        {/* Step 1: Account Info */}
+      <div className="flex-1 container mx-auto px-4 py-6 overflow-y-auto pb-28">
+
+        {/* Step 1: Store Info */}
         {step === 1 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
-              <h2 className="text-lg font-bold text-foreground">معلومات الحساب</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">أدخل بياناتك الشخصية للبدء</p>
-            </div>
-
-            <div className="space-y-3.5">
-              <div>
-                <label className="text-xs font-medium text-foreground mb-1.5 block">الاسم الكامل *</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: أحمد محمد" className="h-11" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-foreground mb-1.5 block">البريد الإلكتروني *</label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ahmed@example.com" className="h-11" dir="ltr" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-foreground mb-1.5 block">رقم الهاتف</label>
-                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XX XXX XXXX" className="h-11" dir="ltr" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-foreground mb-1.5 block">كلمة المرور *</label>
-                <div className="relative">
-                  <Input 
-                    type={showPassword ? "text" : "password"} 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    placeholder="6 أحرف على الأقل" 
-                    className="h-11 pl-10" 
-                    dir="ltr" 
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)} 
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {password.length > 0 && password.length < 6 && (
-                  <p className="text-[10px] text-destructive mt-1">كلمة المرور يجب أن تكون 6 أحرف على الأقل</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Store Info */}
-        {step === 2 && (
-          <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
-            <div>
               <h2 className="text-lg font-bold text-foreground">معلومات المتجر</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">أخبرنا عن متجرك</p>
+              <p className="text-xs text-muted-foreground mt-0.5">أخبرنا عن متجرك لنبدأ</p>
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-4">
+              {/* Store Logo */}
+              <div className="flex flex-col items-center gap-3">
+                <label htmlFor="logo-upload" className="cursor-pointer group">
+                  <div className={`w-20 h-20 rounded-2xl border-2 border-dashed flex items-center justify-center transition-all overflow-hidden ${
+                    storeLogo ? "border-primary" : "border-border group-hover:border-primary/50"
+                  }`}>
+                    {storeLogo ? (
+                      <img src={storeLogo} alt="شعار المتجر" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Image className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-[9px] text-muted-foreground">شعار المتجر</span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+                <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                <p className="text-[10px] text-muted-foreground">اختياري • PNG أو JPG</p>
+              </div>
+
+              {/* Store Name */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">اسم المتجر *</label>
                 <Input 
@@ -192,6 +185,7 @@ const Register = () => {
                 />
               </div>
 
+              {/* Store URL Preview */}
               {storeName && (
                 <div className="bg-secondary/50 rounded-lg p-3 flex items-center gap-2">
                   <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -201,6 +195,23 @@ const Register = () => {
                 </div>
               )}
 
+              {/* Store Description */}
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">
+                  <FileText className="h-3.5 w-3.5 inline-block ml-1" />
+                  وصف المتجر
+                </label>
+                <Textarea
+                  value={storeDescription}
+                  onChange={(e) => setStoreDescription(e.target.value)}
+                  placeholder="اكتب وصفاً مختصراً عن متجرك ونوع المنتجات التي تبيعها..."
+                  className="min-h-[80px] resize-none text-sm"
+                  maxLength={200}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1 text-left" dir="ltr">{storeDescription.length}/200</p>
+              </div>
+
+              {/* Category */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-2 block">تصنيف المتجر *</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -219,6 +230,46 @@ const Register = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Social Links */}
+        {step === 2 && (
+          <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
+            <div>
+              <h2 className="text-lg font-bold text-foreground">روابط التواصل الاجتماعي</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">أضف حساباتك ليتمكن عملاؤك من التواصل معك <span className="text-muted-foreground/60">(اختياري)</span></p>
+            </div>
+
+            <div className="space-y-3">
+              {SOCIAL_PLATFORMS.map((platform) => {
+                const Icon = platform.icon;
+                return (
+                  <div key={platform.id} className="bg-card border border-border rounded-xl p-3.5 space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-lg bg-secondary flex items-center justify-center ${platform.color}`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs font-bold text-foreground">{platform.label}</span>
+                    </div>
+                    <Input
+                      value={socialLinks[platform.id] || ""}
+                      onChange={(e) => updateSocialLink(platform.id, e.target.value)}
+                      placeholder={platform.placeholder}
+                      className="h-10 text-xs"
+                      dir="ltr"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5">
+              <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                يمكنك تعديل هذه الروابط لاحقاً من إعدادات المتجر. ستظهر هذه الروابط في صفحة متجرك للعملاء.
+              </p>
             </div>
           </div>
         )}
@@ -318,17 +369,14 @@ const Register = () => {
                 </h4>
               </div>
               <div className="space-y-2.5">
-                {(selectedPlan === "basic" ? BASIC_FEATURES : PRO_FEATURES).map((f) => {
-                  const Icon = f.icon;
-                  return (
-                    <div key={f.text} className="flex items-center gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
-                        <Check className="h-3 w-3 text-success" />
-                      </div>
-                      <span className="text-xs text-foreground">{f.text}</span>
+                {(selectedPlan === "basic" ? BASIC_FEATURES : PRO_FEATURES).map((f) => (
+                  <div key={f.text} className="flex items-center gap-2.5">
+                    <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                      <Check className="h-3 w-3 text-success" />
                     </div>
-                  );
-                })}
+                    <span className="text-xs text-foreground">{f.text}</span>
+                  </div>
+                ))}
               </div>
 
               {selectedPlan === "basic" && (
@@ -351,14 +399,16 @@ const Register = () => {
               <Sparkles className="h-4 w-4" />
               إنشاء المتجر - {selectedPlan === "basic" ? basicPrice.toLocaleString("ar-IQ") : proPrice.toLocaleString("ar-IQ")} د.ع/شهر
             </>
+          ) : step === 2 ? (
+            "التالي"
           ) : (
             "التالي"
           )}
         </Button>
-        {step === 1 && (
-          <p className="text-[10px] text-muted-foreground text-center mt-2">
-            لديك حساب؟ <button onClick={() => navigate("/")} className="text-primary font-bold">تسجيل الدخول</button>
-          </p>
+        {step === 2 && (
+          <button onClick={() => { setStep(3); }} className="w-full text-center mt-2">
+            <span className="text-[11px] text-muted-foreground">تخطي هذه الخطوة</span>
+          </button>
         )}
       </div>
     </div>
