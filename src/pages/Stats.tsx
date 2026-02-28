@@ -61,6 +61,16 @@ const DEVICE_DATA = [
   { name: "تابلت", value: 10, icon: Tablet, color: "hsl(200, 85%, 52%)" },
 ];
 
+const DEVICE_BRANDS = [
+  { name: "iPhone", percentage: 38, color: "hsl(0, 0%, 30%)" },
+  { name: "Samsung", percentage: 24, color: "hsl(220, 80%, 50%)" },
+  { name: "Xiaomi", percentage: 12, color: "hsl(25, 90%, 55%)" },
+  { name: "Huawei", percentage: 8, color: "hsl(0, 70%, 50%)" },
+  { name: "Windows PC", percentage: 10, color: "hsl(200, 80%, 45%)" },
+  { name: "MacBook", percentage: 5, color: "hsl(0, 0%, 45%)" },
+  { name: "أخرى", percentage: 3, color: "hsl(200, 12%, 48%)" },
+];
+
 const PAGE_VISITS = [
   { name: "قميص بولو كلاسيكي", visits: 1240, unique: 890 },
   { name: "حذاء رياضي نايك", visits: 980, unique: 720 },
@@ -360,6 +370,24 @@ const Stats = () => {
                         </div>
                       );
                     })}
+                  </div>
+                  {/* Device Brands */}
+                  <div className="mt-5 pt-4 border-t border-border">
+                    <h4 className="text-xs font-semibold text-foreground mb-3">العلامات التجارية والأنظمة</h4>
+                    <div className="space-y-2.5">
+                      {DEVICE_BRANDS.map((brand, i) => (
+                        <div key={brand.name} className="flex items-center gap-3">
+                          <span className="text-xs font-medium text-foreground w-20 flex-shrink-0 truncate">{brand.name}</span>
+                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${brand.percentage}%`, backgroundColor: brand.color }}
+                            />
+                          </div>
+                          <span className="text-[11px] font-bold text-foreground w-8 text-left flex-shrink-0">{brand.percentage}%</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
