@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
-import StoreSwitcher from "@/components/StoreSwitcher";
 
 interface Coupon {
   id: string; code: string; type: "percentage" | "fixed"; value: number; minOrder: number; maxUses: number; usedCount: number; active: boolean; expiresAt: string;
@@ -37,10 +36,7 @@ const Coupons = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title="أكواد الخصم" subtitle={`${coupons.length} كود`} actions={
-        <>
-          <StoreSwitcher compact showAll={false} />
-          <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5"><Plus className="h-4 w-4" />إنشاء كود</Button>
-        </>
+        <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5"><Plus className="h-4 w-4" />إنشاء كود</Button>
       } />
 
       <main className="container mx-auto px-4 pt-4 space-y-4">

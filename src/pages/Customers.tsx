@@ -3,9 +3,17 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
-import StoreSwitcher from "@/components/StoreSwitcher";
 
-const MOCK_CUSTOMERS = [
+interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  orders: number;
+  total: number;
+  lastOrder: string;
+}
+
+const MOCK_CUSTOMERS: Customer[] = [
   { id: "c1", name: "أحمد محمد", phone: "0770 123 4567", orders: 12, total: 1450000, lastOrder: "27 فبراير 2026" },
   { id: "c2", name: "سارة علي", phone: "0771 234 5678", orders: 8, total: 920000, lastOrder: "27 فبراير 2026" },
   { id: "c3", name: "عمر حسين", phone: "0772 345 6789", orders: 5, total: 380000, lastOrder: "26 فبراير 2026" },
@@ -23,9 +31,8 @@ const Customers = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} actions={<StoreSwitcher compact />} />
+      <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
       <main className="container mx-auto px-4 space-y-4">
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-card border border-border rounded-lg p-3 text-center">
             <Users className="h-4 w-4 text-primary mx-auto mb-1" />
