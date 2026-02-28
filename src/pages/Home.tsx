@@ -76,22 +76,29 @@ const Home = () => {
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div>
-              <p className="text-[11px] text-muted-foreground">{t.home.welcome}</p>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-foreground">{t.home.dashboard}</h1>
-                {stores.length > 1 && (
+            <div className="flex items-center gap-2.5">
+              <div>
+                <p className="text-[11px] text-muted-foreground leading-none mb-0.5">{t.home.welcome}</p>
+                <h1 className="text-base font-bold text-foreground leading-tight">{t.home.dashboard}</h1>
+              </div>
+              {stores.length > 1 && (
+                <div className="h-6 w-px bg-border mx-0.5" />
+              )}
+              {stores.length > 1 && (
+                <div className="flex items-center gap-1.5 bg-muted/60 border border-border rounded-full px-2.5 py-1 cursor-pointer hover:bg-muted transition-colors">
+                  <Store className="h-3 w-3 text-primary" />
                   <select
                     value={activeStoreId}
                     onChange={(e) => switchStore(e.target.value)}
-                    className="bg-muted/50 border border-border text-xs font-medium text-foreground rounded-lg px-2 py-1 outline-none"
+                    className="bg-transparent text-[11px] font-semibold text-foreground outline-none border-none cursor-pointer appearance-none pr-3"
                   >
                     {stores.map((store) => (
                       <option key={store.id} value={store.id}>{store.name}</option>
                     ))}
                   </select>
-                )}
-              </div>
+                  <ChevronDown className="h-2.5 w-2.5 text-muted-foreground -mr-0.5" />
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
