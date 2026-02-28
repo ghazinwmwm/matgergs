@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoLight from "@/assets/logo-light.png";
 import { useNavigate } from "react-router-dom";
 import { 
   Store, CreditCard, ChevronLeft, Check, 
@@ -112,8 +113,8 @@ const Register = () => {
         <div className="w-full max-w-sm space-y-8 text-center">
           {/* Logo / Brand */}
           <div className="space-y-3">
-            <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-              <Store className="h-10 w-10 text-primary" />
+            <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto">
+              <img src={logoLight} alt="ماتاجر" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">ماتاجر</h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
