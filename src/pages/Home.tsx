@@ -9,8 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
 import SalesChart from "@/components/SalesChart";
-import StoreSwitcher from "@/components/StoreSwitcher";
 import { useStores } from "@/hooks/useStores";
+import { useSearchParams } from "react-router-dom";
 
 const NOTIFICATIONS_AR = [
   { id: "1", text: "طلب جديد #1042 من أحمد محمد", time: "منذ 5 دقائق", read: false },
@@ -30,11 +30,12 @@ const Home = () => {
   const { products } = useInventory();
   const navigate = useNavigate();
   const { t, lang } = useLanguage();
-  const { stores, activeStoreId } = useStores();
+  const { stores, activeStoreId, setActiveStoreId } = useStores();
   const activeStore = stores.find((s) => s.id === activeStoreId);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [notifications, setNotifications] = useState(lang === "ku" ? NOTIFICATIONS_KU : NOTIFICATIONS_AR);
+	const [searchParams, setSearchParams] = useSearchParams();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -64,17 +65,34 @@ const Home = () => {
     "مكتمل": "bg-success/10 text-success", "تەواوبوو": "bg-success/10 text-success",
   };
 
+	const switchStore = (storeId: string) => {
+		setActiveStoreId(storeId);
+		setSearchParams({ storeId });
+	};
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
+						{stores.length > 1 && (
+							<select
+								value={activeStoreId}
+								onChange={(e) => switchStore(e.target.value)}
+								className="bg-transparent border-none text-base font-bold text-foreground outline-none focus-visible:ring-0"
+							>
+								{stores.map((store) => (
+									<option key={store.id} value={store.id}>
+										{store.name}
+									</option>
+								))}
+							</select>
+						)}
             <div>
               <p className="text-[11px] text-muted-foreground">{t.home.welcome}</p>
               <h1 className="text-base font-bold text-foreground">{t.home.dashboard}</h1>
             </div>
-            <StoreSwitcher compact />
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">

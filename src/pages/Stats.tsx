@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
-import StoreSwitcher from "@/components/StoreSwitcher";
+import { useStores } from "@/hooks/useStores";
+import { useNavigate } from "react-router-dom";
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -43,6 +44,8 @@ const Stats = () => {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const availableBalance = 3050000;
+  const { activeStore } = useStores();
+  const navigate = useNavigate();
 
   const handleWithdraw = () => {
     const amount = parseInt(withdrawAmount);
@@ -63,10 +66,9 @@ const Stats = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" actions={<StoreSwitcher compact showAll={false} />} />
+      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" />
 
       <main className="container mx-auto px-4 space-y-5">
-        {/* Period Filter */}
         <div className="flex gap-2 overflow-x-auto pb-1">
           {PERIODS.map((p) => (
             <button
@@ -81,7 +83,6 @@ const Stats = () => {
           ))}
         </div>
 
-        {/* Withdraw Button */}
         <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] text-muted-foreground">الرصيد المتاح للسحب</p>
@@ -123,7 +124,6 @@ const Stats = () => {
           </Dialog>
         </div>
 
-        {/* Summary Stats */}
         <div className="grid grid-cols-2 gap-3">
           {summaryStats.map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-xl p-3.5">
@@ -143,9 +143,7 @@ const Stats = () => {
           ))}
         </div>
 
-        {/* Advanced Stats - PRO gated */}
         <ProGate feature="التقارير والتحليلات المتقدمة">
-          {/* Revenue Chart */}
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-sm font-semibold text-foreground mb-4">الإيرادات</h3>
             <div className="h-48">
@@ -166,7 +164,6 @@ const Stats = () => {
             </div>
           </div>
 
-          {/* Orders Chart */}
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-sm font-semibold text-foreground mb-4">الطلبات</h3>
             <div className="h-40">
@@ -181,7 +178,6 @@ const Stats = () => {
             </div>
           </div>
 
-          {/* Top Products */}
           <div className="bg-card border border-border rounded-xl">
             <div className="p-4 pb-3">
               <h3 className="text-sm font-semibold text-foreground">أكثر المنتجات مبيعاً</h3>
@@ -200,6 +196,22 @@ const Stats = () => {
             </div>
           </div>
         </ProGate>
+        <div className="fixed bottom-0 inset-x-0 bg-background border-t border-border/40 py-2 px-4">
+          <div className="container mx-auto flex items-center justify-between">
+            <button onClick={() => navigate("/")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
+              الرئيسية
+            </button>
+            <button onClick={() => navigate("/inventory")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
+              المنتجات
+            </button>
+            <button onClick={() => navigate("/orders")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
+              الطلبات
+            </button>
+            <button onClick={() => navigate("/customers")} className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 text-sm font-medium">
+              العملاء
+            </button>
+          </div>
+        </div>
       </main>
     </div>
   );

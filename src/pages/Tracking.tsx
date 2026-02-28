@@ -6,7 +6,6 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
-import StoreSwitcher from "@/components/StoreSwitcher";
 
 interface Pixel {
   id: string;
@@ -52,14 +51,10 @@ const Tracking = () => {
         title="البيكسل والتتبع"
         subtitle={`${pixels.length} بيكسل`}
         actions={
-          <div className="flex items-center gap-1.5 flex-wrap justify-end">
-            <StoreSwitcher compact showAll={false} />
-            <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1 text-xs px-2.5">
-              <Plus className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">إضافة بيكسل</span>
-              <span className="sm:hidden">إضافة</span>
-            </Button>
-          </div>
+          <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            إضافة بيكسل
+          </Button>
         }
       />
 

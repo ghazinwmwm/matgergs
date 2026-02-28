@@ -9,7 +9,7 @@ import type { Product } from "@/types/product";
 import { useInventory } from "@/hooks/useInventory";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
-import StoreSwitcher from "@/components/StoreSwitcher";
+
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,17 +41,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} actions={<StoreSwitcher compact />} />
+      <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} />
 
       <main className="container mx-auto px-4 py-6 space-y-5">
-        {/* Low stock alert */}
         {lowStockProducts.length > 0 && !dismissedStockAlert && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">{t.inventory.lowStock}</p>
               <p className="text-xs text-muted-foreground">
-                {lowStockProducts.map((p) => `${p.name} (${p.stock ?? 0})`).join("، ")}
+                {lowStockProducts.map((p) => `${p.name} (${p.stock ?? 0})`).join(", ")}
               </p>
             </div>
             <button onClick={() => setDismissedStockAlert(true)} className="p-1 rounded-full hover:bg-destructive/10 transition-colors flex-shrink-0">
@@ -113,6 +112,7 @@ const Index = () => {
         )}
       </main>
       <ProductDetailDialog product={selectedProduct} open={detailOpen} onOpenChange={setDetailOpen} />
+      
     </div>
   );
 };
