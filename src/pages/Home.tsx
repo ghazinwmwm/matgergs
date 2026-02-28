@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
 import SalesChart from "@/components/SalesChart";
 import StoreSwitcher from "@/components/StoreSwitcher";
+import { useStores } from "@/hooks/useStores";
 
 const NOTIFICATIONS_AR = [
   { id: "1", text: "طلب جديد #1042 من أحمد محمد", time: "منذ 5 دقائق", read: false },
@@ -29,6 +30,8 @@ const Home = () => {
   const { products } = useInventory();
   const navigate = useNavigate();
   const { t, lang } = useLanguage();
+  const { stores, activeStoreId } = useStores();
+  const activeStore = stores.find((s) => s.id === activeStoreId);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [notifications, setNotifications] = useState(lang === "ku" ? NOTIFICATIONS_KU : NOTIFICATIONS_AR);
@@ -134,9 +137,9 @@ const Home = () => {
       </div>
 
       <main className="container mx-auto px-4 pt-4 space-y-5">
-        <Button onClick={() => window.open("https://mystore.matager.store", "_blank")} variant="outline" className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold">
+        <Button onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")} variant="outline" className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold">
           <span className="flex items-center gap-2"><ExternalLink className="h-4 w-4" />{t.home.openStore}</span>
-          <span className="text-[11px] font-normal text-muted-foreground" dir="ltr">mystore.matager.store</span>
+          <span className="text-[11px] font-normal text-muted-foreground" dir="ltr">{activeStore?.domain || "mystore"}.matager.store</span>
         </Button>
 
         <button onClick={() => navigate("/plans")} className="w-full bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl p-3.5 flex items-center justify-between hover:border-primary/40 transition-colors">
