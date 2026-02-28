@@ -84,7 +84,6 @@ const Register = () => {
   };
 
   const canNext = () => {
-    if (step === 1) return storeName.trim() && storeCategory;
     return true;
   };
 
