@@ -12,8 +12,8 @@ const PageHeader = ({ title, subtitle, actions, showBack = true }: PageHeaderPro
   const navigate = useNavigate();
 
   return (
-    <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border mb-4">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {showBack && (
             <button
@@ -23,9 +23,13 @@ const PageHeader = ({ title, subtitle, actions, showBack = true }: PageHeaderPro
               <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
           )}
-          <div>
-            <h1 className="text-base font-bold text-foreground">{title}</h1>
-            {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
+          <div className="flex items-baseline gap-2.5">
+            <h1 className="text-lg font-bold text-foreground leading-tight">{title}</h1>
+            {subtitle && (
+              <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-full">
+                {subtitle}
+              </span>
+            )}
           </div>
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}
