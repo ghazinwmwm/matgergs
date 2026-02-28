@@ -158,9 +158,6 @@ const Home = () => {
                     <option key={store.id} value={store.id}>{store.name}</option>
                   ))}
                 </select>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {lang === "ku" ? "⚠ گۆڕینی فرۆشگا هەموو زانیارییەکان دەگۆڕێت" : "⚠ تغيير المتجر سيغيّر جميع المعلومات المعروضة"}
-                </p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
