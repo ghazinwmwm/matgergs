@@ -1,13 +1,20 @@
 import { useState } from "react";
-import { User, Mail, Phone, Store, Globe, Bell, Shield, LogOut, Camera, Save, FileText, MessageCircle, Instagram, Facebook, ShoppingBag, Link2 } from "lucide-react";
+import { User, Mail, Phone, Store, Globe as GlobeIcon, Bell, Shield, LogOut, Camera, Save, FileText, MessageCircle, Instagram, Facebook, ShoppingBag, Link2, Languages } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
+import { useLanguage, type Lang } from "@/hooks/useLanguage";
+
+const LANG_OPTIONS: { value: Lang; label: string; native: string }[] = [
+  { value: "ar", label: "العربية", native: "العربية" },
+  { value: "ku", label: "کوردی", native: "کوردی سۆرانی" },
+];
 
 const Profile = () => {
+  const { t, lang, setLang } = useLanguage();
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: "أحمد التاجر",
@@ -33,16 +40,16 @@ const Profile = () => {
 
   const saveProfile = () => {
     setEditing(false);
-    toast({ title: "تم الحفظ ✓", description: "تم تحديث البيانات بنجاح" });
+    toast({ title: t.profile.saved, description: t.profile.savedDesc });
   };
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader
-        title="حسابي"
+        title={t.profile.title}
         actions={
           <Button variant={editing ? "default" : "outline"} size="sm" onClick={() => editing ? saveProfile() : setEditing(true)} className="gap-1.5">
-            {editing ? <><Save className="h-3.5 w-3.5" /> حفظ</> : "تعديل"}
+            {editing ? <><Save className="h-3.5 w-3.5" /> {t.save}</> : t.edit}
           </Button>
         }
       />
@@ -67,20 +74,43 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Language Selector */}
+        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <h3 className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+            <Languages className="h-3 w-3" /> {t.profile.language}
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            {LANG_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setLang(option.value)}
+                className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
+                  lang === option.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/30"
+                }`}
+              >
+                <span className="text-sm font-bold text-foreground">{option.label}</span>
+                <span className="text-[10px] text-muted-foreground">{option.native}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Personal Info */}
         <div className="bg-card border border-border rounded-xl p-4 space-y-4">
-          <h3 className="text-xs font-semibold text-muted-foreground">معلومات الحساب</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground">{t.profile.accountInfo}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><User className="h-3 w-3" /> الاسم</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><User className="h-3 w-3" /> {t.profile.name}</label>
               {editing ? <Input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /> : <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg">{profile.name}</p>}
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Mail className="h-3 w-3" /> البريد الإلكتروني</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Mail className="h-3 w-3" /> {t.profile.email}</label>
               <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg" dir="ltr">{profile.email}</p>
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Phone className="h-3 w-3" /> رقم الهاتف</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Phone className="h-3 w-3" /> {t.profile.phone}</label>
               {editing ? <Input value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} dir="ltr" /> : <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg" dir="ltr">{profile.phone}</p>}
             </div>
           </div>
@@ -88,22 +118,22 @@ const Profile = () => {
 
         {/* Store Info */}
         <div className="bg-card border border-border rounded-xl p-4 space-y-4">
-          <h3 className="text-xs font-semibold text-muted-foreground">معلومات المتجر</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground">{t.profile.storeInfo}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Store className="h-3 w-3" /> اسم المتجر</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Store className="h-3 w-3" /> {t.profile.storeName}</label>
               {editing ? <Input value={storeInfo.storeName} onChange={(e) => setStoreInfo({ ...storeInfo, storeName: e.target.value })} /> : <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg">{storeInfo.storeName}</p>}
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><FileText className="h-3 w-3" /> وصف المتجر</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><FileText className="h-3 w-3" /> {t.profile.storeDesc}</label>
               {editing ? (
                 <Textarea value={storeInfo.storeDescription} onChange={(e) => setStoreInfo({ ...storeInfo, storeDescription: e.target.value })} className="min-h-[70px] resize-none text-sm" maxLength={200} />
               ) : (
-                <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg leading-relaxed">{storeInfo.storeDescription || <span className="text-muted-foreground">لم يتم إضافة وصف</span>}</p>
+                <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg leading-relaxed">{storeInfo.storeDescription || <span className="text-muted-foreground">{t.profile.noDesc}</span>}</p>
               )}
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Globe className="h-3 w-3" /> النطاق</label>
+              <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><GlobeIcon className="h-3 w-3" /> {t.profile.domain}</label>
               <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg" dir="ltr">{storeInfo.domain}</p>
             </div>
           </div>
@@ -112,24 +142,24 @@ const Profile = () => {
         {/* Social Links */}
         <div className="bg-card border border-border rounded-xl p-4 space-y-4">
           <h3 className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Link2 className="h-3 w-3" /> روابط التواصل
+            <Link2 className="h-3 w-3" /> {t.profile.socialLinks}
           </h3>
           <div className="space-y-3">
-            {[
+            {([
               { key: "whatsapp" as const, label: "واتساب", icon: MessageCircle, color: "text-green-500", placeholder: "07XX XXX XXXX" },
               { key: "instagram" as const, label: "Instagram", icon: Instagram, color: "text-pink-500", placeholder: "https://instagram.com/..." },
               { key: "facebook" as const, label: "Facebook", icon: Facebook, color: "text-blue-500", placeholder: "https://facebook.com/..." },
               { key: "tiktok" as const, label: "TikTok", icon: ShoppingBag, color: "text-foreground", placeholder: "https://tiktok.com/@..." },
-            ].map((social) => (
+            ]).map((social) => (
               <div key={social.key}>
-                <label className={`text-[11px] text-muted-foreground mb-1 flex items-center gap-1`}>
+                <label className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1">
                   <social.icon className={`h-3 w-3 ${social.color}`} /> {social.label}
                 </label>
                 {editing ? (
                   <Input value={storeInfo[social.key]} onChange={(e) => setStoreInfo({ ...storeInfo, [social.key]: e.target.value })} placeholder={social.placeholder} dir="ltr" className="text-xs" />
                 ) : (
                   <p className="text-sm text-foreground py-2 px-3 bg-muted rounded-lg" dir="ltr">
-                    {storeInfo[social.key] || <span className="text-muted-foreground text-xs">لم يتم الإضافة</span>}
+                    {storeInfo[social.key] || <span className="text-muted-foreground text-xs">{t.profile.notAdded}</span>}
                   </p>
                 )}
               </div>
@@ -140,12 +170,12 @@ const Profile = () => {
         {/* Notification Settings */}
         <div className="bg-card border border-border rounded-xl divide-y divide-border">
           <div className="p-4 pb-3">
-            <h3 className="text-xs font-semibold text-muted-foreground">الإشعارات</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground">{t.profile.notificationSettings}</h3>
           </div>
           {[
-            { label: "إشعارات الطلبات", desc: "تلقي إشعار عند وصول طلب جديد", key: "orderAlerts" as const, icon: Bell },
-            { label: "إشعارات عامة", desc: "التحديثات والعروض", key: "notifications" as const, icon: Bell },
-            { label: "تحديثات البريد", desc: "تقارير أسبوعية عبر البريد", key: "emailUpdates" as const, icon: Mail },
+            { label: t.profile.orderAlerts, desc: t.profile.orderAlertsDesc, key: "orderAlerts" as const, icon: Bell },
+            { label: t.profile.generalNotif, desc: t.profile.generalNotifDesc, key: "notifications" as const, icon: Bell },
+            { label: t.profile.emailUpdates, desc: t.profile.emailUpdatesDesc, key: "emailUpdates" as const, icon: Mail },
           ].map((setting) => (
             <div key={setting.key} className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
@@ -164,11 +194,11 @@ const Profile = () => {
         <div className="bg-card border border-border rounded-xl divide-y divide-border">
           <button className="flex items-center gap-3 w-full px-4 py-3.5 text-right hover:bg-muted/50 transition-colors">
             <Shield className="h-4 w-4 text-muted-foreground" />
-            <p className="text-sm font-medium text-foreground flex-1">تغيير كلمة المرور</p>
+            <p className="text-sm font-medium text-foreground flex-1">{t.profile.changePassword}</p>
           </button>
           <button className="flex items-center gap-3 w-full px-4 py-3.5 text-right hover:bg-destructive/5 transition-colors">
             <LogOut className="h-4 w-4 text-destructive" />
-            <p className="text-sm font-medium text-destructive">تسجيل الخروج</p>
+            <p className="text-sm font-medium text-destructive">{t.profile.logout}</p>
           </button>
         </div>
       </main>
