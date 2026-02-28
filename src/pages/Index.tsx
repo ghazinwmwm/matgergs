@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, Search, LayoutGrid, List, BarChart3, Plus, Store, ChevronDown, AlertTriangle } from "lucide-react";
+import { Package, Search, LayoutGrid, List, BarChart3, Plus, Store, ChevronDown, AlertTriangle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [dismissedStockAlert, setDismissedStockAlert] = useState(false);
 
   const viewProduct = (product: Product) => { setSelectedProduct(product); setDetailOpen(true); };
 
@@ -46,15 +47,18 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-6 space-y-5">
         {/* Low stock alert */}
-        {lowStockProducts.length > 0 && (
+        {lowStockProducts.length > 0 && !dismissedStockAlert && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium text-foreground">{t.inventory.lowStock}</p>
               <p className="text-xs text-muted-foreground">
                 {lowStockProducts.map((p) => `${p.name} (${p.stock ?? 0})`).join("، ")}
               </p>
             </div>
+            <button onClick={() => setDismissedStockAlert(true)} className="p-1 rounded-full hover:bg-destructive/10 transition-colors flex-shrink-0">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
         )}
 
