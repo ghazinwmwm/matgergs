@@ -33,8 +33,8 @@ const More = () => {
       items: [
         { icon: BarChart3, label: t.more.stats, path: "/stats", desc: t.more.statsDesc, pro: true },
         { icon: User, label: t.more.account, path: "/profile", desc: t.more.accountDesc, pro: false },
-        { icon: Settings, label: t.more.settingsLabel, path: "/profile", desc: t.more.settingsDesc, pro: false },
-        { icon: HelpCircle, label: t.more.help, path: "/profile", desc: t.more.helpDesc, pro: false },
+        { icon: Settings, label: t.more.settingsLabel, path: "/settings", desc: t.more.settingsDesc, pro: false },
+        { icon: HelpCircle, label: t.more.help, path: "/help", desc: t.more.helpDesc, pro: false },
       ],
     },
   ];
