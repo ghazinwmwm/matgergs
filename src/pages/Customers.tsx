@@ -20,7 +20,7 @@ const Customers = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="العملاء" subtitle={`${MOCK_CUSTOMERS.length} عميل`} />
+      <PageHeader title="العملاء" subtitle={`${MOCK_CUSTOMERS.length} عميل`} showBack={false} />
 
       <main className="container mx-auto px-4 space-y-4">
         <div className="relative">

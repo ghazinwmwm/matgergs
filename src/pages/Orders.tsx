@@ -33,7 +33,7 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="الطلبات" subtitle={`${MOCK_ORDERS.length} طلب`} />
+      <PageHeader title="الطلبات" subtitle={`${MOCK_ORDERS.length} طلب`} showBack={false} />
 
       <main className="container mx-auto px-4 space-y-4">
         {/* Search */}
