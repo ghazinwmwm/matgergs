@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
+import PageHeader from "@/components/PageHeader";
 
 interface Pixel {
   id: string;
@@ -46,18 +47,16 @@ const Tracking = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">البيكسل والتتبع</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{pixels.length} بيكسل</p>
-          </div>
+      <PageHeader
+        title="البيكسل والتتبع"
+        subtitle={`${pixels.length} بيكسل`}
+        actions={
           <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
             <Plus className="h-4 w-4" />
             إضافة بيكسل
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <main className="container mx-auto px-4 space-y-4">
         <ProGate feature="البيكسل وأدوات التتبع والتحليلات">

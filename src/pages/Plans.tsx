@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { usePlan } from "@/hooks/usePlan";
+import PageHeader from "@/components/PageHeader";
 
 const BASIC_FEATURES = [
   { text: "متجر واحد", icon: Store, included: true },
@@ -34,7 +36,6 @@ const PRO_FEATURES = [
   { text: "حماية SSL مجانية", icon: Shield, included: true },
 ];
 
-// Comparison data
 const COMPARISON = [
   { feature: "عدد المتاجر", basic: "1", pro: "غير محدود" },
   { feature: "عدد المنتجات", basic: "50", pro: "غير محدود" },
@@ -49,17 +50,26 @@ const COMPARISON = [
 ];
 
 const Plans = () => {
-  const [selectedPlan, setSelectedPlan] = useState("basic");
+  const { plan, setPlan } = usePlan();
+  const [selectedPlan, setSelectedPlan] = useState(plan);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [showComparison, setShowComparison] = useState(false);
 
   const basicPrice = billingPeriod === "yearly" ? 12000 : 15000;
   const proPrice = billingPeriod === "yearly" ? 28000 : 35000;
 
-  const handleSelectPlan = (planId: string) => {
+  const handleSelectPlan = (planId: "basic" | "pro") => {
     setSelectedPlan(planId);
-    if (planId === "pro" && selectedPlan !== "pro") {
-      toast({ title: "ترقية الباقة", description: "سيتم توجيهك لإتمام الدفع" });
+  };
+
+  const handleSubscribe = () => {
+    setPlan(selectedPlan as "basic" | "pro");
+    if (selectedPlan === "pro" && plan !== "pro") {
+      toast({ title: "🎉 تم الترقية للاحترافية!", description: "يمكنك الآن الاستفادة من جميع الميزات المتقدمة" });
+    } else if (selectedPlan === "basic" && plan !== "basic") {
+      toast({ title: "تم تغيير الباقة", description: "تم التحويل للباقة الأساسية" });
+    } else {
+      toast({ title: "✓ أنت مشترك بالفعل في هذه الباقة" });
     }
   };
 
@@ -67,28 +77,28 @@ const Plans = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-xl font-bold text-foreground">الباقات والأسعار</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">اختر الباقة المناسبة لمتجرك</p>
-      </div>
+      <PageHeader title="الباقات والأسعار" subtitle="اختر الباقة المناسبة لمتجرك" />
 
-      <main className="container mx-auto px-4 space-y-5">
+      <main className="container mx-auto px-4 pt-4 space-y-5">
+        {/* Current Plan Badge */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold text-foreground">
+              باقتك الحالية: {plan === "basic" ? "الأساسية" : "الاحترافية"}
+            </span>
+          </div>
+          {plan === "basic" && (
+            <span className="text-[10px] text-primary font-medium">يمكنك الترقية</span>
+          )}
+        </div>
+
         {/* Billing Toggle */}
         <div className="flex items-center justify-center gap-1 bg-secondary rounded-xl p-1">
-          <button
-            onClick={() => setBillingPeriod("monthly")}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
-              billingPeriod === "monthly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
+          <button onClick={() => setBillingPeriod("monthly")} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${billingPeriod === "monthly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
             شهري
           </button>
-          <button
-            onClick={() => setBillingPeriod("yearly")}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-              billingPeriod === "yearly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
+          <button onClick={() => setBillingPeriod("yearly")} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${billingPeriod === "yearly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
             سنوي
             <span className="text-[9px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">وفّر 20%</span>
           </button>
@@ -96,21 +106,14 @@ const Plans = () => {
 
         {/* Plan Cards */}
         <div className="space-y-3">
-          {/* Basic */}
-          <div
-            onClick={() => handleSelectPlan("basic")}
-            className={`bg-card border-2 rounded-2xl p-5 transition-all cursor-pointer ${
-              selectedPlan === "basic" ? "border-primary shadow-sm" : "border-border"
-            }`}
-          >
+          <div onClick={() => handleSelectPlan("basic")} className={`bg-card border-2 rounded-2xl p-5 transition-all cursor-pointer ${selectedPlan === "basic" ? "border-primary shadow-sm" : "border-border"}`}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedPlan === "basic" ? "border-primary" : "border-muted-foreground/30"
-                }`}>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === "basic" ? "border-primary" : "border-muted-foreground/30"}`}>
                   {selectedPlan === "basic" && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                 </div>
                 <h3 className="text-base font-bold text-foreground">الأساسية</h3>
+                {plan === "basic" && <span className="text-[9px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">الحالية</span>}
               </div>
             </div>
             <p className="text-xs text-muted-foreground mb-3">مثالية للمتاجر الصغيرة والمبتدئين</p>
@@ -118,31 +121,19 @@ const Plans = () => {
               <span className="text-2xl font-bold text-foreground">{basicPrice.toLocaleString("ar-IQ")}</span>
               <span className="text-xs text-muted-foreground">د.ع / شهر</span>
             </div>
-            {billingPeriod === "yearly" && (
-              <p className="text-[10px] text-success mt-1">توفير {((15000 * 12 * 0.2)).toLocaleString("ar-IQ")} د.ع سنوياً</p>
-            )}
           </div>
 
-          {/* Pro */}
-          <div
-            onClick={() => handleSelectPlan("pro")}
-            className={`bg-card border-2 rounded-2xl overflow-hidden transition-all cursor-pointer ${
-              selectedPlan === "pro" ? "border-primary shadow-sm" : "border-border"
-            }`}
-          >
-            <div className="bg-primary text-primary-foreground text-[10px] font-bold text-center py-1.5">
-              ⭐ الأكثر شعبية
-            </div>
+          <div onClick={() => handleSelectPlan("pro")} className={`bg-card border-2 rounded-2xl overflow-hidden transition-all cursor-pointer ${selectedPlan === "pro" ? "border-primary shadow-sm" : "border-border"}`}>
+            <div className="bg-primary text-primary-foreground text-[10px] font-bold text-center py-1.5">⭐ الأكثر شعبية</div>
             <div className="p-5">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedPlan === "pro" ? "border-primary" : "border-muted-foreground/30"
-                  }`}>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === "pro" ? "border-primary" : "border-muted-foreground/30"}`}>
                     {selectedPlan === "pro" && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                   </div>
                   <h3 className="text-base font-bold text-foreground">الاحترافية</h3>
                   <Crown className="h-4 w-4 text-primary" />
+                  {plan === "pro" && <span className="text-[9px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">الحالية</span>}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mb-3">للمتاجر المتنامية التي تحتاج ميزات متقدمة</p>
@@ -150,44 +141,26 @@ const Plans = () => {
                 <span className="text-2xl font-bold text-foreground">{proPrice.toLocaleString("ar-IQ")}</span>
                 <span className="text-xs text-muted-foreground">د.ع / شهر</span>
               </div>
-              {billingPeriod === "yearly" && (
-                <p className="text-[10px] text-success mt-1">توفير {((35000 * 12 * 0.2)).toLocaleString("ar-IQ")} د.ع سنوياً</p>
-              )}
             </div>
           </div>
         </div>
 
         {/* CTA Button */}
-        <Button
-          onClick={() => handleSelectPlan(selectedPlan)}
-          className="w-full h-12 rounded-xl font-bold"
-          size="lg"
-        >
-          {selectedPlan === "basic" ? "✓ الباقة الحالية" : "ترقية الآن"}
+        <Button onClick={handleSubscribe} className="w-full h-12 rounded-xl font-bold" size="lg">
+          {selectedPlan === plan ? "✓ الباقة الحالية" : selectedPlan === "pro" ? "ترقية للاحترافية" : "تغيير للأساسية"}
         </Button>
 
-        {/* Features of Selected Plan */}
+        {/* Features */}
         <div className="bg-card border border-border rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground">
-              ميزات الباقة {selectedPlan === "basic" ? "الأساسية" : "الاحترافية"}
-            </h3>
+            <h3 className="text-sm font-bold text-foreground">ميزات الباقة {selectedPlan === "basic" ? "الأساسية" : "الاحترافية"}</h3>
           </div>
           <div className="space-y-3">
             {currentFeatures.map((feature) => (
-              <div
-                key={feature.text}
-                className={`flex items-center gap-2.5 ${!feature.included ? "opacity-35" : ""}`}
-              >
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  feature.included ? "bg-success/10" : "bg-muted"
-                }`}>
-                  {feature.included ? (
-                    <Check className="h-3 w-3 text-success" />
-                  ) : (
-                    <X className="h-3 w-3 text-muted-foreground" />
-                  )}
+              <div key={feature.text} className={`flex items-center gap-2.5 ${!feature.included ? "opacity-35" : ""}`}>
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${feature.included ? "bg-success/10" : "bg-muted"}`}>
+                  {feature.included ? <Check className="h-3 w-3 text-success" /> : <X className="h-3 w-3 text-muted-foreground" />}
                 </div>
                 <span className="text-sm text-foreground">{feature.text}</span>
               </div>
@@ -195,11 +168,8 @@ const Plans = () => {
           </div>
         </div>
 
-        {/* Comparison Toggle */}
-        <button
-          onClick={() => setShowComparison(!showComparison)}
-          className="w-full text-center text-xs font-bold text-primary py-2"
-        >
+        {/* Comparison */}
+        <button onClick={() => setShowComparison(!showComparison)} className="w-full text-center text-xs font-bold text-primary py-2">
           {showComparison ? "إخفاء المقارنة" : "📊 مقارنة الباقات جنباً لجنب"}
         </button>
 
@@ -224,7 +194,7 @@ const Plans = () => {
         <div className="bg-card border border-border rounded-xl p-4 space-y-3">
           <h3 className="text-sm font-semibold text-foreground">أسئلة شائعة</h3>
           {[
-            { q: "هل يمكنني التغيير بين الباقات؟", a: "نعم، يمكنك الترقية أو التخفيض في أي وقت. سيتم احتساب الفرق تلقائياً." },
+            { q: "هل يمكنني التغيير بين الباقات؟", a: "نعم، يمكنك الترقية أو التخفيض في أي وقت." },
             { q: "هل هناك فترة تجريبية؟", a: "نعم، نقدم 14 يوم تجربة مجانية للباقة الاحترافية." },
             { q: "ما هي طرق الدفع المتاحة؟", a: "نقبل الدفع عبر زين كاش، آسيا حوالة، وبطاقات الائتمان." },
           ].map((faq) => (

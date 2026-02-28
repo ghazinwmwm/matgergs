@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProBadge } from "@/components/ProGate";
+import PageHeader from "@/components/PageHeader";
 
 const sections = [
   {
@@ -38,9 +39,7 @@ const More = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-xl font-bold text-foreground">المزيد</h1>
-      </div>
+      <PageHeader title="المزيد" />
 
       <main className="container mx-auto px-4 space-y-5">
         {sections.map((section) => (

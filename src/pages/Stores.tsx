@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProGate } from "@/components/ProGate";
 import { usePlan } from "@/hooks/usePlan";
+import PageHeader from "@/components/PageHeader";
 
 interface StoreItem {
   id: string;
@@ -51,18 +52,16 @@ const Stores = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">المتاجر</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{stores.length} متجر</p>
-          </div>
+      <PageHeader
+        title="المتاجر"
+        subtitle={`${stores.length} متجر`}
+        actions={
           <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
             <Plus className="h-4 w-4" />
             متجر جديد
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <main className="container mx-auto px-4 space-y-4">
         {showForm && (

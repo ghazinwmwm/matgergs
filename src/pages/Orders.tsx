@@ -1,6 +1,7 @@
 import { ShoppingCart, Clock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import PageHeader from "@/components/PageHeader";
 
 const MOCK_ORDERS = [
   { id: "#1042", customer: "أحمد محمد", amount: 85000, status: "جديد", items: 2, date: "27 فبراير 2026" },
@@ -32,10 +33,7 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-xl font-bold text-foreground">الطلبات</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{MOCK_ORDERS.length} طلب</p>
-      </div>
+      <PageHeader title="الطلبات" subtitle={`${MOCK_ORDERS.length} طلب`} />
 
       <main className="container mx-auto px-4 space-y-4">
         {/* Search */}

@@ -1,19 +1,12 @@
 import { useState } from "react";
-import { Truck, Plus, Trash2, Settings, Globe, MapPin, Phone, ToggleLeft } from "lucide-react";
+import { Truck, Plus, Trash2, Settings, Globe, MapPin, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import PageHeader from "@/components/PageHeader";
 
 interface DeliveryCompany {
-  id: string;
-  name: string;
-  logo: string;
-  areas: string[];
-  baseFee: number;
-  perKm: number;
-  estimatedDays: string;
-  active: boolean;
-  phone: string;
+  id: string; name: string; logo: string; areas: string[]; baseFee: number; perKm: number; estimatedDays: string; active: boolean; phone: string;
 }
 
 const MOCK_COMPANIES: DeliveryCompany[] = [
@@ -27,46 +20,28 @@ const Delivery = () => {
   const [showForm, setShowForm] = useState(false);
   const [newCompany, setNewCompany] = useState({ name: "", baseFee: 0, phone: "", estimatedDays: "" });
 
-  const toggleCompany = (id: string) => {
-    setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c)));
-  };
-
+  const toggleCompany = (id: string) => setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c)));
   const addCompany = () => {
     if (!newCompany.name) return;
-    const company: DeliveryCompany = {
-      id: Date.now().toString(),
-      name: newCompany.name,
-      logo: "🚚",
-      areas: [],
-      baseFee: newCompany.baseFee,
-      perKm: 0,
-      estimatedDays: newCompany.estimatedDays || "2-3 أيام",
-      active: true,
-      phone: newCompany.phone,
-    };
+    const company: DeliveryCompany = { id: Date.now().toString(), name: newCompany.name, logo: "🚚", areas: [], baseFee: newCompany.baseFee, perKm: 0, estimatedDays: newCompany.estimatedDays || "2-3 أيام", active: true, phone: newCompany.phone };
     setCompanies((prev) => [company, ...prev]);
     setNewCompany({ name: "", baseFee: 0, phone: "", estimatedDays: "" });
     setShowForm(false);
   };
-
-  const deleteCompany = (id: string) => {
-    setCompanies((prev) => prev.filter((c) => c.id !== id));
-  };
+  const deleteCompany = (id: string) => setCompanies((prev) => prev.filter((c) => c.id !== id));
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">شركات التوصيل</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{companies.length} شركة</p>
-          </div>
+      <PageHeader
+        title="شركات التوصيل"
+        subtitle={`${companies.length} شركة`}
+        actions={
           <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-1.5">
             <Plus className="h-4 w-4" />
             إضافة شركة
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <main className="container mx-auto px-4 space-y-4">
         {showForm && (

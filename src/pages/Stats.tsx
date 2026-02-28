@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
+import PageHeader from "@/components/PageHeader";
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -61,10 +62,7 @@ const Stats = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-xl font-bold text-foreground">الإحصائيات</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">تقارير الأداء والمبيعات</p>
-      </div>
+      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" />
 
       <main className="container mx-auto px-4 space-y-5">
         {/* Period Filter */}

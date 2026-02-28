@@ -3,6 +3,7 @@ import { Plus, UserCog, Trash2, Shield, ShieldCheck, ShieldAlert, Mail } from "l
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProGate } from "@/components/ProGate";
+import PageHeader from "@/components/PageHeader";
 
 interface Manager {
   id: string;
@@ -53,18 +54,16 @@ const Team = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">فريق العمل</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{managers.length} عضو</p>
-          </div>
+      <PageHeader
+        title="فريق العمل"
+        subtitle={`${managers.length} عضو`}
+        actions={
           <Button onClick={() => setShowInvite(!showInvite)} size="sm" className="gap-1.5">
             <Plus className="h-4 w-4" />
             دعوة
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <main className="container mx-auto px-4 space-y-4">
         <ProGate feature="إدارة فريق العمل وإضافة مديرين">
