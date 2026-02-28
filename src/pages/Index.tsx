@@ -7,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductDetailDialog from "@/components/ProductDetailDialog";
 import type { Product } from "@/types/product";
 import { useInventory } from "@/hooks/useInventory";
+import PageHeader from "@/components/PageHeader";
 
 // Inventory management page
 const Index = () => {
@@ -40,20 +41,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-              <Package className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">إدارة المخزون</h1>
-              <p className="text-xs text-muted-foreground">{products.length} منتج</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader title="إدارة المخزون" subtitle={`${products.length} منتج`} />
 
       <main className="container mx-auto px-4 py-6 space-y-5">
         {/* Stats */}

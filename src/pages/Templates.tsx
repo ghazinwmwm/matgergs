@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import { usePlan } from "@/hooks/usePlan";
+import PageHeader from "@/components/PageHeader";
 
 interface Template {
   id: string;
@@ -93,10 +94,7 @@ const Templates = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-xl font-bold text-foreground">القوالب</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">اختر قالب لمتجرك</p>
-      </div>
+      <PageHeader title="القوالب" subtitle="اختر قالب لمتجرك" />
 
       <main className="container mx-auto px-4 space-y-4">
         <div className="flex gap-2">
