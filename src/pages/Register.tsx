@@ -195,12 +195,11 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Custom Domain */}
+              {/* Store Domain */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">
                   <Globe className="h-3.5 w-3.5 inline-block ml-1" />
-                  اسم النطاق الخاص
-                  <span className="text-muted-foreground font-normal mr-1">(اختياري)</span>
+                  اسم النطاق *
                 </label>
                 <Input
                   value={customDomain}
