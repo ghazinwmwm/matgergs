@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, Search, LayoutGrid, List, BarChart3, Plus, Store, ChevronDown, AlertTriangle, X } from "lucide-react";
+import { Package, Search, LayoutGrid, List, BarChart3, Plus, AlertTriangle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,15 +9,13 @@ import type { Product } from "@/types/product";
 import { useInventory } from "@/hooks/useInventory";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
+import StoreSwitcher from "@/components/StoreSwitcher";
 
 const Index = () => {
   const navigate = useNavigate();
   const { products, deleteProduct, lowStockProducts } = useInventory();
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string>(t.all);
-  const [selectedStore, setSelectedStore] = useState("المتجر الرئيسي");
-  const [storeMenuOpen, setStoreMenuOpen] = useState(false);
-  const stores = ["المتجر الرئيسي", "فرع المنصور", "فرع الكرادة"];
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -43,7 +41,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} />
+      <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} actions={<StoreSwitcher compact />} />
 
       <main className="container mx-auto px-4 py-6 space-y-5">
         {/* Low stock alert */}
@@ -85,18 +83,6 @@ const Index = () => {
 
         <div className="flex items-center justify-between gap-3">
           <Button onClick={() => navigate("/add")} className="gap-2"><Plus className="h-4 w-4" />{t.inventory.addProduct}</Button>
-          <div className="relative">
-            <button onClick={() => setStoreMenuOpen(!storeMenuOpen)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-secondary transition-colors">
-              <Store className="h-4 w-4 text-muted-foreground" />{selectedStore}<ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-            {storeMenuOpen && (
-              <div className="absolute top-full mt-1 left-0 z-20 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[160px]">
-                {stores.map((store) => (
-                  <button key={store} onClick={() => { setSelectedStore(store); setStoreMenuOpen(false); }} className={`w-full text-right px-4 py-2 text-sm transition-colors ${selectedStore === store ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-secondary"}`}>{store}</button>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         <div className="space-y-3">

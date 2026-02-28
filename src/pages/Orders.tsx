@@ -4,6 +4,7 @@ import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
 import OrderDetailDialog from "@/components/OrderDetailDialog";
+import StoreSwitcher from "@/components/StoreSwitcher";
 
 const MOCK_ORDERS = [
   { id: "#1042", customer: "أحمد محمد", amount: 85000, status_ar: "جديد", status_ku: "نوێ", items: 2, date: "27 فبراير 2026" },
@@ -39,7 +40,7 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t.orders.title} subtitle={`${MOCK_ORDERS.length} ${t.orders.order}`} showBack={false} />
+      <PageHeader title={t.orders.title} subtitle={`${MOCK_ORDERS.length} ${t.orders.order}`} showBack={false} actions={<StoreSwitcher compact />} />
       <main className="container mx-auto px-4 space-y-4">
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
