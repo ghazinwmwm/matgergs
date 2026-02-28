@@ -195,22 +195,25 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Store Domain */}
+              {/* Store Subdomain */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">
                   <Globe className="h-3.5 w-3.5 inline-block ml-1" />
-                  اسم النطاق *
+                  نطاق المتجر *
                 </label>
-                <Input
-                  value={customDomain}
-                  onChange={(e) => setCustomDomain(e.target.value)}
-                  placeholder="example.com"
-                  className="h-11 text-xs"
-                  dir="ltr"
-                />
-                {customDomain && (
-                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
-                    سيتم ربط النطاق <span className="font-bold text-foreground" dir="ltr">{customDomain}</span> بمتجرك بعد إكمال التسجيل
+                <div className="flex items-center gap-0 border border-input rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                  <span className="text-[11px] text-muted-foreground bg-secondary px-3 py-2.5 border-l border-input whitespace-nowrap" dir="ltr">.matager.store</span>
+                  <input
+                    value={storeSlug}
+                    onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    placeholder="your-store"
+                    className="flex-1 h-11 px-3 text-xs bg-background text-foreground placeholder:text-muted-foreground outline-none"
+                    dir="ltr"
+                  />
+                </div>
+                {storeSlug && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5" dir="ltr">
+                    {storeSlug}.matager.store
                   </p>
                 )}
               </div>
