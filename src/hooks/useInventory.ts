@@ -15,6 +15,7 @@ const SAMPLE_PRODUCT: Product = {
   colors: ["#1E3A5F", "#000000", "#FFFFFF"],
   returnPolicy: "7-days",
   deliveryDays: 3,
+  stock: 5,
 };
 
 let sharedProducts: Product[] = [SAMPLE_PRODUCT];
@@ -36,9 +37,11 @@ export function useInventory() {
     products: sharedProducts,
     categories: sharedCategories,
     addProduct: (p: Product) => { sharedProducts = [p, ...sharedProducts]; notify(); },
+    updateProduct: (p: Product) => { sharedProducts = sharedProducts.map((prod) => prod.id === p.id ? p : prod); notify(); },
     deleteProduct: (id: string) => { sharedProducts = sharedProducts.filter((p) => p.id !== id); notify(); },
     addCategory: (cat: string) => {
       if (!sharedCategories.includes(cat)) { sharedCategories = [...sharedCategories, cat]; notify(); }
     },
+    lowStockProducts: sharedProducts.filter((p) => p.stock !== undefined && p.stock <= 5),
   };
 }

@@ -36,6 +36,7 @@ export const ar = {
     orders: "الطلبات",
     customers: "العملاء",
     visitors: "الزوار",
+    weeklySales: "المبيعات الأسبوعية",
     recentOrders: "آخر الطلبات",
     viewAll: "عرض الكل",
     recentProducts: "آخر المنتجات",
@@ -56,6 +57,10 @@ export const ar = {
     delivering: "قيد التوصيل",
     completed: "مكتمل",
     cancelled: "ملغي",
+    orderDetails: "تفاصيل الطلب",
+    products: "المنتجات",
+    deliveryStatus: "حالة التوصيل",
+    total: "المجموع",
   },
 
   // Customers
@@ -64,6 +69,9 @@ export const ar = {
     customer: "عميل",
     searchPlaceholder: "ابحث عن عميل...",
     noCustomers: "لا يوجد عملاء",
+    newCustomers: "عملاء جدد",
+    topBuyer: "الأكثر شراءً",
+    totalSpent: "إجمالي الإنفاق",
   },
 
   // Inventory
@@ -79,6 +87,10 @@ export const ar = {
     noProducts: "لا توجد منتجات بعد",
     pressToStart: "اضغط + للبدء",
     changeCategoryOrSearch: "غيّر الصنف أو البحث",
+    lowStock: "مخزون منخفض",
+    outOfStock: "نفد المخزون",
+    editProduct: "تعديل المنتج",
+    stock: "المخزون",
   },
 
   // More
@@ -136,6 +148,9 @@ export const ar = {
     savedDesc: "تم تحديث البيانات بنجاح",
     language: "اللغة",
     languageDesc: "تغيير لغة التطبيق",
+    appearance: "المظهر",
+    lightMode: "فاتح",
+    darkMode: "داكن",
   },
 
   // Plans

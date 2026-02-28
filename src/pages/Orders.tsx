@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
+import OrderDetailDialog from "@/components/OrderDetailDialog";
 
 const MOCK_ORDERS = [
   { id: "#1042", customer: "أحمد محمد", amount: 85000, status_ar: "جديد", status_ku: "نوێ", items: 2, date: "27 فبراير 2026" },
@@ -17,6 +18,8 @@ const Orders = () => {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState(t.all);
   const [search, setSearch] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<typeof MOCK_ORDERS[0] | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const statusColor: Record<string, string> = {
     "جديد": "bg-primary/10 text-primary", "نوێ": "bg-primary/10 text-primary",
@@ -57,7 +60,7 @@ const Orders = () => {
             filtered.map((order) => {
               const status = lang === "ku" ? order.status_ku : order.status_ar;
               return (
-                <div key={order.id} className="flex items-center gap-3 px-4 py-3">
+                <div key={order.id} onClick={() => { setSelectedOrder(order); setDetailOpen(true); }} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-foreground">{order.customer}</span>
@@ -76,6 +79,7 @@ const Orders = () => {
           )}
         </div>
       </main>
+      <OrderDetailDialog order={selectedOrder} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Mail, Phone, Store, Globe as GlobeIcon, Bell, Shield, LogOut, Camera, Save, FileText, MessageCircle, Instagram, Facebook, ShoppingBag, Link2, Languages } from "lucide-react";
+import { User, Mail, Phone, Store, Globe as GlobeIcon, Bell, Shield, LogOut, Camera, Save, FileText, MessageCircle, Instagram, Facebook, ShoppingBag, Link2, Languages, Sun, Moon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage, type Lang } from "@/hooks/useLanguage";
+import { useTheme } from "@/hooks/useTheme";
 
 const LANG_OPTIONS: { value: Lang; label: string; native: string }[] = [
   { value: "ar", label: "العربية", native: "العربية" },
@@ -15,6 +16,7 @@ const LANG_OPTIONS: { value: Lang; label: string; native: string }[] = [
 
 const Profile = () => {
   const { t, lang, setLang } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: "أحمد التاجر",
@@ -92,6 +94,32 @@ const Profile = () => {
               >
                 <span className="text-sm font-bold text-foreground">{option.label}</span>
                 <span className="text-[10px] text-muted-foreground">{option.native}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Appearance / Dark Mode */}
+        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <h3 className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+            <Sun className="h-3 w-3" /> {t.profile.appearance}
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: "light" as const, label: t.profile.lightMode, icon: Sun },
+              { value: "dark" as const, label: t.profile.darkMode, icon: Moon },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setTheme(option.value)}
+                className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
+                  theme === option.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/30"
+                }`}
+              >
+                <option.icon className="h-5 w-5 text-foreground" />
+                <span className="text-sm font-bold text-foreground">{option.label}</span>
               </button>
             ))}
           </div>

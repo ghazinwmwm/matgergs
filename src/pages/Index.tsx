@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, Search, LayoutGrid, List, BarChart3, Plus, Store, ChevronDown } from "lucide-react";
+import { Package, Search, LayoutGrid, List, BarChart3, Plus, Store, ChevronDown, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { products, deleteProduct } = useInventory();
+  const { products, deleteProduct, lowStockProducts } = useInventory();
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string>(t.all);
   const [selectedStore, setSelectedStore] = useState("المتجر الرئيسي");
@@ -45,6 +45,19 @@ const Index = () => {
       <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} />
 
       <main className="container mx-auto px-4 py-6 space-y-5">
+        {/* Low stock alert */}
+        {lowStockProducts.length > 0 && (
+          <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">{t.inventory.lowStock}</p>
+              <p className="text-xs text-muted-foreground">
+                {lowStockProducts.map((p) => `${p.name} (${p.stock ?? 0})`).join("، ")}
+              </p>
+            </div>
+          </div>
+        )}
+
         {products.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-card border border-border rounded-lg p-3">
