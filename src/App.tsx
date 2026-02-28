@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PlanProvider } from "./hooks/usePlan";
 import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./hooks/useTheme";
+import { OnboardingProvider, useOnboarding } from "./hooks/useOnboarding";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
@@ -33,36 +34,57 @@ const AddProductWrapper = () => {
   return <AddProduct categories={categories} onAdd={addProduct} onAddCategory={addCategory} />;
 };
 
+const AppRoutes = () => {
+  const { isOnboarded } = useOnboarding();
+
+  if (!isOnboarded) {
+    return (
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/register" replace />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/inventory" element={<Index />} />
+        <Route path="/add" element={<AddProductWrapper />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/coupons" element={<Coupons />} />
+        <Route path="/stores" element={<Stores />} />
+        <Route path="/team" element={<Team />} />
+        <Route path="/templates" element={<Templates />} />
+        <Route path="/delivery" element={<Delivery />} />
+        <Route path="/tracking" element={<Tracking />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/more" element={<More />} />
+        <Route path="/plans" element={<Plans />} />
+        <Route path="/register" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <BottomBar />
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <PlanProvider>
       <ThemeProvider>
       <LanguageProvider>
+      <OnboardingProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/inventory" element={<Index />} />
-            <Route path="/add" element={<AddProductWrapper />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/customers" element={<Customers />} />
-            <Route path="/coupons" element={<Coupons />} />
-            <Route path="/stores" element={<Stores />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/delivery" element={<Delivery />} />
-            <Route path="/tracking" element={<Tracking />} />
-            <Route path="/stats" element={<Stats />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/more" element={<More />} />
-            <Route path="/plans" element={<Plans />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <BottomBar />
+          <AppRoutes />
         </BrowserRouter>
+      </OnboardingProvider>
       </LanguageProvider>
       </ThemeProvider>
       </PlanProvider>
