@@ -1,6 +1,6 @@
 import { 
   Store, UserCog, Palette, Truck, Activity, Ticket,
-  BarChart3, Settings, HelpCircle, ChevronLeft, User
+  BarChart3, Settings, ChevronLeft
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProBadge } from "@/components/ProGate";
@@ -32,9 +32,7 @@ const More = () => {
       title: t.more.general,
       items: [
         { icon: BarChart3, label: t.more.stats, path: "/stats", desc: t.more.statsDesc, pro: true },
-        { icon: User, label: t.more.account, path: "/profile", desc: t.more.accountDesc, pro: false },
-        { icon: Settings, label: t.more.settingsLabel, path: "/profile?tab=settings", desc: t.more.settingsDesc, pro: false },
-        { icon: HelpCircle, label: t.more.help, path: "/profile?tab=help", desc: t.more.helpDesc, pro: false },
+        { icon: Settings, label: t.more.settingsLabel, path: "/profile", desc: t.more.settingsDesc, pro: false },
       ],
     },
   ];
