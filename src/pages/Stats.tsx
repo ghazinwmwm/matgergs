@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { ProGate } from "@/components/ProGate";
 
 const REVENUE_DATA = [
   { day: "السبت", value: 320000 },
@@ -143,70 +144,63 @@ const Stats = () => {
           ))}
         </div>
 
-        {/* Revenue Chart */}
-        <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">الإيرادات</h3>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={REVENUE_DATA}>
-                <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(191, 80%, 42%)" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="hsl(191, 80%, 42%)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="day" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
-                  formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} د.ع`, "الإيرادات"]}
-                />
-                <Area type="monotone" dataKey="value" stroke="hsl(191, 80%, 42%)" strokeWidth={2} fill="url(#revenueGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
+        {/* Advanced Stats - PRO gated */}
+        <ProGate feature="التقارير والتحليلات المتقدمة">
+          {/* Revenue Chart */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4">الإيرادات</h3>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={REVENUE_DATA}>
+                  <defs>
+                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(191, 80%, 42%)" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="hsl(191, 80%, 42%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="day" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }} formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} د.ع`, "الإيرادات"]} />
+                  <Area type="monotone" dataKey="value" stroke="hsl(191, 80%, 42%)" strokeWidth={2} fill="url(#revenueGradient)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
 
-        {/* Orders Chart */}
-        <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">الطلبات</h3>
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ORDERS_DATA}>
-                <XAxis dataKey="day" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
-                  formatter={(value: number) => [`${value} طلب`, "الطلبات"]}
-                />
-                <Bar dataKey="value" fill="hsl(191, 80%, 42%)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Orders Chart */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4">الطلبات</h3>
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={ORDERS_DATA}>
+                  <XAxis dataKey="day" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }} formatter={(value: number) => [`${value} طلب`, "الطلبات"]} />
+                  <Bar dataKey="value" fill="hsl(191, 80%, 42%)" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
 
-        {/* Top Products */}
-        <div className="bg-card border border-border rounded-xl">
-          <div className="p-4 pb-3">
-            <h3 className="text-sm font-semibold text-foreground">أكثر المنتجات مبيعاً</h3>
-          </div>
-          <div className="divide-y divide-border">
-            {TOP_PRODUCTS.map((product, i) => (
-              <div key={product.name} className="flex items-center gap-3 px-4 py-3">
-                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">
-                  {i + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{product.sales} مبيعة</p>
+          {/* Top Products */}
+          <div className="bg-card border border-border rounded-xl">
+            <div className="p-4 pb-3">
+              <h3 className="text-sm font-semibold text-foreground">أكثر المنتجات مبيعاً</h3>
+            </div>
+            <div className="divide-y divide-border">
+              {TOP_PRODUCTS.map((product, i) => (
+                <div key={product.name} className="flex items-center gap-3 px-4 py-3">
+                  <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{product.sales} مبيعة</p>
+                  </div>
+                  <span className="text-sm font-bold text-foreground whitespace-nowrap">{product.revenue.toLocaleString("ar-IQ")} <span className="text-[9px] text-muted-foreground">د.ع</span></span>
                 </div>
-                <span className="text-sm font-bold text-foreground whitespace-nowrap">
-                  {product.revenue.toLocaleString("ar-IQ")} <span className="text-[9px] text-muted-foreground">د.ع</span>
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </ProGate>
       </main>
     </div>
   );

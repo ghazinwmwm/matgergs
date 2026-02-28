@@ -3,31 +3,32 @@ import {
   BarChart3, Settings, HelpCircle, ChevronLeft, User
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ProBadge } from "@/components/ProGate";
 
 const sections = [
   {
     title: "إدارة المتجر",
     items: [
-      { icon: Store, label: "المتاجر", path: "/stores", desc: "إنشاء وإدارة متاجرك" },
-      { icon: UserCog, label: "فريق العمل", path: "/team", desc: "إضافة مديرين وصلاحيات" },
-      { icon: Ticket, label: "أكواد الخصم", path: "/coupons", desc: "إنشاء وإدارة كوبونات" },
-      { icon: Palette, label: "القوالب", path: "/templates", desc: "تغيير تصميم المتجر" },
+      { icon: Store, label: "المتاجر", path: "/stores", desc: "إنشاء وإدارة متاجرك", pro: true },
+      { icon: UserCog, label: "فريق العمل", path: "/team", desc: "إضافة مديرين وصلاحيات", pro: true },
+      { icon: Ticket, label: "أكواد الخصم", path: "/coupons", desc: "إنشاء وإدارة كوبونات", pro: false },
+      { icon: Palette, label: "القوالب", path: "/templates", desc: "تغيير تصميم المتجر", pro: true },
     ],
   },
   {
     title: "الربط والتكامل",
     items: [
-      { icon: Truck, label: "شركات التوصيل", path: "/delivery", desc: "ربط مع شركات التوصيل" },
-      { icon: Activity, label: "البيكسل والتتبع", path: "/tracking", desc: "فيسبوك بيكسل، Google Analytics" },
+      { icon: Truck, label: "شركات التوصيل", path: "/delivery", desc: "ربط مع شركات التوصيل", pro: false },
+      { icon: Activity, label: "البيكسل والتتبع", path: "/tracking", desc: "فيسبوك بيكسل، Google Analytics", pro: true },
     ],
   },
   {
     title: "عام",
     items: [
-      { icon: BarChart3, label: "الإحصائيات", path: "/stats", desc: "تقارير المبيعات والأداء" },
-      { icon: User, label: "حسابي", path: "/profile", desc: "إعدادات الحساب" },
-      { icon: Settings, label: "الإعدادات", path: "/profile", desc: "الإشعارات، اللغة، المظهر" },
-      { icon: HelpCircle, label: "المساعدة", path: "/profile", desc: "الدعم الفني" },
+      { icon: BarChart3, label: "الإحصائيات", path: "/stats", desc: "تقارير المبيعات والأداء", pro: true },
+      { icon: User, label: "حسابي", path: "/profile", desc: "إعدادات الحساب", pro: false },
+      { icon: Settings, label: "الإعدادات", path: "/profile", desc: "الإشعارات، اللغة، المظهر", pro: false },
+      { icon: HelpCircle, label: "المساعدة", path: "/profile", desc: "الدعم الفني", pro: false },
     ],
   },
 ];
@@ -56,7 +57,10 @@ const More = () => {
                     <item.icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      {item.pro && <ProBadge />}
+                    </div>
                     <p className="text-[11px] text-muted-foreground">{item.desc}</p>
                   </div>
                   <ChevronLeft className="h-4 w-4 text-muted-foreground flex-shrink-0" />

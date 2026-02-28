@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { PlanProvider } from "./hooks/usePlan";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
@@ -33,30 +34,32 @@ const AddProductWrapper = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/inventory" element={<Index />} />
-          <Route path="/add" element={<AddProductWrapper />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/coupons" element={<Coupons />} />
-          <Route path="/stores" element={<Stores />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/delivery" element={<Delivery />} />
-          <Route path="/tracking" element={<Tracking />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/more" element={<More />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <BottomBar />
-      </BrowserRouter>
+      <PlanProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/inventory" element={<Index />} />
+            <Route path="/add" element={<AddProductWrapper />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/coupons" element={<Coupons />} />
+            <Route path="/stores" element={<Stores />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/delivery" element={<Delivery />} />
+            <Route path="/tracking" element={<Tracking />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/more" element={<More />} />
+            <Route path="/plans" element={<Plans />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <BottomBar />
+        </BrowserRouter>
+      </PlanProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
