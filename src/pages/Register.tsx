@@ -62,6 +62,7 @@ const Register = () => {
   const [storeCategory, setStoreCategory] = useState("");
   const [storeSlug, setStoreSlug] = useState("");
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
+  const [customDomain, setCustomDomain] = useState("");
 
   // Step 2: Social Links
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
@@ -193,6 +194,27 @@ const Register = () => {
                   </span>
                 </div>
               )}
+
+              {/* Custom Domain */}
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">
+                  <Globe className="h-3.5 w-3.5 inline-block ml-1" />
+                  اسم النطاق الخاص
+                  <span className="text-muted-foreground font-normal mr-1">(اختياري)</span>
+                </label>
+                <Input
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value)}
+                  placeholder="example.com"
+                  className="h-11 text-xs"
+                  dir="ltr"
+                />
+                {customDomain && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
+                    سيتم ربط النطاق <span className="font-bold text-foreground" dir="ltr">{customDomain}</span> بمتجرك بعد إكمال التسجيل
+                  </p>
+                )}
+              </div>
 
               {/* Store Description */}
               <div>
