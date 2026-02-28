@@ -2,6 +2,7 @@ import { Users, Search, ShoppingCart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const MOCK_CUSTOMERS = [
   { id: "c1", name: "أحمد محمد", phone: "0770 123 4567", orders: 12, total: 1450000, lastOrder: "27 فبراير 2026" },
@@ -12,27 +13,23 @@ const MOCK_CUSTOMERS = [
 ];
 
 const Customers = () => {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
-
-  const filtered = MOCK_CUSTOMERS.filter(
-    (c) => !search || c.name.includes(search) || c.phone.includes(search)
-  );
+  const filtered = MOCK_CUSTOMERS.filter((c) => !search || c.name.includes(search) || c.phone.includes(search));
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="العملاء" subtitle={`${MOCK_CUSTOMERS.length} عميل`} showBack={false} />
-
+      <PageHeader title={t.customers.title} subtitle={`${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
       <main className="container mx-auto px-4 space-y-4">
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث عن عميل..." className="pr-10" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.customers.searchPlaceholder} className="pr-10" />
         </div>
-
         <div className="bg-card border border-border rounded-xl divide-y divide-border">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Users className="h-12 w-12 mb-3 opacity-30" />
-              <p className="text-sm font-medium">لا يوجد عملاء</p>
+              <p className="text-sm font-medium">{t.customers.noCustomers}</p>
             </div>
           ) : (
             filtered.map((customer) => (
@@ -45,16 +42,13 @@ const Customers = () => {
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[11px] text-muted-foreground">{customer.phone}</span>
                     <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
-                      <ShoppingCart className="h-2.5 w-2.5" />
-                      {customer.orders} طلب
+                      <ShoppingCart className="h-2.5 w-2.5" />{customer.orders} {t.orders.order}
                     </span>
                   </div>
                 </div>
                 <div className="text-left">
-                  <span className="text-sm font-bold text-foreground block">
-                    {customer.total.toLocaleString("ar-IQ")}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">د.ع</span>
+                  <span className="text-sm font-bold text-foreground block">{customer.total.toLocaleString("ar-IQ")}</span>
+                  <span className="text-[10px] text-muted-foreground">{t.currency}</span>
                 </div>
               </div>
             ))

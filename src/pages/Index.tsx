@@ -8,12 +8,13 @@ import ProductDetailDialog from "@/components/ProductDetailDialog";
 import type { Product } from "@/types/product";
 import { useInventory } from "@/hooks/useInventory";
 import PageHeader from "@/components/PageHeader";
+import { useLanguage } from "@/hooks/useLanguage";
 
-// Inventory management page
 const Index = () => {
   const navigate = useNavigate();
   const { products, deleteProduct } = useInventory();
-  const [activeCategory, setActiveCategory] = useState<string>("الكل");
+  const { t } = useLanguage();
+  const [activeCategory, setActiveCategory] = useState<string>(t.all);
   const [selectedStore, setSelectedStore] = useState("المتجر الرئيسي");
   const [storeMenuOpen, setStoreMenuOpen] = useState(false);
   const stores = ["المتجر الرئيسي", "فرع المنصور", "فرع الكرادة"];
@@ -29,7 +30,7 @@ const Index = () => {
   }, {});
 
   const filtered = products.filter((p) => {
-    const matchesCategory = activeCategory === "الكل" || p.category === activeCategory;
+    const matchesCategory = activeCategory === t.all || p.category === activeCategory;
     const matchesSearch = !searchQuery || p.name.includes(searchQuery) || p.description.includes(searchQuery);
     return matchesCategory && matchesSearch;
   });
@@ -41,95 +42,64 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <PageHeader title="إدارة المخزون" subtitle={`${products.length} منتج`} showBack={false} />
+      <PageHeader title={t.inventory.title} subtitle={`${products.length} ${t.inventory.product}`} showBack={false} />
 
       <main className="container mx-auto px-4 py-6 space-y-5">
-        {/* Stats */}
         {products.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-card border border-border rounded-lg p-3">
-              <span className="text-xs text-muted-foreground flex items-center gap-1"><Package className="h-3 w-3" /> المنتجات</span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1"><Package className="h-3 w-3" /> {t.inventory.products}</span>
               <span className="text-xl font-bold text-foreground block">{products.length}</span>
             </div>
             <div className="bg-card border border-border rounded-lg p-3">
-              <span className="text-xs text-muted-foreground flex items-center gap-1"><LayoutGrid className="h-3 w-3" /> الأصناف</span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1"><LayoutGrid className="h-3 w-3" /> {t.inventory.categories}</span>
               <span className="text-xl font-bold text-foreground block">{Object.keys(categoryCounts).length}</span>
             </div>
             <div className="bg-card border border-border rounded-lg p-3">
-              <span className="text-xs text-muted-foreground flex items-center gap-1"><BarChart3 className="h-3 w-3" /> القيمة</span>
-              <span className="text-lg font-bold text-primary block">{totalValue.toLocaleString("ar-IQ")} <span className="text-[10px]">د.ع</span></span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {t.inventory.value}</span>
+              <span className="text-lg font-bold text-primary block">{totalValue.toLocaleString("ar-IQ")} <span className="text-[10px]">{t.currency}</span></span>
             </div>
             <div className="bg-card border border-border rounded-lg p-3">
-              <span className="text-xs text-muted-foreground flex items-center gap-1"><List className="h-3 w-3" /> بخصم</span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1"><List className="h-3 w-3" /> {t.inventory.withDiscount}</span>
               <span className="text-xl font-bold text-accent block">{products.filter((p) => p.discount > 0).length}</span>
             </div>
           </div>
         )}
 
-        {/* Action row: Store selector + Add button */}
         <div className="flex items-center justify-between gap-3">
-          <Button onClick={() => navigate("/add")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            إضافة منتج
-          </Button>
+          <Button onClick={() => navigate("/add")} className="gap-2"><Plus className="h-4 w-4" />{t.inventory.addProduct}</Button>
           <div className="relative">
-            <button
-              onClick={() => setStoreMenuOpen(!storeMenuOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-secondary transition-colors"
-            >
-              <Store className="h-4 w-4 text-muted-foreground" />
-              {selectedStore}
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            <button onClick={() => setStoreMenuOpen(!storeMenuOpen)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-secondary transition-colors">
+              <Store className="h-4 w-4 text-muted-foreground" />{selectedStore}<ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {storeMenuOpen && (
               <div className="absolute top-full mt-1 left-0 z-20 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[160px]">
                 {stores.map((store) => (
-                  <button
-                    key={store}
-                    onClick={() => { setSelectedStore(store); setStoreMenuOpen(false); }}
-                    className={`w-full text-right px-4 py-2 text-sm transition-colors ${
-                      selectedStore === store ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    {store}
-                  </button>
+                  <button key={store} onClick={() => { setSelectedStore(store); setStoreMenuOpen(false); }} className={`w-full text-right px-4 py-2 text-sm transition-colors ${selectedStore === store ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-secondary"}`}>{store}</button>
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Search & Filter */}
         <div className="space-y-3">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="ابحث عن منتج..." className="pr-10" />
+            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t.inventory.searchPlaceholder} className="pr-10" />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1">
-            <button
-              onClick={() => setActiveCategory("الكل")}
-              className={`flex-shrink-0 px-3 py-1 rounded-full text-sm transition-colors ${activeCategory === "الكل" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
-            >
-              الكل ({products.length})
-            </button>
+            <button onClick={() => setActiveCategory(t.all)} className={`flex-shrink-0 px-3 py-1 rounded-full text-sm transition-colors ${activeCategory === t.all ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{t.all} ({products.length})</button>
             {Object.entries(categoryCounts).map(([cat, count]) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 px-3 py-1 rounded-full text-sm transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
-              >
-                {cat} ({count})
-              </button>
+              <button key={cat} onClick={() => setActiveCategory(cat)} className={`flex-shrink-0 px-3 py-1 rounded-full text-sm transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{cat} ({count})</button>
             ))}
           </div>
         </div>
 
-        {/* Products */}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
             <Package className="h-14 w-14 mb-3 opacity-30" />
-            <p className="text-base font-medium">{products.length === 0 ? "لا توجد منتجات بعد" : "لا توجد نتائج"}</p>
-            <p className="text-sm">{products.length === 0 ? 'اضغط + للبدء' : "غيّر الصنف أو البحث"}</p>
+            <p className="text-base font-medium">{products.length === 0 ? t.inventory.noProducts : t.noResults}</p>
+            <p className="text-sm">{products.length === 0 ? t.inventory.pressToStart : t.inventory.changeCategoryOrSearch}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -139,7 +109,6 @@ const Index = () => {
           </div>
         )}
       </main>
-
       <ProductDetailDialog product={selectedProduct} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
   );
