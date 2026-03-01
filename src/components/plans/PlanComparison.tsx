@@ -9,7 +9,7 @@ interface CompRow {
 const ROWS: CompRow[] = [
   { featureAr: "عدد المتاجر", featureKu: "ژمارەی فرۆشگاکان", free: "1", basic: "3", pro: "∞" },
   { featureAr: "عدد المنتجات", featureKu: "ژمارەی بەرهەمەکان", free: "20", basic: "100", pro: "∞" },
-  { featureAr: "أكواد الخصم", featureKu: "کۆدی داشکاندن", free: "5", basic: "∞", pro: "∞" },
+  { featureAr: "أكواد الخصم", featureKu: "کۆدی داشکاندن", free: "—", basic: "∞", pro: "∞" },
   { featureAr: "شركات التوصيل", featureKu: "کۆمپانیای گەیاندن", free: "1", basic: "1", pro: "∞" },
   { featureAr: "أعضاء الفريق", featureKu: "ئەندامانی تیم", free: "—", basic: "2", pro: "5" },
   { featureAr: "القوالب", featureKu: "داڕشتەکان", free: "1", basic: "1", pro: "∞" },
