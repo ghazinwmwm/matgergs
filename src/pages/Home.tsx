@@ -201,25 +201,50 @@ const Home = () => {
           <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
         </button>
 
-        {/* Weekly Revenue Hero Card */}
-        <div className="bg-gradient-to-l from-primary/15 via-primary/8 to-primary/3 border border-primary/20 rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-primary" />
+        {/* Weekly Revenue + Chart Combined */}
+        <div className="bg-gradient-to-l from-primary/15 via-primary/8 to-primary/3 border border-primary/20 rounded-2xl overflow-hidden">
+          <div className="p-5 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">{lang === "ku" ? "داهاتی ئەم هەفتە" : "إيرادات هذا الأسبوع"}</span>
               </div>
-              <span className="text-xs font-medium text-muted-foreground">{lang === "ku" ? "داهاتی ئەم هەفتە" : "إيرادات هذا الأسبوع"}</span>
+              <span className={`text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded-full ${stats.revenueChange >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
+                {stats.revenueChange >= 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                {stats.revenueChange >= 0 ? "+" : ""}{stats.revenueChange}%
+              </span>
             </div>
-            <span className={`text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded-full ${stats.revenueChange >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
-              {stats.revenueChange >= 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
-              {stats.revenueChange >= 0 ? "+" : ""}{stats.revenueChange}%
-            </span>
+            <div className="mt-2">
+              <span className="text-3xl font-extrabold text-foreground">{stats.revenue.toLocaleString("ar-IQ")}</span>
+              <span className="text-sm text-muted-foreground mr-1.5">{t.currency}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">{lang === "ku" ? "بەراورد بە هەفتەی ڕابردوو" : "مقارنة بالأسبوع الماضي"}</p>
           </div>
-          <div className="mt-2">
-            <span className="text-3xl font-extrabold text-foreground">{stats.revenue.toLocaleString("ar-IQ")}</span>
-            <span className="text-sm text-muted-foreground mr-1.5">{t.currency}</span>
-          </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{lang === "ku" ? "بەراورد بە هەفتەی ڕابردوو" : "مقارنة بالأسبوع الماضي"}</p>
+          <SalesChart embedded />
+        </div>
+
+        {/* Stats Grid - 3 columns */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
+            { label: t.home.orders, value: stats.orders, change: stats.ordersChange, icon: ShoppingCart, color: "text-accent-foreground" },
+            { label: t.home.customers, value: stats.customers, change: stats.customersChange, icon: Users, color: "text-success" },
+            { label: t.home.visitors, value: stats.visitors, icon: Eye, color: "text-muted-foreground" },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-card border border-border rounded-xl p-3.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <stat.icon className={`h-3.5 w-3.5 ${stat.color}`} />
+                {stat.change !== undefined && (
+                  <span className={`text-[10px] font-medium flex items-center gap-0.5 ${stat.change >= 0 ? "text-success" : "text-destructive"}`}>
+                    {stat.change >= 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}{Math.abs(stat.change)}%
+                  </span>
+                )}
+              </div>
+              <span className="text-lg font-bold text-foreground block">{stat.value}</span>
+              <span className="text-[10px] text-muted-foreground">{stat.label}</span>
+            </div>
+          ))}
         </div>
 
         {/* Quick Actions */}
@@ -242,30 +267,6 @@ const Home = () => {
             </button>
           ))}
         </div>
-
-        {/* Stats Grid - 3 columns without revenue */}
-        <div className="grid grid-cols-3 gap-2.5">
-          {[
-            { label: t.home.orders, value: stats.orders, change: stats.ordersChange, icon: ShoppingCart, color: "text-accent-foreground" },
-            { label: t.home.customers, value: stats.customers, change: stats.customersChange, icon: Users, color: "text-success" },
-            { label: t.home.visitors, value: stats.visitors, icon: Eye, color: "text-muted-foreground" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-xl p-3.5">
-              <div className="flex items-center justify-between mb-1.5">
-                <stat.icon className={`h-3.5 w-3.5 ${stat.color}`} />
-                {stat.change !== undefined && (
-                  <span className={`text-[10px] font-medium flex items-center gap-0.5 ${stat.change >= 0 ? "text-success" : "text-destructive"}`}>
-                    {stat.change >= 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}{Math.abs(stat.change)}%
-                  </span>
-                )}
-              </div>
-              <span className="text-lg font-bold text-foreground block">{stat.value}</span>
-              <span className="text-[10px] text-muted-foreground">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-
-        <SalesChart />
 
         <div className="bg-card border border-border rounded-xl">
           <div className="flex items-center justify-between p-4 pb-3">
