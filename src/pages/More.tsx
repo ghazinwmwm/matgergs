@@ -15,23 +15,23 @@ const More = () => {
     {
       title: t.more.storeManagement,
       items: [
-        { icon: Store, label: t.more.stores, path: "/stores", desc: t.more.storesDesc, pro: true },
-        { icon: UserCog, label: t.more.team, path: "/team", desc: t.more.teamDesc, pro: true },
-        { icon: Ticket, label: t.more.coupons, path: "/coupons", desc: t.more.couponsDesc, pro: false },
-        { icon: Palette, label: t.more.templates, path: "/templates", desc: t.more.templatesDesc, pro: true },
+        { icon: Store, label: t.more.stores, path: "/stores", desc: t.more.storesDesc, minPlan: "basic" as const },
+        { icon: UserCog, label: t.more.team, path: "/team", desc: t.more.teamDesc, minPlan: "basic" as const },
+        { icon: Ticket, label: t.more.coupons, path: "/coupons", desc: t.more.couponsDesc, minPlan: "basic" as const },
+        { icon: Palette, label: t.more.templates, path: "/templates", desc: t.more.templatesDesc, minPlan: "pro" as const },
       ],
     },
     {
       title: t.more.integrations,
       items: [
-        { icon: Truck, label: t.more.delivery, path: "/delivery", desc: t.more.deliveryDesc, pro: false },
-        { icon: Activity, label: t.more.tracking, path: "/tracking", desc: t.more.trackingDesc, pro: true },
+        { icon: Truck, label: t.more.delivery, path: "/delivery", desc: t.more.deliveryDesc },
+        { icon: Activity, label: t.more.tracking, path: "/tracking", desc: t.more.trackingDesc, minPlan: "pro" as const },
       ],
     },
     {
       title: t.more.general,
       items: [
-        { icon: Settings, label: t.more.settingsLabel, path: "/profile", desc: t.more.settingsDesc, pro: false },
+        { icon: Settings, label: t.more.settingsLabel, path: "/profile", desc: t.more.settingsDesc },
       ],
     },
   ];
@@ -52,7 +52,7 @@ const More = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      {item.pro && <ProBadge />}
+                      {"minPlan" in item && item.minPlan && <ProBadge tier={item.minPlan} />}
                     </div>
                     <p className="text-[11px] text-muted-foreground">{item.desc}</p>
                   </div>
