@@ -8,15 +8,21 @@ import { Button } from "@/components/ui/button";
 interface ProGateProps {
   children: React.ReactNode;
   feature?: string;
+  /** Minimum plan required. Defaults to "pro" */
+  minPlan?: "basic" | "pro";
 }
 
-/** Wraps content that requires Pro plan. Shows upgrade popup for basic users. */
-export const ProGate = ({ children, feature }: ProGateProps) => {
-  const { isPro } = usePlan();
+/** Wraps content that requires a paid plan. Shows upgrade popup for lower-tier users. */
+export const ProGate = ({ children, feature, minPlan = "pro" }: ProGateProps) => {
+  const { plan } = usePlan();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  if (isPro) return <>{children}</>;
+  const hasAccess = minPlan === "basic" 
+    ? (plan === "basic" || plan === "pro") 
+    : plan === "pro";
+
+  if (hasAccess) return <>{children}</>;
 
   return (
     <>
@@ -31,7 +37,7 @@ export const ProGate = ({ children, feature }: ProGateProps) => {
             </div>
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <Crown className="h-3 w-3 text-primary" />
-              PRO
+              {minPlan === "pro" ? "PRO" : "BASIC+"}
             </span>
           </div>
         </div>
@@ -42,7 +48,7 @@ export const ProGate = ({ children, feature }: ProGateProps) => {
           <DialogHeader>
             <DialogTitle className="flex items-center justify-center gap-2">
               <Crown className="h-5 w-5 text-primary" />
-              ميزة احترافية
+              ميزة {minPlan === "pro" ? "احترافية" : "مدفوعة"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
@@ -50,12 +56,12 @@ export const ProGate = ({ children, feature }: ProGateProps) => {
               <Sparkles className="h-8 w-8 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {feature || "هذه الميزة"} متاحة فقط في الباقة الاحترافية. قم بالترقية للاستفادة من جميع الميزات المتقدمة.
+              {feature || "هذه الميزة"} متاحة فقط في الباقة {minPlan === "pro" ? "الاحترافية" : "الأساسية أو أعلى"}. قم بالترقية للاستفادة من جميع الميزات المتقدمة.
             </p>
             <div className="flex flex-col gap-2">
               <Button onClick={() => { setOpen(false); navigate("/plans"); }} className="w-full gap-2">
                 <Crown className="h-4 w-4" />
-                ترقية للاحترافية
+                عرض الباقات
               </Button>
               <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
                 لاحقاً
@@ -68,14 +74,17 @@ export const ProGate = ({ children, feature }: ProGateProps) => {
   );
 };
 
-/** Small PRO badge for menu items */
-export const ProBadge = () => {
-  const { isPro } = usePlan();
-  if (isPro) return null;
+/** Small badge for menu items */
+export const ProBadge = ({ tier = "pro" }: { tier?: "basic" | "pro" }) => {
+  const { plan } = usePlan();
+  const hasAccess = tier === "basic" 
+    ? (plan === "basic" || plan === "pro") 
+    : plan === "pro";
+  if (hasAccess) return null;
   return (
     <span className="text-[9px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
       <Crown className="h-2.5 w-2.5" />
-      PRO
+      {tier === "pro" ? "PRO" : "BASIC+"}
     </span>
   );
 };
