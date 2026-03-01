@@ -77,38 +77,41 @@ const Home = () => {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2.5">
-              <div>
-                <p className="text-[11px] text-muted-foreground leading-none mb-0.5">{t.home.welcome}</p>
-                <h1 className="text-base font-bold text-foreground leading-tight">{t.home.dashboard}</h1>
-              </div>
-              {stores.length > 1 && (
-                <div className="h-6 w-px bg-border mx-0.5" />
-              )}
-              {stores.length > 1 && (
-                <div className="flex items-center gap-1.5 bg-muted/60 border border-border rounded-full px-2.5 py-1 cursor-pointer hover:bg-muted transition-colors">
-                  <Store className="h-3 w-3 text-primary" />
+        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button onClick={() => { setShowAccountMenu(!showAccountMenu); setShowNotifications(false); }} className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity">أ</button>
+            <div>
+              <h1 className="text-sm font-bold text-foreground leading-tight">{t.home.dashboard}</h1>
+              {stores.length > 1 ? (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Store className="h-2.5 w-2.5 text-primary" />
                   <select
                     value={activeStoreId}
                     onChange={(e) => switchStore(e.target.value)}
-                    className="bg-transparent text-[11px] font-semibold text-foreground outline-none border-none cursor-pointer appearance-none pr-3"
+                    className="bg-transparent text-[10px] font-medium text-muted-foreground outline-none border-none cursor-pointer appearance-none"
                   >
                     {stores.map((store) => (
                       <option key={store.id} value={store.id}>{store.name}</option>
                     ))}
                   </select>
-                  <ChevronDown className="h-2.5 w-2.5 text-muted-foreground -mr-0.5" />
                 </div>
+              ) : (
+                <p className="text-[10px] text-muted-foreground leading-none mt-0.5">{t.home.welcome}</p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")}
+              className="h-8 px-3 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5 hover:bg-primary/15 transition-colors"
+            >
+              <ExternalLink className="h-3 w-3 text-primary" />
+              <span className="text-[11px] font-semibold text-primary">{t.home.openStore}</span>
+            </button>
             <div className="relative">
-              <button onClick={() => { setShowNotifications(!showNotifications); setShowAccountMenu(false); }} className="relative w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                <Bell className="h-4 w-4 text-foreground" />
-                {unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">{unreadCount}</span>}
+              <button onClick={() => { setShowNotifications(!showNotifications); setShowAccountMenu(false); }} className="relative w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                <Bell className="h-3.5 w-3.5 text-foreground" />
+                {unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground text-[8px] font-bold flex items-center justify-center">{unreadCount}</span>}
               </button>
               {showNotifications && (
                 <>
@@ -130,38 +133,36 @@ const Home = () => {
                 </>
               )}
             </div>
-            <div className="relative">
-              <button onClick={() => { setShowAccountMenu(!showAccountMenu); setShowNotifications(false); }} className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold hover:opacity-90 transition-opacity">أ</button>
-              {showAccountMenu && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowAccountMenu(false)} />
-                  <div className="absolute top-full mt-2 left-0 z-40 w-56 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border">
-                      <p className="text-sm font-semibold text-foreground">أحمد التاجر</p>
-                      <p className="text-[11px] text-muted-foreground">ahmed@example.com</p>
-                    </div>
-                    <div className="py-1">
-                      {[
-                        { icon: User, label: t.home.myAccount, path: "/profile" },
-                        { icon: CreditCard, label: t.home.planAndSub, path: "/plans" },
-                        { icon: Settings, label: t.home.settings, path: "/profile" },
-                      ].map((item) => (
-                        <button key={item.label} onClick={() => { navigate(item.path); setShowAccountMenu(false); }} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors">
-                          <item.icon className="h-4 w-4 text-muted-foreground" />{item.label}
-                        </button>
-                      ))}
-                      <div className="border-t border-border mt-1 pt-1">
-                        <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
-                          <LogOut className="h-4 w-4" />{t.home.logout}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
+        {/* Account Menu Dropdown */}
+        {showAccountMenu && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setShowAccountMenu(false)} />
+            <div className="absolute top-14 right-4 z-40 w-56 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-sm font-semibold text-foreground">أحمد التاجر</p>
+                <p className="text-[11px] text-muted-foreground">ahmed@example.com</p>
+              </div>
+              <div className="py-1">
+                {[
+                  { icon: User, label: t.home.myAccount, path: "/profile" },
+                  { icon: CreditCard, label: t.home.planAndSub, path: "/plans" },
+                  { icon: Settings, label: t.home.settings, path: "/profile" },
+                ].map((item) => (
+                  <button key={item.label} onClick={() => { navigate(item.path); setShowAccountMenu(false); }} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors">
+                    <item.icon className="h-4 w-4 text-muted-foreground" />{item.label}
+                  </button>
+                ))}
+                <div className="border-t border-border mt-1 pt-1">
+                  <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
+                    <LogOut className="h-4 w-4" />{t.home.logout}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <main className="container mx-auto px-4 pt-4 space-y-4">
@@ -184,11 +185,6 @@ const Home = () => {
             </div>
           </div>
         )}
-
-        <Button onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")} variant="outline" className="w-full justify-between gap-2 h-12 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold">
-          <span className="flex items-center gap-2"><ExternalLink className="h-4 w-4" />{t.home.openStore}</span>
-          <span className="text-[11px] font-normal text-muted-foreground" dir="ltr">{activeStore?.domain || "mystore"}.matager.store</span>
-        </Button>
 
         <button onClick={() => navigate("/plans")} className="w-full bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl p-3.5 flex items-center justify-between hover:border-primary/40 transition-colors">
           <div className="flex items-center gap-2.5">
