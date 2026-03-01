@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
+import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
 
 interface Coupon {
@@ -40,6 +41,7 @@ const Coupons = () => {
       } />
 
       <main className="container mx-auto px-4 pt-4 space-y-4">
+        <ProGate feature="أكواد الخصم وإدارة العروض" minPlan="basic">
         {showForm && (
           <div className="bg-card border border-border rounded-xl p-4 space-y-4 animate-slide-in">
             <h3 className="text-sm font-semibold text-foreground">كود خصم جديد</h3>
@@ -129,6 +131,7 @@ const Coupons = () => {
             ))
           )}
         </div>
+        </ProGate>
       </main>
     </div>
   );

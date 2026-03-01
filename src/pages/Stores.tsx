@@ -25,7 +25,7 @@ type View = "list" | "detail" | "add";
 
 const Stores = () => {
   const navigate = useNavigate();
-  const { isPro } = usePlan();
+  const { isPaid } = usePlan();
   const { stores, activeStoreId, setActiveStoreId, addStore, deleteStore, toggleStoreActive } = useStores();
   const { t, lang } = useLanguage();
   const [view, setView] = useState<View>("list");
@@ -394,7 +394,7 @@ const Stores = () => {
 
         {/* Additional stores - PRO gated */}
         {additionalStores.length > 0 && (
-          <ProGate feature={lang === "ku" ? "زیادکردنی فرۆشگای زیاتر" : "إضافة متاجر متعددة"}>
+          <ProGate feature={lang === "ku" ? "زیادکردنی فرۆشگای زیاتر" : "إضافة متاجر متعددة"} minPlan="basic">
             <div className="space-y-3">
               {additionalStores.map((store) => (
                 <StoreCard
