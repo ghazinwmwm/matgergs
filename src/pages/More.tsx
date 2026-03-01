@@ -31,7 +31,6 @@ const More = () => {
     {
       title: t.more.general,
       items: [
-        { icon: BarChart3, label: t.more.stats, path: "/stats", desc: t.more.statsDesc, pro: true },
         { icon: Settings, label: t.more.settingsLabel, path: "/profile", desc: t.more.settingsDesc, pro: false },
       ],
     },

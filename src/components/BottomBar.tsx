@@ -1,4 +1,4 @@
-import { House, ShoppingBag, Box, UsersRound, Ellipsis } from "lucide-react";
+import { House, ShoppingBag, Box, BarChart3, Ellipsis } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -14,7 +14,7 @@ const BottomBar = () => {
     { path: "/", icon: House, label: t.nav.home },
     { path: "/orders", icon: ShoppingBag, label: t.nav.orders },
     { path: "/inventory", icon: Box, label: t.nav.products },
-    { path: "/customers", icon: UsersRound, label: t.nav.customers },
+    { path: "/stats", icon: BarChart3, label: t.nav.stats },
     { path: "/more", icon: Ellipsis, label: t.nav.more },
   ];
 
