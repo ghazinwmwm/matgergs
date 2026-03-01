@@ -19,7 +19,7 @@ export const ku = {
     home: "سەرەتا",
     orders: "داواکاریەکان",
     products: "بەرهەمەکان",
-    customers: "کڕیارەکان",
+    stats: "ئامارەکان",
     more: "زیاتر",
   },
 

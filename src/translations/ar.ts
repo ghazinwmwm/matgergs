@@ -19,7 +19,7 @@ export const ar = {
     home: "الرئيسية",
     orders: "الطلبات",
     products: "المنتجات",
-    customers: "العملاء",
+    stats: "الإحصائيات",
     more: "المزيد",
   },
 

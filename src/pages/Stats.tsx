@@ -1,7 +1,8 @@
 import { useState } from "react";
 import {
   BarChart3, TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Package, Calendar,
-  Wallet, CheckCircle2, MapPin, Smartphone, Monitor, Tablet, Eye, Globe, ExternalLink
+  Wallet, CheckCircle2, MapPin, Smartphone, Monitor, Tablet, Eye, Globe, ExternalLink,
+  Search, Crown
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, Area,
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import PageHeader from "@/components/PageHeader";
+import { useLanguage } from "@/hooks/useLanguage";
 
 // --- Existing Data ---
 const REVENUE_DATA = [
@@ -93,11 +95,22 @@ const PIE_COLORS = ["#1877F2", "#E4405F", "hsl(191, 80%, 42%)", "#34A853", "#010
 
 const PERIODS = ["اليوم", "هذا الأسبوع", "هذا الشهر", "هذه السنة"];
 
+const MOCK_CUSTOMERS = [
+  { id: "c1", name: "أحمد محمد", phone: "0770 123 4567", orders: 12, total: 1450000, lastOrder: "27 فبراير 2026" },
+  { id: "c2", name: "سارة علي", phone: "0771 234 5678", orders: 8, total: 920000, lastOrder: "27 فبراير 2026" },
+  { id: "c3", name: "عمر حسين", phone: "0772 345 6789", orders: 5, total: 380000, lastOrder: "26 فبراير 2026" },
+  { id: "c4", name: "فاطمة كريم", phone: "0773 456 7890", orders: 15, total: 2100000, lastOrder: "26 فبراير 2026" },
+  { id: "c5", name: "حسن جاسم", phone: "0774 567 8901", orders: 3, total: 210000, lastOrder: "25 فبراير 2026" },
+];
+
 const Stats = () => {
+  const { t } = useLanguage();
+  const [mainTab, setMainTab] = useState<"stats" | "customers">("stats");
   const [period, setPeriod] = useState("هذا الأسبوع");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [activeAnalyticsTab, setActiveAnalyticsTab] = useState<"governorate" | "device" | "pages" | "sources">("governorate");
+  const [customerSearch, setCustomerSearch] = useState("");
   const availableBalance = 3050000;
 
   const handleWithdraw = () => {
@@ -127,11 +140,93 @@ const Stats = () => {
 
   const totalVisits = PAGE_VISITS.reduce((s, p) => s + p.visits, 0);
 
+  const filteredCustomers = MOCK_CUSTOMERS.filter((c) => !customerSearch || c.name.includes(customerSearch) || c.phone.includes(customerSearch));
+  const topBuyer = MOCK_CUSTOMERS.reduce((a, b) => (a.total > b.total ? a : b));
+  const totalCustomerSpent = MOCK_CUSTOMERS.reduce((sum, c) => sum + c.total, 0);
+
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="الإحصائيات" subtitle="تقارير الأداء والمبيعات" />
+      <PageHeader title={mainTab === "stats" ? t.more.stats : t.customers.title} subtitle={mainTab === "stats" ? t.more.statsDesc : `${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
 
       <main className="container mx-auto px-4 space-y-5">
+        {/* Main Tabs: Stats / Customers */}
+        <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
+          <button
+            onClick={() => setMainTab("stats")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+              mainTab === "stats" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            }`}
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            {t.more.stats}
+          </button>
+          <button
+            onClick={() => setMainTab("customers")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+              mainTab === "customers" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            }`}
+          >
+            <Users className="h-3.5 w-3.5" />
+            {t.customers.title}
+          </button>
+        </div>
+
+        {mainTab === "customers" ? (
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <Users className="h-4 w-4 text-primary mx-auto mb-1" />
+                <span className="text-lg font-bold text-foreground block">{MOCK_CUSTOMERS.length}</span>
+                <span className="text-[10px] text-muted-foreground">{t.customers.title}</span>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <Crown className="h-4 w-4 text-accent mx-auto mb-1" />
+                <span className="text-xs font-bold text-foreground block truncate">{topBuyer.name}</span>
+                <span className="text-[10px] text-muted-foreground">{t.customers.topBuyer}</span>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <TrendingUp className="h-4 w-4 text-success mx-auto mb-1" />
+                <span className="text-xs font-bold text-foreground block">{(totalCustomerSpent / 1000000).toFixed(1)}M</span>
+                <span className="text-[10px] text-muted-foreground">{t.customers.totalSpent}</span>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} placeholder={t.customers.searchPlaceholder} className="pr-10" />
+            </div>
+            <div className="bg-card border border-border rounded-xl divide-y divide-border">
+              {filteredCustomers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                  <Users className="h-12 w-12 mb-3 opacity-30" />
+                  <p className="text-sm font-medium">{t.customers.noCustomers}</p>
+                </div>
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <div key={customer.id} className="flex items-center gap-3 px-4 py-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-primary">{customer.name.charAt(0)}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{customer.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[11px] text-muted-foreground">{customer.phone}</span>
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                          <ShoppingCart className="h-2.5 w-2.5" />{customer.orders} {t.orders.order}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-left">
+                      <span className="text-sm font-bold text-foreground block">{customer.total.toLocaleString("ar-IQ")}</span>
+                      <span className="text-[10px] text-muted-foreground">{t.currency}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <>
         {/* Period Filter */}
         <div className="flex gap-2 overflow-x-auto pb-1">
           {PERIODS.map((p) => (
@@ -500,6 +595,8 @@ const Stats = () => {
             )}
           </div>
         </ProGate>
+          </>
+        )}
       </main>
     </div>
   );
