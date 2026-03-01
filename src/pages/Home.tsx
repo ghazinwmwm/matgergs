@@ -2,7 +2,8 @@ import { useState } from "react";
 import { 
   TrendingUp, TrendingDown, ShoppingCart, Users, Package, Store, 
   DollarSign, Clock, Eye, Bell, ExternalLink, ChevronDown,
-  LogOut, Settings, User, CreditCard, Plus, X, Sparkles
+  LogOut, Settings, User, CreditCard, Plus, X, Sparkles,
+  BarChart3, Box
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useNavigate } from "react-router-dom";
@@ -163,7 +164,7 @@ const Home = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 pt-4 space-y-5">
+      <main className="container mx-auto px-4 pt-4 space-y-4">
 
         {showProductReminder && (
           <div className="relative bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-4 overflow-hidden">
@@ -200,24 +201,66 @@ const Home = () => {
           <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
         </button>
 
-        <div className="grid grid-cols-2 gap-3">
+        {/* Weekly Revenue Hero Card */}
+        <div className="bg-gradient-to-l from-primary/15 via-primary/8 to-primary/3 border border-primary/20 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">{lang === "ku" ? "داهاتی ئەم هەفتە" : "إيرادات هذا الأسبوع"}</span>
+            </div>
+            <span className={`text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded-full ${stats.revenueChange >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
+              {stats.revenueChange >= 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+              {stats.revenueChange >= 0 ? "+" : ""}{stats.revenueChange}%
+            </span>
+          </div>
+          <div className="mt-2">
+            <span className="text-3xl font-extrabold text-foreground">{stats.revenue.toLocaleString("ar-IQ")}</span>
+            <span className="text-sm text-muted-foreground mr-1.5">{t.currency}</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">{lang === "ku" ? "بەراورد بە هەفتەی ڕابردوو" : "مقارنة بالأسبوع الماضي"}</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-4 gap-2.5">
           {[
-            { label: t.home.revenue, value: `${(stats.revenue / 1000).toLocaleString("ar-IQ")}K`, sub: t.currency, change: stats.revenueChange, icon: DollarSign, color: "text-primary" },
+            { label: lang === "ku" ? "بەرهەمی نوێ" : "إضافة منتج", icon: Plus, path: "/add", bg: "bg-primary/10", iconColor: "text-primary" },
+            { label: lang === "ku" ? "شیکاری" : "التحليلات", icon: BarChart3, path: "/stats", bg: "bg-accent/10", iconColor: "text-accent-foreground" },
+            { label: lang === "ku" ? "داواکارییەکان" : "الطلبات", icon: ShoppingCart, path: "/orders", bg: "bg-success/10", iconColor: "text-success" },
+            { label: lang === "ku" ? "بەرهەمەکان" : "المنتجات", icon: Box, path: "/inventory", bg: "bg-muted", iconColor: "text-muted-foreground" },
+          ].map((action) => (
+            <button
+              key={action.path}
+              onClick={() => navigate(action.path)}
+              className="flex flex-col items-center gap-2 bg-card border border-border rounded-xl p-3.5 hover:bg-muted/50 transition-colors active:scale-95"
+            >
+              <div className={`w-10 h-10 rounded-xl ${action.bg} flex items-center justify-center`}>
+                <action.icon className={`h-5 w-5 ${action.iconColor}`} />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground leading-tight text-center">{action.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Stats Grid - 3 columns without revenue */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
             { label: t.home.orders, value: stats.orders, change: stats.ordersChange, icon: ShoppingCart, color: "text-accent-foreground" },
             { label: t.home.customers, value: stats.customers, change: stats.customersChange, icon: Users, color: "text-success" },
             { label: t.home.visitors, value: stats.visitors, icon: Eye, color: "text-muted-foreground" },
           ].map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            <div key={stat.label} className="bg-card border border-border rounded-xl p-3.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <stat.icon className={`h-3.5 w-3.5 ${stat.color}`} />
                 {stat.change !== undefined && (
-                  <span className={`text-[11px] font-medium flex items-center gap-0.5 ${stat.change >= 0 ? "text-success" : "text-destructive"}`}>
-                    {stat.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}{Math.abs(stat.change)}%
+                  <span className={`text-[10px] font-medium flex items-center gap-0.5 ${stat.change >= 0 ? "text-success" : "text-destructive"}`}>
+                    {stat.change >= 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}{Math.abs(stat.change)}%
                   </span>
                 )}
               </div>
-              <span className="text-xl font-bold text-foreground block">{stat.value}{stat.sub && <span className="text-[10px] text-muted-foreground mr-1">{stat.sub}</span>}</span>
-              <span className="text-xs text-muted-foreground">{stat.label}</span>
+              <span className="text-lg font-bold text-foreground block">{stat.value}</span>
+              <span className="text-[10px] text-muted-foreground">{stat.label}</span>
             </div>
           ))}
         </div>
