@@ -81,10 +81,15 @@ export const ProBadge = ({ tier = "pro" }: { tier?: "basic" | "pro" }) => {
     ? (plan === "basic" || plan === "pro") 
     : plan === "pro";
   if (hasAccess) return null;
+  const isProTier = tier === "pro";
   return (
-    <span className="text-[9px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${
+      isProTier 
+        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" 
+        : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+    }`}>
       <Crown className="h-2.5 w-2.5" />
-      {tier === "pro" ? "PRO" : "BASIC+"}
+      {isProTier ? "احترافية" : "أساسية"}
     </span>
   );
 };
