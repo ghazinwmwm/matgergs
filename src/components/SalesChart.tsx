@@ -21,9 +21,32 @@ const WEEKLY_DATA_KU = [
   { day: "هەینی", sales: 480000 },
 ];
 
-const SalesChart = () => {
+const SalesChart = ({ embedded = false }: { embedded?: boolean }) => {
   const { t, lang } = useLanguage();
   const data = lang === "ku" ? WEEKLY_DATA_KU : WEEKLY_DATA_AR;
+
+  if (embedded) {
+    return (
+      <div className="h-36 px-2 pb-3">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="salesGradientEmbed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="day" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+            <Tooltip
+              contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+              formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} ${t.currency}`, t.home.revenue]}
+            />
+            <Area type="monotone" dataKey="sales" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#salesGradientEmbed)" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
