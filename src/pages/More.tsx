@@ -1,15 +1,30 @@
+import { useState } from "react";
 import { 
   Store, UserCog, Palette, Truck, Activity, Ticket,
   BarChart3, Settings, ChevronLeft
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ProBadge } from "@/components/ProGate";
+import { ProBadge, UpgradeDialog, useHasAccess } from "@/components/ProGate";
+import { usePlan } from "@/hooks/usePlan";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
 
 const More = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { plan } = usePlan();
+  const [upgradeDialog, setUpgradeDialog] = useState<{ open: boolean; feature: string; minPlan: "basic" | "pro" }>({
+    open: false, feature: "", minPlan: "basic"
+  });
+
+  const hasBasicAccess = plan === "basic" || plan === "pro";
+  const hasProAccess = plan === "pro";
+
+  const checkAccess = (minPlan?: "basic" | "pro") => {
+    if (!minPlan) return true;
+    if (minPlan === "basic") return hasBasicAccess;
+    return hasProAccess;
+  };
 
   const sections = [
     {
@@ -36,6 +51,14 @@ const More = () => {
     },
   ];
 
+  const handleItemClick = (item: { path: string; label: string; minPlan?: "basic" | "pro" }) => {
+    if (item.minPlan && !checkAccess(item.minPlan)) {
+      setUpgradeDialog({ open: true, feature: item.label, minPlan: item.minPlan });
+      return;
+    }
+    navigate(item.path);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={t.more.title} showBack={false} />
@@ -45,7 +68,7 @@ const More = () => {
             <h2 className="text-xs font-semibold text-muted-foreground mb-2 px-1">{section.title}</h2>
             <div className="bg-card border border-border rounded-xl divide-y divide-border">
               {section.items.map((item) => (
-                <button key={item.label} onClick={() => navigate(item.path)} className="flex items-center gap-3 w-full px-4 py-3 text-right hover:bg-muted/50 transition-colors">
+                <button key={item.label} onClick={() => handleItemClick(item)} className="flex items-center gap-3 w-full px-4 py-3 text-right hover:bg-muted/50 transition-colors">
                   <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                     <item.icon className="h-4 w-4 text-muted-foreground" />
                   </div>
@@ -63,6 +86,13 @@ const More = () => {
           </div>
         ))}
       </main>
+
+      <UpgradeDialog
+        open={upgradeDialog.open}
+        onOpenChange={(open) => setUpgradeDialog(prev => ({ ...prev, open }))}
+        feature={upgradeDialog.feature}
+        minPlan={upgradeDialog.minPlan}
+      />
     </div>
   );
 };
