@@ -26,7 +26,7 @@ const TEMPLATES: Template[] = [
 ];
 
 const Templates = () => {
-  const { isPro } = usePlan();
+  const { isPro } = usePlan(); // templates premium = pro only
   const [activeCategory, setActiveCategory] = useState<string>("الكل");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("minimal");
 

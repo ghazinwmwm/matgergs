@@ -66,7 +66,7 @@ const Team = () => {
       />
 
       <main className="container mx-auto px-4 space-y-4">
-        <ProGate feature="إدارة فريق العمل وإضافة مديرين">
+        <ProGate feature="إدارة فريق العمل وإضافة مديرين" minPlan="basic">
           {showInvite && (
             <div className="bg-card border border-border rounded-xl p-4 space-y-3 animate-slide-in">
               <h3 className="text-sm font-semibold text-foreground">دعوة مدير جديد</h3>
