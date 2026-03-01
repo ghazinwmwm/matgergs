@@ -94,6 +94,7 @@ const Home = () => {
                       <option key={store.id} value={store.id}>{store.name}</option>
                     ))}
                   </select>
+                  <ChevronDown className="h-2.5 w-2.5 text-muted-foreground" />
                 </div>
               ) : (
                 <p className="text-[10px] text-muted-foreground leading-none mt-0.5">{t.home.welcome}</p>
