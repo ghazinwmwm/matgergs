@@ -69,6 +69,7 @@ const Templates = () => {
   const [activeType, setActiveType] = useState<string>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("minimal");
   const [setupDialogTemplate, setSetupDialogTemplate] = useState<Template | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
   const filtered = TEMPLATES.filter((t) => {
     const matchCategory = activeCategory === "الكل" || t.category === activeCategory;
