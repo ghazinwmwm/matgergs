@@ -194,19 +194,19 @@ const Templates = () => {
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {freeTemplates.map(renderTemplateCard)}
 
           {premiumTemplates.length > 0 && (
             <ProGate feature="القوالب المميزة والاحترافية">
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {premiumTemplates.map(renderTemplateCard)}
               </div>
             </ProGate>
           )}
 
           {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground col-span-full">
               <Package className="h-12 w-12 mb-3 opacity-30" />
               <p className="text-sm font-medium">لا توجد قوالب في هذا التصنيف</p>
             </div>
