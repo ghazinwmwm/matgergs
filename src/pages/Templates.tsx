@@ -194,12 +194,13 @@ const Templates = () => {
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {freeTemplates.map(renderTemplateCard)}
+        </div>
 
           {premiumTemplates.length > 0 && (
             <ProGate feature="القوالب المميزة والاحترافية">
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {premiumTemplates.map(renderTemplateCard)}
               </div>
             </ProGate>
