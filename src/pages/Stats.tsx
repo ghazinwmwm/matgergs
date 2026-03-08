@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   BarChart3, TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Package, Calendar,
   Wallet, CheckCircle2, MapPin, Smartphone, Monitor, Tablet, Eye, Globe, ExternalLink,
-  Search, Crown
+  Search, Crown, CreditCard, Banknote
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, Area,
@@ -44,7 +44,13 @@ const TOP_PRODUCTS = [
   { name: "حقيبة جلدية", sales: 9, revenue: 405000 },
 ];
 
-// --- New Analytics Data ---
+// Payment method data
+const PAYMENT_DATA = [
+  { name: "دفع إلكتروني", value: 42, amount: 1890000, color: "hsl(191, 80%, 42%)", icon: CreditCard },
+  { name: "دفع عند التوصيل", value: 58, amount: 2160000, color: "hsl(160, 60%, 42%)", icon: Banknote },
+];
+
+// --- Analytics Data ---
 const GOVERNORATE_DATA = [
   { name: "بغداد", orders: 142, percentage: 35 },
   { name: "البصرة", orders: 58, percentage: 14 },
@@ -111,12 +117,15 @@ const Stats = () => {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [activeAnalyticsTab, setActiveAnalyticsTab] = useState<"governorate" | "device" | "pages" | "sources">("governorate");
   const [customerSearch, setCustomerSearch] = useState("");
-  const availableBalance = 3050000;
+  
+  const electronicBalance = 1890000;
+  const codBalance = 2160000;
+  const totalBalance = electronicBalance + codBalance;
 
   const handleWithdraw = () => {
     const amount = parseInt(withdrawAmount);
-    if (!amount || amount <= 0 || amount > availableBalance) {
-      toast({ title: "خطأ", description: "يرجى إدخال مبلغ صحيح", variant: "destructive" });
+    if (!amount || amount <= 0 || amount > electronicBalance) {
+      toast({ title: "خطأ", description: amount > electronicBalance ? "المبلغ يتجاوز رصيد الدفع الإلكتروني" : "يرجى إدخال مبلغ صحيح", variant: "destructive" });
       return;
     }
     toast({ title: "تم إرسال الطلب ✓", description: `طلب سحب ${amount.toLocaleString("ar-IQ")} د.ع قيد المراجعة` });
@@ -139,7 +148,6 @@ const Stats = () => {
   ];
 
   const totalVisits = PAGE_VISITS.reduce((s, p) => s + p.visits, 0);
-
   const filteredCustomers = MOCK_CUSTOMERS.filter((c) => !customerSearch || c.name.includes(customerSearch) || c.phone.includes(customerSearch));
   const topBuyer = MOCK_CUSTOMERS.reduce((a, b) => (a.total > b.total ? a : b));
   const totalCustomerSpent = MOCK_CUSTOMERS.reduce((sum, c) => sum + c.total, 0);
@@ -149,25 +157,13 @@ const Stats = () => {
       <PageHeader title={mainTab === "stats" ? t.more.stats : t.customers.title} subtitle={mainTab === "stats" ? t.more.statsDesc : `${MOCK_CUSTOMERS.length} ${t.customers.customer}`} showBack={false} />
 
       <main className="container mx-auto px-4 space-y-5">
-        {/* Main Tabs: Stats / Customers */}
+        {/* Main Tabs */}
         <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
-          <button
-            onClick={() => setMainTab("stats")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-              mainTab === "stats" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            <BarChart3 className="h-3.5 w-3.5" />
-            {t.more.stats}
+          <button onClick={() => setMainTab("stats")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${mainTab === "stats" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <BarChart3 className="h-3.5 w-3.5" />{t.more.stats}
           </button>
-          <button
-            onClick={() => setMainTab("customers")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-              mainTab === "customers" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            <Users className="h-3.5 w-3.5" />
-            {t.customers.title}
+          <button onClick={() => setMainTab("customers")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${mainTab === "customers" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <Users className="h-3.5 w-3.5" />{t.customers.title}
           </button>
         </div>
 
@@ -190,7 +186,6 @@ const Stats = () => {
                 <span className="text-[10px] text-muted-foreground">{t.customers.totalSpent}</span>
               </div>
             </div>
-
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} placeholder={t.customers.searchPlaceholder} className="pr-10" />
@@ -236,11 +231,41 @@ const Stats = () => {
           ))}
         </div>
 
-        {/* Balance */}
+        {/* Payment Methods Breakdown */}
+        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">طرق الدفع</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {PAYMENT_DATA.map((method) => {
+              const Icon = method.icon;
+              return (
+                <div key={method.name} className="bg-muted/40 rounded-xl p-3 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${method.color}15` }}>
+                      <Icon className="h-4 w-4" style={{ color: method.color }} />
+                    </div>
+                    <span className="text-[11px] font-medium text-foreground">{method.name}</span>
+                  </div>
+                  <p className="text-base font-bold text-foreground">{method.amount.toLocaleString("ar-IQ")} <span className="text-[9px] text-muted-foreground">د.ع</span></p>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${method.value}%`, backgroundColor: method.color }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-muted-foreground">{method.value}%</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Balance & Withdraw - Electronic only */}
         <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-[11px] text-muted-foreground">الرصيد المتاح للسحب</p>
-            <p className="text-lg font-bold text-foreground">{availableBalance.toLocaleString("ar-IQ")} <span className="text-[10px] text-muted-foreground">د.ع</span></p>
+            <p className="text-[11px] text-muted-foreground">رصيد الدفع الإلكتروني المتاح للسحب</p>
+            <p className="text-lg font-bold text-foreground">{electronicBalance.toLocaleString("ar-IQ")} <span className="text-[10px] text-muted-foreground">د.ع</span></p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              <CreditCard className="h-3 w-3" /> السحب متاح فقط للدفع الإلكتروني
+            </p>
           </div>
           <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
             <DialogTrigger asChild>
@@ -250,8 +275,11 @@ const Stats = () => {
               <DialogHeader><DialogTitle className="text-center">طلب سحب أرباح</DialogTitle></DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="bg-secondary/50 rounded-xl p-3 text-center">
-                  <p className="text-[11px] text-muted-foreground">الرصيد المتاح</p>
-                  <p className="text-xl font-bold text-foreground">{availableBalance.toLocaleString("ar-IQ")} <span className="text-xs text-muted-foreground">د.ع</span></p>
+                  <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1"><CreditCard className="h-3 w-3" /> رصيد الدفع الإلكتروني</p>
+                  <p className="text-xl font-bold text-foreground">{electronicBalance.toLocaleString("ar-IQ")} <span className="text-xs text-muted-foreground">د.ع</span></p>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                  <p className="text-[10px] text-muted-foreground">⚠️ الدفع عند التوصيل ({codBalance.toLocaleString("ar-IQ")} د.ع) يُستلم مباشرة ولا يحتاج سحب</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">المبلغ المطلوب (د.ع)</label>
@@ -335,27 +363,17 @@ const Stats = () => {
             </div>
           </div>
 
-          {/* ===== ADVANCED ANALYTICS SECTION ===== */}
+          {/* ===== ADVANCED ANALYTICS ===== */}
           <div className="pt-2">
             <div className="flex items-center gap-2 mb-4">
               <BarChart3 className="h-5 w-5 text-primary" />
               <h2 className="text-base font-bold text-foreground">تحليلات متقدمة</h2>
             </div>
 
-            {/* Tabs */}
             <div className="flex gap-1.5 overflow-x-auto pb-3">
               {analyticsTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveAnalyticsTab(tab.id)}
-                  className={`flex items-center gap-1.5 flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
-                    activeAnalyticsTab === tab.id
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <tab.icon className="h-3.5 w-3.5" />
-                  {tab.label}
+                <button key={tab.id} onClick={() => setActiveAnalyticsTab(tab.id)} className={`flex items-center gap-1.5 flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${activeAnalyticsTab === tab.id ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                  <tab.icon className="h-3.5 w-3.5" />{tab.label}
                 </button>
               ))}
             </div>
@@ -374,15 +392,12 @@ const Stats = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="p-4 space-y-2.5">
                   {GOVERNORATE_DATA.map((gov, i) => (
                     <div key={gov.name} className="group">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold ${
-                            i === 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                          }`}>{i + 1}</span>
+                          <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{i + 1}</span>
                           <span className="text-xs font-medium text-foreground">{gov.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -391,12 +406,7 @@ const Stats = () => {
                         </div>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${
-                            i === 0 ? "bg-primary" : i === 1 ? "bg-primary/70" : "bg-primary/40"
-                          }`}
-                          style={{ width: `${gov.percentage}%` }}
-                        />
+                        <div className={`h-full rounded-full transition-all duration-700 ${i === 0 ? "bg-primary" : i === 1 ? "bg-primary/70" : "bg-primary/40"}`} style={{ width: `${gov.percentage}%` }} />
                       </div>
                     </div>
                   ))}
@@ -411,30 +421,14 @@ const Stats = () => {
                   <h3 className="text-sm font-semibold text-foreground">نوع الأجهزة</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">الأجهزة المستخدمة لتصفح المتجر</p>
                 </div>
-
                 <div className="p-4">
-                  {/* Donut Chart */}
                   <div className="flex items-center justify-center mb-5">
                     <div className="relative w-[200px] h-[200px]">
                       <PieChart width={200} height={200}>
-                        <Pie
-                          data={DEVICE_DATA}
-                          cx={100}
-                          cy={100}
-                          innerRadius={60}
-                          outerRadius={90}
-                          paddingAngle={4}
-                          dataKey="value"
-                          strokeWidth={0}
-                        >
-                          {DEVICE_DATA.map((entry, index) => (
-                            <Cell key={index} fill={entry.color} />
-                          ))}
+                        <Pie data={DEVICE_DATA} cx={100} cy={100} innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" strokeWidth={0}>
+                          {DEVICE_DATA.map((entry, index) => (<Cell key={index} fill={entry.color} />))}
                         </Pie>
-                        <Tooltip
-                          contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
-                          formatter={(value: number, name: string) => [`${value}%`, name]}
-                        />
+                        <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }} formatter={(value: number, name: string) => [`${value}%`, name]} />
                       </PieChart>
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <Smartphone className="h-5 w-5 text-primary mb-0.5" />
@@ -443,8 +437,6 @@ const Stats = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Device Breakdown */}
                   <div className="space-y-3">
                     {DEVICE_DATA.map((device) => {
                       const Icon = device.icon;
@@ -466,18 +458,14 @@ const Stats = () => {
                       );
                     })}
                   </div>
-                  {/* Device Brands */}
                   <div className="mt-5 pt-4 border-t border-border">
                     <h4 className="text-xs font-semibold text-foreground mb-3">العلامات التجارية والأنظمة</h4>
                     <div className="space-y-2.5">
-                      {DEVICE_BRANDS.map((brand, i) => (
+                      {DEVICE_BRANDS.map((brand) => (
                         <div key={brand.name} className="flex items-center gap-3">
                           <span className="text-xs font-medium text-foreground w-20 flex-shrink-0 truncate">{brand.name}</span>
                           <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-700"
-                              style={{ width: `${brand.percentage}%`, backgroundColor: brand.color }}
-                            />
+                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${brand.percentage}%`, backgroundColor: brand.color }} />
                           </div>
                           <span className="text-[11px] font-bold text-foreground w-8 text-left flex-shrink-0">{brand.percentage}%</span>
                         </div>
@@ -502,30 +490,22 @@ const Stats = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Bar chart for visits */}
                 <div className="p-4 pb-2">
                   <div className="h-52">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={PAGE_VISITS.slice(0, 5)} layout="vertical" margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
                         <XAxis type="number" hide />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 9, width: 90 }} axisLine={false} tickLine={false} width={110} />
-                        <Tooltip
-                          contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
-                          formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} زيارة`]}
-                        />
+                        <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }} formatter={(value: number) => [`${value.toLocaleString("ar-IQ")} زيارة`]} />
                         <Bar dataKey="visits" fill="hsl(191, 80%, 42%)" radius={[0, 6, 6, 0]} barSize={16} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
-
                 <div className="divide-y divide-border">
                   {PAGE_VISITS.map((page, i) => (
                     <div key={page.name} className="flex items-center gap-3 px-4 py-3">
-                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                        i === 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                      }`}>{i + 1}</span>
+                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${i === 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-foreground truncate">{page.name}</p>
                         <p className="text-[10px] text-muted-foreground">{page.unique.toLocaleString("ar-IQ")} زائر فريد</p>
@@ -547,32 +527,14 @@ const Stats = () => {
                   <h3 className="text-sm font-semibold text-foreground">مصادر الزيارات</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">من أين يأتي زبائنك</p>
                 </div>
-
-                {/* Pie Chart */}
                 <div className="flex items-center justify-center py-4">
                   <PieChart width={200} height={200}>
-                    <Pie
-                      data={TRAFFIC_SOURCES}
-                      cx={100}
-                      cy={100}
-                      innerRadius={50}
-                      outerRadius={85}
-                      paddingAngle={3}
-                      dataKey="value"
-                      strokeWidth={0}
-                    >
-                      {TRAFFIC_SOURCES.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
-                      ))}
+                    <Pie data={TRAFFIC_SOURCES} cx={100} cy={100} innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                      {TRAFFIC_SOURCES.map((entry, index) => (<Cell key={index} fill={entry.color} />))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }}
-                      formatter={(value: number, name: string) => [`${value}%`, name]}
-                    />
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(200, 20%, 90%)" }} formatter={(value: number, name: string) => [`${value}%`, name]} />
                   </PieChart>
                 </div>
-
-                {/* Source Breakdown */}
                 <div className="px-4 pb-4 space-y-2">
                   {TRAFFIC_SOURCES.map((source) => (
                     <div key={source.name} className="flex items-center gap-3 bg-muted/30 rounded-xl p-3">

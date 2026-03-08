@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Package, MapPin, Truck, Clock } from "lucide-react";
+import { Package, MapPin, Truck, Clock, Check, X, CreditCard, Banknote } from "lucide-react";
 
 interface OrderItem {
   name: string;
@@ -8,7 +10,9 @@ interface OrderItem {
   price: number;
 }
 
-interface Order {
+export type OrderStatus = "جديد" | "مقبول" | "قيد التوصيل" | "مكتمل" | "مرفوض" | "ملغي";
+
+export interface Order {
   id: string;
   customer: string;
   amount: number;
@@ -19,15 +23,24 @@ interface Order {
   phone?: string;
   address?: string;
   orderItems?: OrderItem[];
+  paymentMethod?: "electronic" | "cod";
 }
 
 interface OrderDetailDialogProps {
   order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdateStatus?: (orderId: string, newStatus: OrderStatus) => void;
 }
 
-const OrderDetailDialog = ({ order, open, onOpenChange }: OrderDetailDialogProps) => {
+const STATUS_FLOW: { status: OrderStatus; label: string; icon: typeof Check; variant: "default" | "destructive" | "outline" }[] = [
+  { status: "مقبول", label: "قبول الطلب", icon: Check, variant: "default" },
+  { status: "قيد التوصيل", label: "بدء التوصيل", icon: Truck, variant: "outline" },
+  { status: "مكتمل", label: "تم التسليم", icon: Check, variant: "default" },
+  { status: "مرفوض", label: "رفض الطلب", icon: X, variant: "destructive" },
+];
+
+const OrderDetailDialog = ({ order, open, onOpenChange, onUpdateStatus }: OrderDetailDialogProps) => {
   const { t, lang } = useLanguage();
   if (!order) return null;
 
@@ -35,8 +48,10 @@ const OrderDetailDialog = ({ order, open, onOpenChange }: OrderDetailDialogProps
 
   const statusColor: Record<string, string> = {
     "جديد": "bg-primary/10 text-primary", "نوێ": "bg-primary/10 text-primary",
+    "مقبول": "bg-success/10 text-success",
     "قيد التوصيل": "bg-accent/10 text-accent-foreground", "لە گەیاندندا": "bg-accent/10 text-accent-foreground",
     "مكتمل": "bg-success/10 text-success", "تەواوبوو": "bg-success/10 text-success",
+    "مرفوض": "bg-destructive/10 text-destructive",
     "ملغي": "bg-destructive/10 text-destructive", "هەڵوەشێنراوە": "bg-destructive/10 text-destructive",
   };
 
@@ -44,6 +59,24 @@ const OrderDetailDialog = ({ order, open, onOpenChange }: OrderDetailDialogProps
     { name: lang === "ku" ? "قەمیسی پۆلۆ" : "قميص بولو", qty: 1, price: 35000 },
     { name: lang === "ku" ? "پانتۆڵی جینز" : "بنطلون جينز", qty: 1, price: 50000 },
   ].slice(0, order.items);
+
+  // Determine available actions based on current status
+  const getAvailableActions = () => {
+    const currentStatus = order.status_ar;
+    switch (currentStatus) {
+      case "جديد":
+        return STATUS_FLOW.filter(s => s.status === "مقبول" || s.status === "مرفوض");
+      case "مقبول":
+        return STATUS_FLOW.filter(s => s.status === "قيد التوصيل" || s.status === "مرفوض");
+      case "قيد التوصيل":
+        return STATUS_FLOW.filter(s => s.status === "مكتمل");
+      default:
+        return [];
+    }
+  };
+
+  const actions = getAvailableActions();
+  const paymentMethod = order.paymentMethod || "cod";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,6 +91,21 @@ const OrderDetailDialog = ({ order, open, onOpenChange }: OrderDetailDialogProps
           <div className="flex items-center justify-between">
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor[status] || ""}`}>{status}</span>
             <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />{order.date}</span>
+          </div>
+
+          {/* Payment Method */}
+          <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+            {paymentMethod === "electronic" ? (
+              <>
+                <CreditCard className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium text-foreground">دفع إلكتروني</span>
+              </>
+            ) : (
+              <>
+                <Banknote className="h-4 w-4 text-success" />
+                <span className="text-xs font-medium text-foreground">دفع عند التوصيل</span>
+              </>
+            )}
           </div>
 
           {/* Customer */}
@@ -94,6 +142,30 @@ const OrderDetailDialog = ({ order, open, onOpenChange }: OrderDetailDialogProps
             <span className="text-sm font-semibold text-foreground">{t.orders.total}</span>
             <span className="text-base font-bold text-primary">{order.amount.toLocaleString("ar-IQ")} {t.currency}</span>
           </div>
+
+          {/* Action Buttons */}
+          {actions.length > 0 && onUpdateStatus && (
+            <div className="flex gap-2 pt-1">
+              {actions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Button
+                    key={action.status}
+                    variant={action.variant}
+                    size="sm"
+                    className="flex-1 gap-1.5 text-xs"
+                    onClick={() => {
+                      onUpdateStatus(order.id, action.status);
+                      onOpenChange(false);
+                    }}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {action.label}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
