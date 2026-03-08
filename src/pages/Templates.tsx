@@ -244,6 +244,71 @@ const Templates = () => {
             </div>
           </div>
         )}
+
+        {/* Template Preview Modal */}
+        {previewTemplate && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPreviewTemplate(null)}>
+            <div className="bg-card border border-border rounded-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 shadow-lg" onClick={(e) => e.stopPropagation()}>
+              {/* Preview header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <h3 className="text-sm font-bold text-foreground">معاينة: {previewTemplate.name}</h3>
+                <button onClick={() => setPreviewTemplate(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Simulated store preview */}
+              <div className="relative" style={{ background: previewTemplate.colors[0] }}>
+                {/* Nav bar */}
+                <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: previewTemplate.colors[0], borderBottom: `1px solid ${previewTemplate.colors[1]}20` }}>
+                  <Menu className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
+                  <span className="text-xs font-bold" style={{ color: previewTemplate.colors[1] }}>متجري</span>
+                  <div className="flex gap-2">
+                    <Search className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
+                    <ShoppingCart className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
+                  </div>
+                </div>
+
+                {/* Hero */}
+                <div className="px-4 py-6 text-center" style={{ background: `linear-gradient(135deg, ${previewTemplate.colors[2]}15, ${previewTemplate.colors[1]}15)` }}>
+                  <p className="text-[10px] font-medium mb-1" style={{ color: previewTemplate.colors[2] || previewTemplate.colors[1] }}>مجموعة جديدة</p>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: previewTemplate.colors[1] }}>أحدث المنتجات</h4>
+                  <div className="inline-block px-3 py-1 rounded-full text-[10px] font-medium" style={{ backgroundColor: previewTemplate.colors[2] || previewTemplate.colors[1], color: previewTemplate.colors[0] }}>
+                    تسوق الآن
+                  </div>
+                </div>
+
+                {/* Product grid */}
+                <div className="grid grid-cols-2 gap-2 p-3">
+                  {[1, 2, 3, 4].map((item) => (
+                    <div key={item} className="rounded-lg overflow-hidden" style={{ backgroundColor: `${previewTemplate.colors[1]}08`, border: `1px solid ${previewTemplate.colors[1]}15` }}>
+                      <div className="h-16 flex items-center justify-center" style={{ backgroundColor: `${previewTemplate.colors[2] || previewTemplate.colors[1]}12` }}>
+                        <Package className="h-6 w-6 opacity-20" style={{ color: previewTemplate.colors[1] }} />
+                      </div>
+                      <div className="p-2">
+                        <div className="flex items-center gap-0.5 mb-1">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} className="h-2 w-2" style={{ color: previewTemplate.colors[2] || previewTemplate.colors[1], fill: s <= 4 ? previewTemplate.colors[2] || previewTemplate.colors[1] : 'none' }} />
+                          ))}
+                        </div>
+                        <div className="h-2 rounded-full w-3/4 mb-1" style={{ backgroundColor: `${previewTemplate.colors[1]}20` }} />
+                        <div className="h-2 rounded-full w-1/2" style={{ backgroundColor: `${previewTemplate.colors[2] || previewTemplate.colors[1]}30` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 p-4 border-t border-border">
+                <Button onClick={() => { applyTemplate(previewTemplate); setPreviewTemplate(null); }} size="sm" className="flex-1 gap-1 text-xs">
+                  <Palette className="h-3 w-3" /> تطبيق القالب
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setPreviewTemplate(null)} className="text-xs">إغلاق</Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
