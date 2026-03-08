@@ -1,36 +1,64 @@
-import { ShoppingCart, Clock, Search } from "lucide-react";
+import { ShoppingCart, Clock, Search, CreditCard, Banknote } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/useLanguage";
-import OrderDetailDialog from "@/components/OrderDetailDialog";
+import OrderDetailDialog, { type Order, type OrderStatus } from "@/components/OrderDetailDialog";
+import { toast } from "@/hooks/use-toast";
 
-const MOCK_ORDERS = [
-  { id: "#1042", customer: "أحمد محمد", amount: 85000, status_ar: "جديد", status_ku: "نوێ", items: 2, date: "27 فبراير 2026" },
-  { id: "#1041", customer: "سارة علي", amount: 120000, status_ar: "قيد التوصيل", status_ku: "لە گەیاندندا", items: 3, date: "27 فبراير 2026" },
-  { id: "#1040", customer: "عمر حسين", amount: 45000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 1, date: "26 فبراير 2026" },
-  { id: "#1039", customer: "فاطمة كريم", amount: 210000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 4, date: "26 فبراير 2026" },
-  { id: "#1038", customer: "حسن جاسم", amount: 67000, status_ar: "ملغي", status_ku: "هەڵوەشێنراوە", items: 1, date: "25 فبراير 2026" },
-  { id: "#1037", customer: "نور الدين", amount: 155000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 2, date: "25 فبراير 2026" },
+const INITIAL_ORDERS: Order[] = [
+  { id: "#1042", customer: "أحمد محمد", amount: 85000, status_ar: "جديد", status_ku: "نوێ", items: 2, date: "27 فبراير 2026", paymentMethod: "electronic" },
+  { id: "#1041", customer: "سارة علي", amount: 120000, status_ar: "قيد التوصيل", status_ku: "لە گەیاندندا", items: 3, date: "27 فبراير 2026", paymentMethod: "cod" },
+  { id: "#1040", customer: "عمر حسين", amount: 45000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 1, date: "26 فبراير 2026", paymentMethod: "electronic" },
+  { id: "#1039", customer: "فاطمة كريم", amount: 210000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 4, date: "26 فبراير 2026", paymentMethod: "cod" },
+  { id: "#1038", customer: "حسن جاسم", amount: 67000, status_ar: "ملغي", status_ku: "هەڵوەشێنراوە", items: 1, date: "25 فبراير 2026", paymentMethod: "electronic" },
+  { id: "#1037", customer: "نور الدين", amount: 155000, status_ar: "مكتمل", status_ku: "تەواوبوو", items: 2, date: "25 فبراير 2026", paymentMethod: "cod" },
 ];
+
+const STATUS_KU_MAP: Record<string, string> = {
+  "جديد": "نوێ",
+  "مقبول": "قبووڵکراو",
+  "قيد التوصيل": "لە گەیاندندا",
+  "مكتمل": "تەواوبوو",
+  "مرفوض": "ڕەتکراوەتەوە",
+  "ملغي": "هەڵوەشێنراوە",
+};
 
 const Orders = () => {
   const { t, lang } = useLanguage();
+  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [activeTab, setActiveTab] = useState(t.all);
   const [search, setSearch] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<typeof MOCK_ORDERS[0] | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
   const statusColor: Record<string, string> = {
     "جديد": "bg-primary/10 text-primary", "نوێ": "bg-primary/10 text-primary",
+    "مقبول": "bg-success/10 text-success", "قبووڵکراو": "bg-success/10 text-success",
     "قيد التوصيل": "bg-accent/10 text-accent-foreground", "لە گەیاندندا": "bg-accent/10 text-accent-foreground",
     "مكتمل": "bg-success/10 text-success", "تەواوبوو": "bg-success/10 text-success",
+    "مرفوض": "bg-destructive/10 text-destructive", "ڕەتکراوەتەوە": "bg-destructive/10 text-destructive",
     "ملغي": "bg-destructive/10 text-destructive", "هەڵوەشێنراوە": "bg-destructive/10 text-destructive",
   };
 
-  const TABS = [t.all, t.orders.new, t.orders.delivering, t.orders.completed, t.orders.cancelled];
+  const TABS = [t.all, t.orders.new, "مقبول", t.orders.delivering, t.orders.completed, "مرفوض", t.orders.cancelled];
 
-  const filtered = MOCK_ORDERS.filter((o) => {
+  const handleUpdateStatus = (orderId: string, newStatus: OrderStatus) => {
+    setOrders(prev => prev.map(o =>
+      o.id === orderId
+        ? { ...o, status_ar: newStatus, status_ku: STATUS_KU_MAP[newStatus] || newStatus }
+        : o
+    ));
+    const statusLabels: Record<string, string> = {
+      "مقبول": "تم قبول الطلب ✓",
+      "قيد التوصيل": "تم بدء التوصيل 🚚",
+      "مكتمل": "تم تسليم الطلب ✓",
+      "مرفوض": "تم رفض الطلب ✗",
+    };
+    toast({ title: statusLabels[newStatus] || "تم تحديث الحالة", description: `الطلب ${orderId}` });
+  };
+
+  const filtered = orders.filter((o) => {
     const status = lang === "ku" ? o.status_ku : o.status_ar;
     const matchTab = activeTab === t.all || status === activeTab;
     const matchSearch = !search || o.customer.includes(search) || o.id.includes(search);
@@ -39,7 +67,7 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t.orders.title} subtitle={`${MOCK_ORDERS.length} ${t.orders.order}`} showBack={false} />
+      <PageHeader title={t.orders.title} subtitle={`${orders.length} ${t.orders.order}`} showBack={false} />
       <main className="container mx-auto px-4 space-y-4">
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -70,6 +98,11 @@ const Orders = () => {
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusColor[status] || ""}`}>{status}</span>
                       <span className="text-[11px] text-muted-foreground">{order.items} {t.orders.product}</span>
                       <span className="text-[11px] text-muted-foreground">• {order.date}</span>
+                      {order.paymentMethod === "electronic" ? (
+                        <CreditCard className="h-3 w-3 text-primary" />
+                      ) : (
+                        <Banknote className="h-3 w-3 text-success" />
+                      )}
                     </div>
                   </div>
                   <span className="text-sm font-bold text-foreground whitespace-nowrap">{order.amount.toLocaleString("ar-IQ")} <span className="text-[9px] text-muted-foreground">{t.currency}</span></span>
@@ -79,7 +112,12 @@ const Orders = () => {
           )}
         </div>
       </main>
-      <OrderDetailDialog order={selectedOrder} open={detailOpen} onOpenChange={setDetailOpen} />
+      <OrderDetailDialog
+        order={selectedOrder}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        onUpdateStatus={handleUpdateStatus}
+      />
     </div>
   );
 };
