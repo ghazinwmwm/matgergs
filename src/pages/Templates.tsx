@@ -196,6 +196,7 @@ const Templates = () => {
             </div>
           </div>
         )}
+      </main>
     </div>
   );
 };
