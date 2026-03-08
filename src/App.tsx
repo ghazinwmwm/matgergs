@@ -62,6 +62,7 @@ const AppRoutes = () => {
         <Route path="/stores/:id/settings" element={<StoreSettings />} />
         <Route path="/team" element={<Team />} />
         <Route path="/templates" element={<Templates />} />
+        <Route path="/templates/preview/:id" element={<TemplatePreview />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/tracking" element={<Tracking />} />
         <Route path="/stats" element={<Stats />} />
