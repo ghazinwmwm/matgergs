@@ -19,6 +19,7 @@ import StoreSettings from "./pages/StoreSettings";
 import Team from "./pages/Team";
 import Templates from "./pages/Templates";
 import TemplatePreview from "./pages/TemplatePreview";
+import Storefront from "./pages/Storefront";
 import Delivery from "./pages/Delivery";
 import Tracking from "./pages/Tracking";
 import Stats from "./pages/Stats";
@@ -63,6 +64,7 @@ const AppRoutes = () => {
         <Route path="/team" element={<Team />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/preview/:id" element={<TemplatePreview />} />
+        <Route path="/storefront" element={<Storefront />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/tracking" element={<Tracking />} />
         <Route path="/stats" element={<Stats />} />
