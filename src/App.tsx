@@ -19,6 +19,7 @@ import StoreSettings from "./pages/StoreSettings";
 import Team from "./pages/Team";
 import Templates from "./pages/Templates";
 import TemplatePreview from "./pages/TemplatePreview";
+import Storefront from "./pages/Storefront";
 import Delivery from "./pages/Delivery";
 import Tracking from "./pages/Tracking";
 import Stats from "./pages/Stats";
