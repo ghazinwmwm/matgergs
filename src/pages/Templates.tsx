@@ -1,59 +1,12 @@
 import { useState } from "react";
-import { Check, Eye, Palette, Sparkles, Crown, FileText, Wrench, ShoppingBag, ArrowRight, Package, Globe, Zap, X, Star, ShoppingCart, Heart, Search, Menu } from "lucide-react";
+import { Check, Eye, Palette, Sparkles, Crown, FileText, Wrench, ShoppingBag, ArrowRight, Package, Globe, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
 import { usePlan } from "@/hooks/usePlan";
 import PageHeader from "@/components/PageHeader";
 import { useNavigate } from "react-router-dom";
-
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  category: "مجاني" | "مميز";
-  type: "store" | "digital" | "service";
-  colors: string[];
-  features: string[];
-  popular?: boolean;
-  setupSteps?: string[];
-}
-
-const TEMPLATES: Template[] = [
-  // Store templates
-  { id: "minimal", name: "بسيط", description: "تصميم نظيف وبسيط يركز على المنتجات مع تنقل سهل", category: "مجاني", type: "store", colors: ["#FFFFFF", "#000000", "#0EA5E9"], features: ["تصميم متجاوب", "عرض شبكي", "فلتر المنتجات"] },
-  { id: "elegant", name: "أنيق", description: "تصميم فاخر مناسب للماركات والمنتجات الراقية", category: "مجاني", type: "store", colors: ["#1A1A2E", "#E2B857", "#FFFFFF"], features: ["تصميم داكن", "أنيميشن سلس", "عرض المنتج بالكامل"], popular: true },
-  { id: "vibrant", name: "حيوي", description: "تصميم ملون وعصري مناسب للملابس والأزياء", category: "مجاني", type: "store", colors: ["#FF6B6B", "#4ECDC4", "#FFFFFF"], features: ["ألوان زاهية", "صور كبيرة", "كاروسيل"] },
-  { id: "professional", name: "احترافي", description: "تصميم متقدم مع ميزات إضافية للمتاجر الكبيرة", category: "مميز", type: "store", colors: ["#2D3436", "#00B894", "#FFFFFF"], features: ["مقارنة المنتجات", "تقييمات", "مدونة مدمجة", "SEO متقدم"], popular: true },
-  { id: "luxury", name: "فخم", description: "تصميم فخم مع تأثيرات بصرية مذهلة", category: "مميز", type: "store", colors: ["#0C0C0C", "#D4AF37", "#FAF0E6"], features: ["تأثيرات 3D", "فيديو خلفية", "عرض VIP", "تخصيص كامل"] },
-  { id: "fresh", name: "منعش", description: "تصميم خفيف ومنعش مناسب لمنتجات العناية والجمال", category: "مميز", type: "store", colors: ["#F8F9FA", "#A8E6CF", "#FFB7B2"], features: ["تدرجات لونية", "أيقونات مخصصة", "قسم المراجعات", "عروض خاصة"] },
-  // Digital product templates
-  {
-    id: "digital-basic", name: "منتجات رقمية", description: "قالب مخصص لبيع الكتب الإلكترونية والدورات والملفات الرقمية",
-    category: "مجاني", type: "digital", colors: ["#6C5CE7", "#A29BFE", "#FFFFFF"],
-    features: ["تحميل فوري", "روابط آمنة", "معاينة المنتج", "دفع إلكتروني"],
-    setupSteps: ["أضف منتجك الرقمي (كتاب، دورة، ملف)", "حدد السعر وطريقة التسليم", "فعّل الدفع الإلكتروني", "شارك رابط متجرك"],
-  },
-  {
-    id: "digital-pro", name: "أكاديمية رقمية", description: "منصة متكاملة لبيع الدورات التعليمية مع نظام اشتراكات",
-    category: "مميز", type: "digital", colors: ["#2D3436", "#6C5CE7", "#FDCB6E"],
-    features: ["نظام اشتراكات", "مستويات وصول", "شهادات إتمام", "بث مباشر"], popular: true,
-    setupSteps: ["أنشئ الدورة وأضف المحتوى", "حدد مستويات الاشتراك", "فعّل نظام الشهادات", "ابدأ البيع"],
-  },
-  // Service templates
-  {
-    id: "service-basic", name: "خدمات", description: "قالب لعرض وبيع الخدمات المتنوعة مثل التصميم والبرمجة والاستشارات",
-    category: "مجاني", type: "service", colors: ["#00B894", "#00CEC9", "#FFFFFF"],
-    features: ["حجز مواعيد", "عرض الباقات", "نماذج أعمال", "تواصل مباشر"],
-    setupSteps: ["أضف خدماتك مع الوصف والسعر", "حدد أوقات التوفر", "أضف نماذج أعمالك السابقة", "فعّل نظام الحجز"],
-  },
-  {
-    id: "service-pro", name: "وكالة احترافية", description: "قالب متقدم للوكالات ومقدمي الخدمات المتخصصة",
-    category: "مميز", type: "service", colors: ["#0C0C0C", "#00B894", "#E17055"],
-    features: ["إدارة مشاريع", "عقود رقمية", "فواتير تلقائية", "تقارير للعملاء"], popular: true,
-    setupSteps: ["أنشئ ملف الوكالة", "أضف الخدمات والباقات", "فعّل نظام العقود والفواتير", "ابدأ استقبال العملاء"],
-  },
-];
+import { TEMPLATES, Template } from "@/data/templates";
 
 const TYPE_TABS = [
   { id: "all", label: "الكل", icon: Globe },
@@ -69,7 +22,6 @@ const Templates = () => {
   const [activeType, setActiveType] = useState<string>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("minimal");
   const [setupDialogTemplate, setSetupDialogTemplate] = useState<Template | null>(null);
-  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
   const filtered = TEMPLATES.filter((t) => {
     const matchCategory = activeCategory === "الكل" || t.category === activeCategory;
@@ -160,7 +112,7 @@ const Templates = () => {
           <Button onClick={() => applyTemplate(template)} size="sm" variant={selectedTemplate === template.id ? "default" : "outline"} className="flex-1 gap-1 text-xs">
             {selectedTemplate === template.id ? <><Check className="h-3 w-3" /> مُطبق</> : <><Palette className="h-3 w-3" /> تطبيق</>}
           </Button>
-          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => setPreviewTemplate(template)}><Eye className="h-3 w-3" /> معاينة</Button>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/templates/preview/${template.id}`)}><Eye className="h-3 w-3" /> معاينة</Button>
         </div>
       </div>
     </div>
@@ -240,71 +192,6 @@ const Templates = () => {
                   <ArrowRight className="h-4 w-4" /> ابدأ الإعداد
                 </Button>
                 <Button variant="outline" onClick={() => setSetupDialogTemplate(null)}>لاحقاً</Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Template Preview Modal */}
-        {previewTemplate && (
-          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPreviewTemplate(null)}>
-            <div className="bg-card border border-border rounded-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 shadow-lg" onClick={(e) => e.stopPropagation()}>
-              {/* Preview header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                <h3 className="text-sm font-bold text-foreground">معاينة: {previewTemplate.name}</h3>
-                <button onClick={() => setPreviewTemplate(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </div>
-
-              {/* Simulated store preview */}
-              <div className="relative" style={{ background: previewTemplate.colors[0] }}>
-                {/* Nav bar */}
-                <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: previewTemplate.colors[0], borderBottom: `1px solid ${previewTemplate.colors[1]}20` }}>
-                  <Menu className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
-                  <span className="text-xs font-bold" style={{ color: previewTemplate.colors[1] }}>متجري</span>
-                  <div className="flex gap-2">
-                    <Search className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
-                    <ShoppingCart className="h-4 w-4" style={{ color: previewTemplate.colors[1] }} />
-                  </div>
-                </div>
-
-                {/* Hero */}
-                <div className="px-4 py-6 text-center" style={{ background: `linear-gradient(135deg, ${previewTemplate.colors[2]}15, ${previewTemplate.colors[1]}15)` }}>
-                  <p className="text-[10px] font-medium mb-1" style={{ color: previewTemplate.colors[2] || previewTemplate.colors[1] }}>مجموعة جديدة</p>
-                  <h4 className="text-sm font-bold mb-2" style={{ color: previewTemplate.colors[1] }}>أحدث المنتجات</h4>
-                  <div className="inline-block px-3 py-1 rounded-full text-[10px] font-medium" style={{ backgroundColor: previewTemplate.colors[2] || previewTemplate.colors[1], color: previewTemplate.colors[0] }}>
-                    تسوق الآن
-                  </div>
-                </div>
-
-                {/* Product grid */}
-                <div className="grid grid-cols-2 gap-2 p-3">
-                  {[1, 2, 3, 4].map((item) => (
-                    <div key={item} className="rounded-lg overflow-hidden" style={{ backgroundColor: `${previewTemplate.colors[1]}08`, border: `1px solid ${previewTemplate.colors[1]}15` }}>
-                      <div className="h-16 flex items-center justify-center" style={{ backgroundColor: `${previewTemplate.colors[2] || previewTemplate.colors[1]}12` }}>
-                        <Package className="h-6 w-6 opacity-20" style={{ color: previewTemplate.colors[1] }} />
-                      </div>
-                      <div className="p-2">
-                        <div className="flex items-center gap-0.5 mb-1">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className="h-2 w-2" style={{ color: previewTemplate.colors[2] || previewTemplate.colors[1], fill: s <= 4 ? previewTemplate.colors[2] || previewTemplate.colors[1] : 'none' }} />
-                          ))}
-                        </div>
-                        <div className="h-2 rounded-full w-3/4 mb-1" style={{ backgroundColor: `${previewTemplate.colors[1]}20` }} />
-                        <div className="h-2 rounded-full w-1/2" style={{ backgroundColor: `${previewTemplate.colors[2] || previewTemplate.colors[1]}30` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 p-4 border-t border-border">
-                <Button onClick={() => { applyTemplate(previewTemplate); setPreviewTemplate(null); }} size="sm" className="flex-1 gap-1 text-xs">
-                  <Palette className="h-3 w-3" /> تطبيق القالب
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setPreviewTemplate(null)} className="text-xs">إغلاق</Button>
               </div>
             </div>
           </div>
