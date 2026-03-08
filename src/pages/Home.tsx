@@ -103,7 +103,7 @@ const Home = () => {
           </div>
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => window.open(`https://${activeStore?.domain || "mystore"}.matager.store`, "_blank")}
+              onClick={() => navigate("/storefront")}
               className="h-8 px-3 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5 hover:bg-primary/15 transition-colors"
             >
               <ExternalLink className="h-3 w-3 text-primary" />

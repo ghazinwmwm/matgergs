@@ -64,6 +64,7 @@ const AppRoutes = () => {
         <Route path="/team" element={<Team />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/preview/:id" element={<TemplatePreview />} />
+        <Route path="/storefront" element={<Storefront />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/tracking" element={<Tracking />} />
         <Route path="/stats" element={<Stats />} />
