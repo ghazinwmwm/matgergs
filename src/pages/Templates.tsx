@@ -112,7 +112,7 @@ const Templates = () => {
           <Button onClick={() => applyTemplate(template)} size="sm" variant={selectedTemplate === template.id ? "default" : "outline"} className="flex-1 gap-1 text-xs">
             {selectedTemplate === template.id ? <><Check className="h-3 w-3" /> مُطبق</> : <><Palette className="h-3 w-3" /> تطبيق</>}
           </Button>
-          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => setPreviewTemplate(template)}><Eye className="h-3 w-3" /> معاينة</Button>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/templates/preview/${template.id}`)}><Eye className="h-3 w-3" /> معاينة</Button>
         </div>
       </div>
     </div>
