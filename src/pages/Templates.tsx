@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Eye, Palette, Sparkles, Crown, FileText, Wrench, ShoppingBag, ArrowRight, Package, Globe, Zap } from "lucide-react";
+import { Check, Eye, Palette, Sparkles, Crown, FileText, Wrench, ShoppingBag, ArrowRight, Package, Globe, Zap, X, Star, ShoppingCart, Heart, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { ProGate } from "@/components/ProGate";
