@@ -8,6 +8,7 @@ import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./hooks/useTheme";
 import { OnboardingProvider, useOnboarding } from "./hooks/useOnboarding";
 import { StoreProvider } from "./hooks/useStores";
+import { TemplateConfigProvider } from "./hooks/useTemplateConfig";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import AddProduct from "./pages/AddProduct";
@@ -94,11 +95,13 @@ const App = () => (
       <LanguageProvider>
       <OnboardingProvider>
       <StoreProvider>
+      <TemplateConfigProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+      </TemplateConfigProvider>
       </StoreProvider>
       </OnboardingProvider>
       </LanguageProvider>
