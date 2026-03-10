@@ -476,7 +476,7 @@ const Storefront = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ ...storeStyle, backgroundColor: colors.bg, color: colors.text }}>
+    <div className="min-h-screen" style={{ ...storeStyle, ...storefrontCssVars, backgroundColor: colors.bg, color: colors.text }}>
 
       {/* ══════════════ NAVBAR ══════════════ */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-border" style={{ backgroundColor: `${colors.bg}CC` }}>
