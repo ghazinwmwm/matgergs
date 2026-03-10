@@ -793,7 +793,7 @@ const Storefront = () => {
       </a>
 
       {/* Floating cart */}
-      {cartCount > 0 && !showCart && !selectedProduct && (
+      {storeEnabled && cartCount > 0 && !showCart && !selectedProduct && (
         <button onClick={openCartDrawer}
           className="fixed bottom-6 right-4 h-12 px-5 rounded-full shadow-lg z-30 flex items-center gap-2 animate-in slide-in-from-bottom font-bold text-sm active:scale-95 transition-transform text-white"
           style={{ backgroundColor: colors.primary }}>
