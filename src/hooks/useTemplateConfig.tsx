@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from "react";
+import type { BusinessType } from "./useOnboarding";
 
 // Hex to HSL conversion utility
 function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
@@ -28,7 +29,6 @@ function hslString(hex: string): string {
   return `${hsl.h} ${hsl.s}% ${hsl.l}%`;
 }
 
-// Lighten/darken HSL
 function adjustLightness(hex: string, amount: number): string {
   const hsl = hexToHsl(hex);
   if (!hsl) return "0 0% 50%";
@@ -46,7 +46,7 @@ export interface SectionConfig {
   id: string;
   label: string;
   enabled: boolean;
-  icon: string; // icon name string for serialization
+  icon: string;
   subtitle: string;
   editable?: boolean;
   color: string;
@@ -56,6 +56,11 @@ export interface ServiceItem { icon: string; title: string; desc: string; }
 export interface WorkItem { title: string; category: string; image?: string; link?: string; }
 export interface TestimonialItem { name: string; role: string; text: string; rating: number; }
 
+export interface CustomFont {
+  name: string;
+  url: string; // data URL from uploaded file
+}
+
 export interface TemplateColors {
   primary: string;
   accent: string;
@@ -64,6 +69,8 @@ export interface TemplateColors {
 }
 
 export interface TemplateConfig {
+  businessType: BusinessType;
+
   // Brand
   storeName: string;
   tagline: string;
@@ -79,6 +86,7 @@ export interface TemplateConfig {
   headingFont: string;
   bodyFont: string;
   baseFontSize: string;
+  customFonts: CustomFont[];
 
   // Sections
   sections: SectionConfig[];
@@ -118,22 +126,36 @@ export const COLOR_PRESETS: TemplateColors[] = [
 
 export const COLOR_PRESET_NAMES = ["تيركوازي", "بنفسجي", "أخضر", "برتقالي", "وردي", "داكن", "ذهبي", "أحمر"];
 
+// Sections are OFF by default except "store"
 export const DEFAULT_SECTIONS: SectionConfig[] = [
-  { id: "hero", label: "البطل الرئيسي", enabled: true, icon: "Layout", subtitle: "العنوان والوصف وأزرار الإجراء", editable: true, color: "hsl(var(--primary))" },
-  { id: "services", label: "الخدمات", enabled: true, icon: "Sparkles", subtitle: "عرض خدماتك ومهاراتك", editable: true, color: "hsl(var(--accent))" },
-  { id: "works", label: "معرض الأعمال", enabled: true, icon: "Image", subtitle: "نماذج من أعمالك", editable: true, color: "hsl(var(--success))" },
-  { id: "store", label: "المتجر", enabled: true, icon: "Monitor", subtitle: "المنتجات الرقمية", color: "hsl(var(--primary))" },
-  { id: "testimonials", label: "آراء العملاء", enabled: true, icon: "Quote", subtitle: "تقييمات وشهادات", editable: true, color: "hsl(var(--accent))" },
-  { id: "cta", label: "دعوة للإجراء", enabled: true, icon: "Zap", subtitle: "قسم تحفيزي", editable: true, color: "hsl(var(--destructive))" },
-  { id: "about", label: "من نحن", enabled: true, icon: "Globe", subtitle: "تعريف بك أو بفريقك", editable: true, color: "hsl(var(--muted-foreground))" },
+  { id: "hero", label: "صفحة الهبوط", enabled: false, icon: "Layout", subtitle: "العنوان والوصف وأزرار الإجراء", editable: true, color: "hsl(var(--primary))" },
+  { id: "services", label: "الخدمات", enabled: false, icon: "Sparkles", subtitle: "عرض خدماتك ومهاراتك", editable: true, color: "hsl(var(--accent))" },
+  { id: "works", label: "معرض الأعمال", enabled: false, icon: "Image", subtitle: "نماذج من أعمالك", editable: true, color: "hsl(var(--success))" },
+  { id: "store", label: "المتجر", enabled: true, icon: "Monitor", subtitle: "المنتجات", color: "hsl(var(--primary))" },
+  { id: "testimonials", label: "آراء العملاء", enabled: false, icon: "Quote", subtitle: "تقييمات وشهادات", editable: true, color: "hsl(var(--accent))" },
+  { id: "cta", label: "دعوة للإجراء", enabled: false, icon: "Zap", subtitle: "قسم تحفيزي", editable: true, color: "hsl(var(--destructive))" },
+  { id: "about", label: "من نحن", enabled: false, icon: "Globe", subtitle: "تعريف بك أو بفريقك", editable: true, color: "hsl(var(--muted-foreground))" },
 ];
 
+// Sections enabled by default per business type
+const SECTIONS_BY_TYPE: Record<BusinessType, string[]> = {
+  physical: ["store"],
+  digital: ["store"],
+  service: ["hero", "services", "works", "store", "testimonials", "about"],
+};
+
+export const getDefaultSectionsForType = (type: BusinessType): SectionConfig[] => {
+  const enabledIds = SECTIONS_BY_TYPE[type];
+  return DEFAULT_SECTIONS.map(s => ({ ...s, enabled: enabledIds.includes(s.id) }));
+};
+
 const DEFAULT_CONFIG: TemplateConfig = {
-  storeName: "استوديو إبداع",
-  tagline: "نصنع تجارب رقمية تُلهم",
-  storeDescription: "دورات تعليمية، أدوات تصميم، وخدمات إبداعية.",
-  heroButtonText: "تصفح المتجر",
-  heroSecondaryButton: "شاهد أعمالنا",
+  businessType: "physical",
+  storeName: "متجري",
+  tagline: "أفضل المنتجات بأفضل الأسعار",
+  storeDescription: "متجر إلكتروني متكامل.",
+  heroButtonText: "تصفح المنتجات",
+  heroSecondaryButton: "تواصل معنا",
   logoImage: null,
 
   selectedPreset: 0,
@@ -142,33 +164,34 @@ const DEFAULT_CONFIG: TemplateConfig = {
   headingFont: "IBM Plex Sans Arabic",
   bodyFont: "IBM Plex Sans Arabic",
   baseFontSize: "16",
+  customFonts: [],
 
-  sections: DEFAULT_SECTIONS,
+  sections: getDefaultSectionsForType("physical"),
 
   services: [
-    { icon: "Palette", title: "تصميم جرافيك", desc: "هويات بصرية وشعارات احترافية" },
-    { icon: "Monitor", title: "تصميم واجهات", desc: "UI/UX لتطبيقات الموبايل والويب" },
-    { icon: "Code", title: "تطوير ويب", desc: "مواقع ومتاجر بأحدث التقنيات" },
+    { icon: "Palette", title: "تصميم", desc: "تصميم احترافي" },
+    { icon: "Code", title: "تطوير", desc: "برمجة وتطوير" },
+    { icon: "Monitor", title: "استشارات", desc: "استشارات رقمية" },
   ],
   works: [
-    { title: "هوية بصرية لمطعم", category: "هوية بصرية", link: "" },
-    { title: "تطبيق توصيل", category: "تصميم واجهات", link: "" },
-    { title: "موقع عقارات", category: "تطوير ويب", link: "" },
+    { title: "مشروع ١", category: "تصميم", link: "" },
+    { title: "مشروع ٢", category: "تطوير", link: "" },
+    { title: "مشروع ٣", category: "برمجة", link: "" },
   ],
   testimonials: [
-    { name: "سارة أحمد", role: "مديرة تسويق", text: "تجربة رائعة غيّرت مساري المهني!", rating: 5 },
-    { name: "محمد علي", role: "مطور مستقل", text: "أفضل محتوى عربي والدعم ممتاز.", rating: 5 },
+    { name: "أحمد", role: "عميل", text: "خدمة ممتازة!", rating: 5 },
+    { name: "سارة", role: "عميلة", text: "تجربة رائعة.", rating: 5 },
   ],
   ctaTitle: "مستعد للبدء؟",
-  ctaDesc: "انضم لآلاف العملاء الذين يثقون بنا.",
-  ctaButton: "تصفح المنتجات",
-  aboutText: "فريق من المبدعين نؤمن بأن كل شخص يستحق محتوى رقمي عربي عالي الجودة.",
-  aboutFeatures: ["+٥ سنوات خبرة", "تسليم فوري", "ضمان الجودة"],
+  ctaDesc: "تواصل معنا الآن.",
+  ctaButton: "تواصل معنا",
+  aboutText: "نقدم أفضل الخدمات والمنتجات.",
+  aboutFeatures: ["جودة عالية", "تسليم سريع", "دعم مستمر"],
 
-  contactEmail: "hello@studio.com",
-  contactPhone: "+964 770 123 4567",
-  contactInstagram: "@studio_iq",
-  contactWebsite: "www.studio.com",
+  contactEmail: "",
+  contactPhone: "",
+  contactInstagram: "",
+  contactWebsite: "",
   whatsappNumber: "",
 };
 
@@ -190,6 +213,7 @@ interface TemplateConfigContextType {
   config: TemplateConfig;
   updateConfig: (partial: Partial<TemplateConfig>) => void;
   resetConfig: () => void;
+  resetForBusinessType: (type: BusinessType) => void;
   getActiveColors: () => TemplateColors;
   storefrontCssVars: Record<string, string>;
 }
@@ -199,12 +223,10 @@ const TemplateConfigContext = createContext<TemplateConfigContextType | undefine
 export const TemplateConfigProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<TemplateConfig>(loadConfig);
 
-  // Persist to localStorage on every change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   }, [config]);
 
-  // Listen for storage events from other windows/tabs
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY && e.newValue) {
@@ -215,18 +237,44 @@ export const TemplateConfigProvider = ({ children }: { children: ReactNode }) =>
     return () => window.removeEventListener("storage", handler);
   }, []);
 
+  // Inject custom fonts into document
+  useEffect(() => {
+    config.customFonts.forEach(font => {
+      const existing = document.getElementById(`custom-font-${font.name}`);
+      if (!existing) {
+        const style = document.createElement("style");
+        style.id = `custom-font-${font.name}`;
+        style.textContent = `@font-face { font-family: '${font.name}'; src: url('${font.url}'); }`;
+        document.head.appendChild(style);
+      }
+    });
+  }, [config.customFonts]);
+
   const updateConfig = useCallback((partial: Partial<TemplateConfig>) => {
     setConfig(prev => ({ ...prev, ...partial }));
   }, []);
 
   const resetConfig = useCallback(() => setConfig(DEFAULT_CONFIG), []);
 
+  const resetForBusinessType = useCallback((type: BusinessType) => {
+    const presetIndex = type === "digital" ? 1 : type === "service" ? 2 : 0;
+    setConfig({
+      ...DEFAULT_CONFIG,
+      businessType: type,
+      sections: getDefaultSectionsForType(type),
+      selectedPreset: presetIndex,
+      colors: { ...COLOR_PRESETS[presetIndex] },
+      storeName: type === "service" ? "استوديو" : type === "digital" ? "متجري الرقمي" : "متجري",
+      tagline: type === "service" ? "نصنع تجارب رقمية مميزة" : type === "digital" ? "منتجات رقمية بجودة عالية" : "أفضل المنتجات بأفضل الأسعار",
+      storeDescription: type === "service" ? "خدمات احترافية في التصميم والتطوير." : type === "digital" ? "دورات وكتب وأدوات رقمية." : "متجر إلكتروني متكامل.",
+    });
+  }, []);
+
   const getActiveColors = useCallback((): TemplateColors => {
     if (config.useCustomColors) return config.colors;
     return COLOR_PRESETS[config.selectedPreset] || COLOR_PRESETS[0];
   }, [config.useCustomColors, config.colors, config.selectedPreset]);
 
-  // Generate CSS custom properties for the storefront to override Tailwind tokens
   const storefrontCssVars = useMemo(() => {
     const c = getActiveColors();
     const isDark = (hexToHsl(c.bg)?.l ?? 100) < 50;
@@ -236,7 +284,7 @@ export const TemplateConfigProvider = ({ children }: { children: ReactNode }) =>
       '--card': isDark ? adjustLightness(c.bg, 8) : adjustLightness(c.bg, -3),
       '--card-foreground': hslString(c.text),
       '--primary': hslString(c.primary),
-      '--primary-foreground': isDark ? '0 0% 100%' : '0 0% 100%',
+      '--primary-foreground': '0 0% 100%',
       '--secondary': isDark ? adjustLightness(c.bg, 12) : adjustLightness(c.bg, -6),
       '--secondary-foreground': hslString(c.text),
       '--muted': isDark ? adjustLightness(c.bg, 15) : adjustLightness(c.bg, -8),
@@ -249,7 +297,7 @@ export const TemplateConfigProvider = ({ children }: { children: ReactNode }) =>
   }, [getActiveColors]);
 
   return (
-    <TemplateConfigContext.Provider value={{ config, updateConfig, resetConfig, getActiveColors, storefrontCssVars }}>
+    <TemplateConfigContext.Provider value={{ config, updateConfig, resetConfig, resetForBusinessType, getActiveColors, storefrontCssVars }}>
       {children}
     </TemplateConfigContext.Provider>
   );

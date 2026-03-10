@@ -1,15 +1,14 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Palette, Type, Image, Eye, Save, Sparkles,
+  Palette, Type, Eye, Save, Sparkles,
   Globe, Instagram, Phone, Mail, MessageCircle,
-  Plus, X, Trash2, Upload, Star, Quote,
-  Zap, PenTool, ChevronDown, RotateCcw, Link2, Check,
-  ExternalLink
+  Plus, Trash2, Upload, Star, Quote,
+  Zap, PenTool, ChevronDown, RotateCcw, Check,
+  Image, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
@@ -21,13 +20,14 @@ import {
   type ServiceItem,
   type WorkItem,
   type TestimonialItem,
+  type CustomFont,
 } from "@/hooks/useTemplateConfig";
 
 // ═══════════════════════════════════════
-// CONSTANTS
+// BUILT-IN + CUSTOM FONTS
 // ═══════════════════════════════════════
 
-const FONT_OPTIONS = [
+const BUILTIN_FONTS = [
   { value: "IBM Plex Sans Arabic", label: "IBM Plex" },
   { value: "Cairo", label: "القاهرة" },
   { value: "Tajawal", label: "تجوّل" },
@@ -43,11 +43,23 @@ const TemplateEditor = () => {
   const { config, updateConfig, resetConfig, getActiveColors } = useTemplateConfig();
   const [activeTab, setActiveTab] = useState<TabId>("brand");
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [hasChanges, setHasChanges] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const fontInputRef = useRef<HTMLInputElement>(null);
 
   const toggleOpen = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
-
   const activeColors = getActiveColors();
+
+  const allFonts = [
+    ...BUILTIN_FONTS,
+    ...config.customFonts.map(f => ({ value: f.name, label: `✦ ${f.name}` })),
+  ];
+
+  // Wrap updateConfig to track changes
+  const update = (partial: Parameters<typeof updateConfig>[0]) => {
+    updateConfig(partial);
+    setHasChanges(true);
+  };
 
   // Image upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,48 +70,89 @@ const TemplateEditor = () => {
       return;
     }
     const reader = new FileReader();
-    reader.onloadend = () => updateConfig({ logoImage: reader.result as string });
+    reader.onloadend = () => update({ logoImage: reader.result as string });
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
+  // Font upload
+  const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = [".ttf", ".otf", ".woff", ".woff2"];
+    const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (!validTypes.includes(ext)) {
+      toast({ title: "صيغة غير مدعومة", description: "استخدم TTF, OTF, WOFF, WOFF2", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "حجم الملف كبير", description: "الحد الأقصى 5MB", variant: "destructive" });
+      return;
+    }
+    const fontName = file.name.replace(/\.[^.]+$/, "");
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const newFont: CustomFont = { name: fontName, url: reader.result as string };
+      update({ customFonts: [...config.customFonts, newFont] });
+      toast({ title: `تم رفع الخط "${fontName}"` });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const removeCustomFont = (name: string) => {
+    update({
+      customFonts: config.customFonts.filter(f => f.name !== name),
+      headingFont: config.headingFont === name ? "IBM Plex Sans Arabic" : config.headingFont,
+      bodyFont: config.bodyFont === name ? "IBM Plex Sans Arabic" : config.bodyFont,
+    });
+    const el = document.getElementById(`custom-font-${name}`);
+    if (el) el.remove();
+  };
+
   // Section toggle
   const toggleSection = (id: string) => {
-    updateConfig({ sections: config.sections.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s) });
+    update({ sections: config.sections.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s) });
   };
 
   // Content CRUD
-  const addService = () => updateConfig({ services: [...config.services, { icon: "Sparkles", title: "خدمة جديدة", desc: "وصف الخدمة" }] });
-  const removeService = (i: number) => updateConfig({ services: config.services.filter((_, idx) => idx !== i) });
+  const addService = () => update({ services: [...config.services, { icon: "Sparkles", title: "خدمة جديدة", desc: "وصف الخدمة" }] });
+  const removeService = (i: number) => update({ services: config.services.filter((_, idx) => idx !== i) });
   const updateService = (i: number, field: keyof ServiceItem, value: string) => {
-    updateConfig({ services: config.services.map((s, idx) => idx === i ? { ...s, [field]: value } : s) });
+    update({ services: config.services.map((s, idx) => idx === i ? { ...s, [field]: value } : s) });
   };
 
-  const addWork = () => updateConfig({ works: [...config.works, { title: "مشروع جديد", category: "تصنيف", link: "" }] });
-  const removeWork = (i: number) => updateConfig({ works: config.works.filter((_, idx) => idx !== i) });
+  const addWork = () => update({ works: [...config.works, { title: "مشروع جديد", category: "تصنيف", link: "" }] });
+  const removeWork = (i: number) => update({ works: config.works.filter((_, idx) => idx !== i) });
   const updateWork = (i: number, field: keyof WorkItem, value: string) => {
-    updateConfig({ works: config.works.map((w, idx) => idx === i ? { ...w, [field]: value } : w) });
+    update({ works: config.works.map((w, idx) => idx === i ? { ...w, [field]: value } : w) });
   };
 
-  const addTestimonial = () => updateConfig({ testimonials: [...config.testimonials, { name: "عميل جديد", role: "الوظيفة", text: "رأي العميل...", rating: 5 }] });
-  const removeTestimonial = (i: number) => updateConfig({ testimonials: config.testimonials.filter((_, idx) => idx !== i) });
+  const addTestimonial = () => update({ testimonials: [...config.testimonials, { name: "عميل جديد", role: "الوظيفة", text: "رأي العميل...", rating: 5 }] });
+  const removeTestimonial = (i: number) => update({ testimonials: config.testimonials.filter((_, idx) => idx !== i) });
   const updateTestimonial = (i: number, field: keyof TestimonialItem, value: string | number) => {
-    updateConfig({ testimonials: config.testimonials.map((t, idx) => idx === i ? { ...t, [field]: value } : t) });
+    update({ testimonials: config.testimonials.map((t, idx) => idx === i ? { ...t, [field]: value } : t) });
   };
 
   const handlePreview = () => {
     window.open("/storefront", "storefront", `width=1200,height=800,scrollbars=yes,resizable=yes`);
   };
 
+  const handleSave = () => {
+    setHasChanges(false);
+    toast({ title: "✓ تم الحفظ", description: "تم حفظ التغييرات بنجاح" });
+  };
+
   const handleReset = () => {
     if (window.confirm("هل تريد إعادة تعيين جميع الإعدادات؟")) {
       resetConfig();
+      setHasChanges(false);
       toast({ title: "تم إعادة التعيين" });
     }
   };
 
   const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
-    { id: "brand", label: "الهوية والمحتوى", icon: Type },
+    { id: "brand", label: "الهوية", icon: Type },
     { id: "design", label: "التصميم", icon: Palette },
     { id: "contact", label: "التواصل", icon: Phone },
   ];
@@ -131,7 +184,7 @@ const TemplateEditor = () => {
 
         <div className="space-y-4 mt-2">
 
-          {/* ═══ BRAND & CONTENT TAB ═══ */}
+          {/* ═══ BRAND TAB ═══ */}
           {activeTab === "brand" && (
             <div className="space-y-4">
 
@@ -144,7 +197,7 @@ const TemplateEditor = () => {
                       <img src={config.logoImage} alt="" className="w-14 h-14 rounded-2xl object-cover border border-border" />
                       <div className="absolute inset-0 bg-foreground/50 rounded-2xl flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => logoInputRef.current?.click()} className="w-6 h-6 rounded-lg bg-background/90 flex items-center justify-center"><Upload className="h-3 w-3" /></button>
-                        <button onClick={() => updateConfig({ logoImage: null })} className="w-6 h-6 rounded-lg bg-destructive/90 flex items-center justify-center text-destructive-foreground"><Trash2 className="h-3 w-3" /></button>
+                        <button onClick={() => update({ logoImage: null })} className="w-6 h-6 rounded-lg bg-destructive/90 flex items-center justify-center text-destructive-foreground"><Trash2 className="h-3 w-3" /></button>
                       </div>
                     </div>
                   ) : (
@@ -155,41 +208,44 @@ const TemplateEditor = () => {
                     </button>
                   )}
                   <div className="flex-1 space-y-2">
-                    <Input value={config.storeName} onChange={e => updateConfig({ storeName: e.target.value })}
+                    <Input value={config.storeName} onChange={e => update({ storeName: e.target.value })}
                       className="font-bold rounded-xl" placeholder="اسم المتجر" />
-                    <Input value={config.tagline} onChange={e => updateConfig({ tagline: e.target.value })}
+                    <Input value={config.tagline} onChange={e => update({ tagline: e.target.value })}
                       className="text-sm rounded-xl" placeholder="شعار نصي قصير" />
                   </div>
                 </div>
-                <Textarea value={config.storeDescription} onChange={e => updateConfig({ storeDescription: e.target.value })}
+                <Textarea value={config.storeDescription} onChange={e => update({ storeDescription: e.target.value })}
                   rows={2} className="text-sm resize-none rounded-xl" placeholder="وصف المتجر" />
               </Card>
 
-              {/* Hero Buttons */}
-              <Card>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">أزرار الصفحة الرئيسية</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input value={config.heroButtonText} onChange={e => updateConfig({ heroButtonText: e.target.value })}
-                    className="text-sm rounded-xl" placeholder="الزر الرئيسي" />
-                  <Input value={config.heroSecondaryButton} onChange={e => updateConfig({ heroSecondaryButton: e.target.value })}
-                    className="text-sm rounded-xl" placeholder="الزر الثانوي" />
-                </div>
-              </Card>
+              {/* Hero Buttons (only shown if hero section is enabled) */}
+              {config.sections.find(s => s.id === "hero")?.enabled && (
+                <Card>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">أزرار صفحة الهبوط</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input value={config.heroButtonText} onChange={e => update({ heroButtonText: e.target.value })}
+                      className="text-sm rounded-xl" placeholder="الزر الرئيسي" />
+                    <Input value={config.heroSecondaryButton} onChange={e => update({ heroSecondaryButton: e.target.value })}
+                      className="text-sm rounded-xl" placeholder="الزر الثانوي" />
+                  </div>
+                </Card>
+              )}
 
-              {/* Sections Toggle + Content Editing */}
+              {/* Sections */}
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground px-1">أقسام المتجر</p>
+                <p className="text-xs font-semibold text-muted-foreground px-1">أقسام المتجر <span className="text-[10px] font-normal">(فعّل الأقسام التي تحتاجها)</span></p>
+
+                {/* Hero */}
+                <ContentBlock title="صفحة الهبوط" icon={<Sparkles className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "hero")?.enabled ?? false}
+                  onToggle={() => toggleSection("hero")} open={false} onOpenToggle={() => {}} noContent />
 
                 {/* Services */}
-                <ContentBlock
-                  title="الخدمات"
-                  icon={<Sparkles className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "services")?.enabled ?? true}
+                <ContentBlock title="الخدمات" icon={<Zap className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "services")?.enabled ?? false}
                   onToggle={() => toggleSection("services")}
-                  open={openSections["services"]}
-                  onOpenToggle={() => toggleOpen("services")}
-                  count={config.services.length}
-                >
+                  open={openSections["services"]} onOpenToggle={() => toggleOpen("services")}
+                  count={config.services.length}>
                   <div className="space-y-2">
                     {config.services.map((service, i) => (
                       <div key={i} className="flex items-start gap-2 bg-background rounded-xl p-2.5 border border-border/50">
@@ -209,15 +265,11 @@ const TemplateEditor = () => {
                 </ContentBlock>
 
                 {/* Works */}
-                <ContentBlock
-                  title="معرض الأعمال"
-                  icon={<Image className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "works")?.enabled ?? true}
+                <ContentBlock title="معرض الأعمال" icon={<Image className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "works")?.enabled ?? false}
                   onToggle={() => toggleSection("works")}
-                  open={openSections["works"]}
-                  onOpenToggle={() => toggleOpen("works")}
-                  count={config.works.length}
-                >
+                  open={openSections["works"]} onOpenToggle={() => toggleOpen("works")}
+                  count={config.works.length}>
                   <div className="space-y-2">
                     {config.works.map((work, i) => (
                       <div key={i} className="bg-background rounded-xl p-2.5 border border-border/50 space-y-1.5">
@@ -243,15 +295,11 @@ const TemplateEditor = () => {
                 </ContentBlock>
 
                 {/* Testimonials */}
-                <ContentBlock
-                  title="آراء العملاء"
-                  icon={<Quote className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "testimonials")?.enabled ?? true}
+                <ContentBlock title="آراء العملاء" icon={<Quote className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "testimonials")?.enabled ?? false}
                   onToggle={() => toggleSection("testimonials")}
-                  open={openSections["testimonials"]}
-                  onOpenToggle={() => toggleOpen("testimonials")}
-                  count={config.testimonials.length}
-                >
+                  open={openSections["testimonials"]} onOpenToggle={() => toggleOpen("testimonials")}
+                  count={config.testimonials.length}>
                   <div className="space-y-2">
                     {config.testimonials.map((t, i) => (
                       <div key={i} className="bg-background rounded-xl p-2.5 border border-border/50 space-y-1.5">
@@ -282,47 +330,42 @@ const TemplateEditor = () => {
                 </ContentBlock>
 
                 {/* CTA */}
-                <ContentBlock
-                  title="دعوة للإجراء"
-                  icon={<Zap className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "cta")?.enabled ?? true}
+                <ContentBlock title="دعوة للإجراء" icon={<Zap className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "cta")?.enabled ?? false}
                   onToggle={() => toggleSection("cta")}
-                  open={openSections["cta"]}
-                  onOpenToggle={() => toggleOpen("cta")}
-                >
+                  open={openSections["cta"]} onOpenToggle={() => toggleOpen("cta")}>
                   <div className="space-y-2">
-                    <Input value={config.ctaTitle} onChange={e => updateConfig({ ctaTitle: e.target.value })}
+                    <Input value={config.ctaTitle} onChange={e => update({ ctaTitle: e.target.value })}
                       className="text-sm rounded-xl" placeholder="العنوان" />
-                    <Input value={config.ctaDesc} onChange={e => updateConfig({ ctaDesc: e.target.value })}
+                    <Input value={config.ctaDesc} onChange={e => update({ ctaDesc: e.target.value })}
                       className="text-sm rounded-xl" placeholder="الوصف" />
-                    <Input value={config.ctaButton} onChange={e => updateConfig({ ctaButton: e.target.value })}
+                    <Input value={config.ctaButton} onChange={e => update({ ctaButton: e.target.value })}
                       className="text-sm rounded-xl" placeholder="نص الزر" />
                   </div>
                 </ContentBlock>
 
                 {/* About */}
-                <ContentBlock
-                  title="من نحن"
-                  icon={<Globe className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "about")?.enabled ?? true}
+                <ContentBlock title="من نحن" icon={<Globe className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "about")?.enabled ?? false}
                   onToggle={() => toggleSection("about")}
-                  open={openSections["about"]}
-                  onOpenToggle={() => toggleOpen("about")}
-                >
-                  <Textarea value={config.aboutText} onChange={e => updateConfig({ aboutText: e.target.value })}
+                  open={openSections["about"]} onOpenToggle={() => toggleOpen("about")}>
+                  <Textarea value={config.aboutText} onChange={e => update({ aboutText: e.target.value })}
                     rows={3} className="text-xs rounded-xl resize-none" placeholder="نبذة تعريفية" />
                 </ContentBlock>
 
-                {/* Store */}
-                <ContentBlock
-                  title="المتجر (المنتجات)"
-                  icon={<PenTool className="h-4 w-4" />}
-                  enabled={config.sections.find(s => s.id === "store")?.enabled ?? true}
-                  onToggle={() => toggleSection("store")}
-                  open={false}
-                  onOpenToggle={() => {}}
-                  noContent
-                />
+                {/* Store (always visible, cannot be hidden) */}
+                <div className="bg-card border border-primary/30 rounded-2xl overflow-hidden">
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                      <PenTool className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[13px] font-semibold text-foreground">المتجر (المنتجات)</p>
+                      <p className="text-[10px] text-muted-foreground">مفعّل دائماً</p>
+                    </div>
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -337,7 +380,7 @@ const TemplateEditor = () => {
                   {COLOR_PRESETS.map((preset, i) => {
                     const isSelected = !config.useCustomColors && config.selectedPreset === i;
                     return (
-                      <button key={i} onClick={() => updateConfig({ selectedPreset: i, useCustomColors: false, colors: { ...preset } })}
+                      <button key={i} onClick={() => update({ selectedPreset: i, useCustomColors: false, colors: { ...preset } })}
                         className={`relative rounded-xl p-2 border-2 transition-all ${
                           isSelected ? "border-primary shadow-md" : "border-border hover:border-muted-foreground/30"
                         }`}>
@@ -356,10 +399,9 @@ const TemplateEditor = () => {
                   })}
                 </div>
 
-                {/* Custom Toggle */}
                 <div className="flex items-center justify-between py-2 border-t border-border/50">
                   <span className="text-xs text-muted-foreground">ألوان مخصصة</span>
-                  <Switch checked={config.useCustomColors} onCheckedChange={v => updateConfig({ useCustomColors: v })} />
+                  <Switch checked={config.useCustomColors} onCheckedChange={v => update({ useCustomColors: v })} />
                 </div>
 
                 {config.useCustomColors && (
@@ -371,7 +413,7 @@ const TemplateEditor = () => {
                       ["النصوص", "text"],
                     ] as const).map(([label, key]) => (
                       <div key={key} className="flex items-center gap-2 bg-muted/20 rounded-xl p-2">
-                        <input type="color" value={config.colors[key]} onChange={e => updateConfig({ colors: { ...config.colors, [key]: e.target.value } })}
+                        <input type="color" value={config.colors[key]} onChange={e => update({ colors: { ...config.colors, [key]: e.target.value } })}
                           className="w-7 h-7 rounded-lg border-0 cursor-pointer bg-transparent" />
                         <div className="flex-1">
                           <p className="text-[10px] text-muted-foreground">{label}</p>
@@ -385,13 +427,35 @@ const TemplateEditor = () => {
 
               {/* Fonts */}
               <Card>
-                <p className="text-xs font-semibold text-foreground mb-3">الخطوط</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold text-foreground">الخطوط</p>
+                  <input ref={fontInputRef} type="file" accept=".ttf,.otf,.woff,.woff2" className="hidden" onChange={handleFontUpload} />
+                  <button onClick={() => fontInputRef.current?.click()}
+                    className="flex items-center gap-1 text-[10px] font-medium text-primary hover:underline">
+                    <Upload className="h-3 w-3" /> رفع خط
+                  </button>
+                </div>
+
+                {/* Custom fonts list */}
+                {config.customFonts.length > 0 && (
+                  <div className="mb-3 space-y-1.5">
+                    {config.customFonts.map(font => (
+                      <div key={font.name} className="flex items-center justify-between bg-primary/5 rounded-lg px-3 py-2">
+                        <span className="text-[11px] font-medium text-foreground" style={{ fontFamily: font.name }}>✦ {font.name}</span>
+                        <button onClick={() => removeCustomFont(font.name)} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-1.5">خط العناوين</p>
                     <div className="grid grid-cols-3 gap-1.5">
-                      {FONT_OPTIONS.map(font => (
-                        <button key={font.value} onClick={() => updateConfig({ headingFont: font.value })}
+                      {allFonts.map(font => (
+                        <button key={font.value} onClick={() => update({ headingFont: font.value })}
                           className={`p-2 rounded-xl border-2 transition-all text-center ${
                             config.headingFont === font.value ? "border-primary bg-primary/5" : "border-border"
                           }`}>
@@ -403,8 +467,8 @@ const TemplateEditor = () => {
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-1.5">خط النصوص</p>
                     <div className="grid grid-cols-3 gap-1.5">
-                      {FONT_OPTIONS.map(font => (
-                        <button key={font.value} onClick={() => updateConfig({ bodyFont: font.value })}
+                      {allFonts.map(font => (
+                        <button key={font.value} onClick={() => update({ bodyFont: font.value })}
                           className={`p-2 rounded-xl border-2 transition-all text-center ${
                             config.bodyFont === font.value ? "border-primary bg-primary/5" : "border-border"
                           }`}>
@@ -416,7 +480,7 @@ const TemplateEditor = () => {
                 </div>
               </Card>
 
-              {/* Preview */}
+              {/* Live Preview */}
               <div className="rounded-2xl border border-border overflow-hidden">
                 <div className="p-4" style={{ backgroundColor: activeColors.bg }}>
                   <p className="text-sm font-bold mb-1" style={{ color: activeColors.text, fontFamily: config.headingFont }}>
@@ -456,7 +520,7 @@ const TemplateEditor = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-[10px] text-muted-foreground mb-0.5">{label}</p>
-                      <Input value={config[key]} onChange={e => updateConfig({ [key]: e.target.value })}
+                      <Input value={config[key]} onChange={e => update({ [key]: e.target.value })}
                         placeholder={placeholder} dir="ltr"
                         className="h-7 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none" />
                     </div>
@@ -470,8 +534,11 @@ const TemplateEditor = () => {
         {/* STICKY ACTION BAR */}
         <div className="fixed bottom-20 left-4 right-4 max-w-lg mx-auto z-30">
           <div className="flex gap-2 bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl shadow-foreground/5">
-            <Button onClick={handlePreview} className="flex-1 h-11 gap-2 text-sm rounded-xl font-semibold">
+            <Button onClick={handlePreview} variant="outline" className="flex-1 h-11 gap-2 text-sm rounded-xl font-semibold">
               <Eye className="h-4 w-4" /> معاينة
+            </Button>
+            <Button onClick={handleSave} className={`flex-1 h-11 gap-2 text-sm rounded-xl font-semibold ${hasChanges ? "" : "opacity-60"}`}>
+              <Save className="h-4 w-4" /> حفظ
             </Button>
             <Button onClick={handleReset} variant="ghost" className="h-11 w-11 p-0 rounded-xl text-muted-foreground hover:text-destructive" title="إعادة تعيين">
               <RotateCcw className="h-4 w-4" />
@@ -508,7 +575,7 @@ const ContentBlock = ({
   <div className={`bg-card border rounded-2xl overflow-hidden transition-all ${enabled ? "border-border" : "border-border/40 opacity-60"}`}>
     <div className="flex items-center gap-3 px-4 py-3">
       <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">{icon}</div>
-      <div className="flex-1 min-w-0 cursor-pointer" onClick={!noContent ? onOpenToggle : undefined}>
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={!noContent && enabled ? onOpenToggle : undefined}>
         <p className="text-[13px] font-semibold text-foreground">{title}</p>
         {count !== undefined && <p className="text-[10px] text-muted-foreground">{count} عنصر</p>}
       </div>

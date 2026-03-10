@@ -1,26 +1,36 @@
 import { useState } from "react";
 import logoLight from "@/assets/logo-light.png";
 import { useNavigate } from "react-router-dom";
-import { 
-  Store, CreditCard, ChevronLeft, Check, 
+import {
+  Store, CreditCard, ChevronLeft, Check,
   Crown, Zap, Truck, Palette, Headphones, Users, Activity, Globe, Shield, Star, Ticket, Sparkles,
-  Instagram, Facebook, MessageCircle, Link2, Image, FileText, ShoppingBag
+  Instagram, Facebook, MessageCircle, Link2, Image, FileText, ShoppingBag, PenTool, Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { useOnboarding } from "@/hooks/useOnboarding";
+import { useOnboarding, type BusinessType } from "@/hooks/useOnboarding";
+import { useTemplateConfig } from "@/hooks/useTemplateConfig";
 
 const STEPS = [
-  { id: 1, label: "المتجر", icon: Store },
-  { id: 2, label: "التواصل", icon: Link2 },
-  { id: 3, label: "الباقة", icon: CreditCard },
+  { id: 1, label: "النشاط", icon: Store },
+  { id: 2, label: "المتجر", icon: Palette },
+  { id: 3, label: "التواصل", icon: Link2 },
+  { id: 4, label: "الباقة", icon: CreditCard },
 ];
 
-const STORE_CATEGORIES = [
-  "ملابس وأزياء", "إلكترونيات", "مواد غذائية", "مستحضرات تجميل",
-  "أحذية وحقائب", "أثاث ومفروشات", "هدايا وتحف", "أخرى"
+const BUSINESS_TYPES: { id: BusinessType; label: string; desc: string; icon: React.ElementType; emoji: string }[] = [
+  { id: "physical", label: "منتجات مادية", desc: "ملابس، إلكترونيات، مواد غذائية...", icon: ShoppingBag, emoji: "📦" },
+  { id: "digital", label: "منتجات رقمية", desc: "دورات، كتب، قوالب، ملفات...", icon: Monitor, emoji: "💻" },
+  { id: "service", label: "خدمات", desc: "تصميم، برمجة، تصوير، استشارات...", icon: PenTool, emoji: "🎨" },
+];
+
+const SOCIAL_PLATFORMS = [
+  { id: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/yourstore", color: "text-pink-500" },
+  { id: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/yourstore", color: "text-blue-500" },
+  { id: "tiktok", label: "TikTok", icon: ShoppingBag, placeholder: "https://tiktok.com/@yourstore", color: "text-foreground" },
+  { id: "website", label: "موقع إلكتروني", icon: Globe, placeholder: "https://yourwebsite.com", color: "text-primary" },
 ];
 
 const BASIC_FEATURES = [
@@ -46,30 +56,26 @@ const PRO_FEATURES = [
   { text: "حماية SSL مجانية", icon: Shield },
 ];
 
-const SOCIAL_PLATFORMS = [
-  { id: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/yourstore", color: "text-pink-500" },
-  { id: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/yourstore", color: "text-blue-500" },
-  { id: "tiktok", label: "TikTok", icon: ShoppingBag, placeholder: "https://tiktok.com/@yourstore", color: "text-foreground" },
-  { id: "website", label: "موقع إلكتروني", icon: Globe, placeholder: "https://yourwebsite.com", color: "text-primary" },
-];
-
 const Register = () => {
   const navigate = useNavigate();
-  const { completeOnboarding } = useOnboarding();
-  const [step, setStep] = useState(0); // 0 = welcome/google sign-in
+  const { completeOnboarding, setBusinessType: saveBusinessType } = useOnboarding();
+  const { resetForBusinessType } = useTemplateConfig();
+  const [step, setStep] = useState(0);
 
-  // Step 1: Store Info
+  // Step 1: Business Type
+  const [businessType, setBusinessType] = useState<BusinessType>("physical");
+
+  // Step 2: Store Info
   const [storeName, setStoreName] = useState("");
   const [storeDescription, setStoreDescription] = useState("");
-  const [storeCategory, setStoreCategory] = useState("");
   const [storeSlug, setStoreSlug] = useState("");
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
 
-  // Step 2: Social Links
+  // Step 3: Social Links
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
 
-  // Step 3: Plan
+  // Step 4: Plan
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "pro">("basic");
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
 
@@ -87,7 +93,12 @@ const Register = () => {
   };
 
   const handleNext = () => {
-    if (step < 3) setStep(step + 1);
+    if (step === 1) {
+      // Save business type and configure template defaults
+      saveBusinessType(businessType);
+      resetForBusinessType(businessType);
+    }
+    if (step < 4) setStep(step + 1);
     else handleComplete();
   };
 
@@ -98,7 +109,6 @@ const Register = () => {
   };
 
   const handleGoogleSignIn = () => {
-    // Simulate Google sign-in
     toast({ title: "تم تسجيل الدخول بنجاح", description: "مرحباً بك!" });
     setStep(1);
   };
@@ -111,7 +121,6 @@ const Register = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir="rtl">
         <div className="w-full max-w-sm space-y-8 text-center">
-          {/* Logo / Brand */}
           <div className="space-y-3">
             <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto">
               <img src={logoLight} alt="ماتاجر" className="w-full h-full object-cover" />
@@ -122,10 +131,9 @@ const Register = () => {
             </p>
           </div>
 
-          {/* Features highlights */}
           <div className="space-y-3">
             {[
-              { icon: Zap, text: "إعداد سريع بـ 3 خطوات فقط" },
+              { icon: Zap, text: "إعداد سريع بخطوات بسيطة" },
               { icon: Globe, text: "نطاق فرعي مجاني .matager.store" },
               { icon: Truck, text: "ربط مع شركات التوصيل" },
             ].map((f) => (
@@ -138,13 +146,8 @@ const Register = () => {
             ))}
           </div>
 
-          {/* Google Sign-In Button */}
           <div className="space-y-3">
-            <Button
-              onClick={handleGoogleSignIn}
-              className="w-full h-12 rounded-xl text-sm font-bold gap-3"
-              variant="outline"
-            >
+            <Button onClick={handleGoogleSignIn} className="w-full h-12 rounded-xl text-sm font-bold gap-3" variant="outline">
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -170,27 +173,26 @@ const Register = () => {
           <button onClick={() => step > 1 ? setStep(step - 1) : setStep(0)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
-          <span className="text-sm font-bold text-foreground">إكمال إعداد المتجر</span>
-          <span className="text-xs text-muted-foreground">{step}/3</span>
+          <span className="text-sm font-bold text-foreground">إعداد المتجر</span>
+          <span className="text-xs text-muted-foreground">{step}/4</span>
         </div>
       </header>
 
       {/* Progress Steps */}
       <div className="container mx-auto px-6 pt-5 pb-2">
         <div className="flex items-center justify-between relative">
-          <div className="absolute top-4 right-8 left-8 h-0.5 bg-border" />
-          <div className="absolute top-4 right-8 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 2) * (100 - 20)}%` }} />
-          
+          <div className="absolute top-4 right-6 left-6 h-0.5 bg-border" />
+          <div className="absolute top-4 right-6 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 3) * (100 - 12)}%` }} />
           {STEPS.map((s) => (
             <div key={s.id} className="flex flex-col items-center gap-1.5 relative z-10">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                step > s.id ? "bg-success text-success-foreground" : 
-                step === s.id ? "bg-primary text-primary-foreground scale-110 shadow-md" : 
+                step > s.id ? "bg-success text-success-foreground" :
+                step === s.id ? "bg-primary text-primary-foreground scale-110 shadow-md" :
                 "bg-card border-2 border-border text-muted-foreground"
               }`}>
                 {step > s.id ? <Check className="h-4 w-4" /> : <s.icon className="h-3.5 w-3.5" />}
               </div>
-              <span className={`text-[10px] font-medium ${step >= s.id ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</span>
+              <span className={`text-[9px] font-medium ${step >= s.id ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</span>
             </div>
           ))}
         </div>
@@ -199,8 +201,59 @@ const Register = () => {
       {/* Content */}
       <div className="flex-1 container mx-auto px-4 py-6 overflow-y-auto pb-28">
 
-        {/* Step 1: Store Info */}
+        {/* Step 1: Business Type */}
         {step === 1 && (
+          <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-foreground">شنو نوع نشاطك؟</h2>
+              <p className="text-xs text-muted-foreground mt-1">هذا يحدد القالب والإعدادات المناسبة لك</p>
+            </div>
+
+            <div className="space-y-3">
+              {BUSINESS_TYPES.map((type) => {
+                const Icon = type.icon;
+                const isSelected = businessType === type.id;
+                return (
+                  <button key={type.id} onClick={() => setBusinessType(type.id)}
+                    className={`w-full text-right bg-card border-2 rounded-2xl p-5 transition-all ${
+                      isSelected ? "border-primary shadow-md" : "border-border hover:border-primary/30"
+                    }`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-colors ${
+                        isSelected ? "bg-primary/10" : "bg-muted"
+                      }`}>
+                        {type.emoji}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-foreground">{type.label}</h3>
+                          {isSelected && (
+                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="h-3 w-3 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{type.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5">
+              <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {businessType === "digital" && "ستتمكن من بيع الملفات والدورات عبر رابط تحميل أو بريد إلكتروني."}
+                {businessType === "service" && "ستحصل على صفحة هبوط ومعرض أعمال مع إمكانية إنشاء روابط دفع سريعة."}
+                {businessType === "physical" && "ستتمكن من إضافة منتجاتك وإدارة الطلبات والتوصيل بسهولة."}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Store Info */}
+        {step === 2 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">معلومات المتجر</h2>
@@ -219,124 +272,67 @@ const Register = () => {
                     ) : (
                       <div className="flex flex-col items-center gap-1">
                         <Image className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                        <span className="text-[9px] text-muted-foreground">شعار المتجر</span>
+                        <span className="text-[9px] text-muted-foreground">شعار</span>
                       </div>
                     )}
                   </div>
                 </label>
                 <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-                <p className="text-[10px] text-muted-foreground">اختياري • PNG أو JPG</p>
               </div>
 
-              {/* Store Name */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">اسم المتجر *</label>
-                <Input 
-                  value={storeName} 
-                  onChange={(e) => {
-                    setStoreName(e.target.value);
-                    setStoreSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''));
-                  }} 
-                  placeholder="مثال: متجر الأناقة" 
-                  className="h-11" 
-                />
+                <Input value={storeName} onChange={(e) => {
+                  setStoreName(e.target.value);
+                  setStoreSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''));
+                }} placeholder={businessType === "service" ? "مثال: استوديو الإبداع" : "مثال: متجر الأناقة"} className="h-11" />
               </div>
 
-              {/* Store URL Preview */}
               {storeName && (
                 <div className="bg-secondary/50 rounded-lg p-3 flex items-center gap-2">
                   <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-xs text-muted-foreground" dir="ltr">
-                    {storeSlug || "your-store"}.matager.store
-                  </span>
+                  <span className="text-xs text-muted-foreground" dir="ltr">{storeSlug || "your-store"}.matager.store</span>
                 </div>
               )}
 
-              {/* Store Subdomain */}
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">
-                  <Globe className="h-3.5 w-3.5 inline-block ml-1" />
-                  نطاق المتجر *
+                  <Globe className="h-3.5 w-3.5 inline-block ml-1" /> نطاق المتجر *
                 </label>
-                <div className="flex items-center gap-0 border border-input rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                <div className="flex items-center gap-0 border border-input rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring">
                   <span className="text-[11px] text-muted-foreground bg-secondary px-3 py-2.5 border-l border-input whitespace-nowrap" dir="ltr">.matager.store</span>
-                  <input
-                    value={storeSlug}
-                    onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="your-store"
-                    className="flex-1 h-11 px-3 text-xs bg-background text-foreground placeholder:text-muted-foreground outline-none"
-                    dir="ltr"
-                  />
+                  <input value={storeSlug} onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    placeholder="your-store" className="flex-1 h-11 px-3 text-xs bg-background text-foreground placeholder:text-muted-foreground outline-none" dir="ltr" />
                 </div>
-                {storeSlug && (
-                  <p className="text-[10px] text-muted-foreground mt-1.5" dir="ltr">
-                    {storeSlug}.matager.store
-                  </p>
-                )}
-              </div>
-
-              {/* WhatsApp */}
-              <div>
-                <label className="text-xs font-medium text-foreground mb-1.5 block">
-                  <MessageCircle className="h-3.5 w-3.5 inline-block ml-1 text-green-500" />
-                  رقم الواتساب *
-                </label>
-                <Input
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="07XX XXX XXXX"
-                  className="h-11 text-xs"
-                  dir="ltr"
-                  type="tel"
-                />
               </div>
 
               <div>
                 <label className="text-xs font-medium text-foreground mb-1.5 block">
-                  <FileText className="h-3.5 w-3.5 inline-block ml-1" />
-                  وصف المتجر
+                  <MessageCircle className="h-3.5 w-3.5 inline-block ml-1 text-green-500" /> رقم الواتساب *
                 </label>
-                <Textarea
-                  value={storeDescription}
-                  onChange={(e) => setStoreDescription(e.target.value)}
-                  placeholder="اكتب وصفاً مختصراً عن متجرك ونوع المنتجات التي تبيعها..."
-                  className="min-h-[80px] resize-none text-sm"
-                  maxLength={200}
-                />
+                <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="07XX XXX XXXX" className="h-11 text-xs" dir="ltr" type="tel" />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">
+                  <FileText className="h-3.5 w-3.5 inline-block ml-1" /> وصف المتجر
+                </label>
+                <Textarea value={storeDescription} onChange={(e) => setStoreDescription(e.target.value)}
+                  placeholder={businessType === "service" ? "اكتب وصفاً عن خدماتك..." : "اكتب وصفاً عن متجرك..."}
+                  className="min-h-[80px] resize-none text-sm" maxLength={200} />
                 <p className="text-[10px] text-muted-foreground mt-1 text-left" dir="ltr">{storeDescription.length}/200</p>
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="text-xs font-medium text-foreground mb-2 block">تصنيف المتجر *</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {STORE_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setStoreCategory(cat)}
-                      className={`px-3 py-2.5 rounded-xl text-xs font-medium transition-all border ${
-                        storeCategory === cat 
-                          ? "border-primary bg-primary/10 text-primary" 
-                          : "border-border bg-card text-foreground hover:border-primary/30"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 2: Social Links */}
-        {step === 2 && (
+        {/* Step 3: Social Links */}
+        {step === 3 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">روابط التواصل الاجتماعي</h2>
               <p className="text-xs text-muted-foreground mt-0.5">أضف حساباتك ليتمكن عملاؤك من التواصل معك <span className="text-muted-foreground/60">(اختياري)</span></p>
             </div>
-
             <div className="space-y-3">
               {SOCIAL_PLATFORMS.map((platform) => {
                 const Icon = platform.icon;
@@ -348,70 +344,40 @@ const Register = () => {
                       </div>
                       <span className="text-xs font-bold text-foreground">{platform.label}</span>
                     </div>
-                    <Input
-                      value={socialLinks[platform.id] || ""}
-                      onChange={(e) => updateSocialLink(platform.id, e.target.value)}
-                      placeholder={platform.placeholder}
-                      className="h-10 text-xs"
-                      dir="ltr"
-                    />
+                    <Input value={socialLinks[platform.id] || ""} onChange={(e) => updateSocialLink(platform.id, e.target.value)}
+                      placeholder={platform.placeholder} className="h-10 text-xs" dir="ltr" />
                   </div>
                 );
               })}
             </div>
-
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                يمكنك تعديل هذه الروابط لاحقاً من إعدادات المتجر. ستظهر هذه الروابط في صفحة متجرك للعملاء.
-              </p>
-            </div>
           </div>
         )}
 
-        {/* Step 3: Plan Selection */}
-        {step === 3 && (
+        {/* Step 4: Plan Selection */}
+        {step === 4 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">اختر باقتك</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">يمكنك تغيير الباقة لاحقاً في أي وقت</p>
+              <p className="text-xs text-muted-foreground mt-0.5">يمكنك تغيير الباقة لاحقاً</p>
             </div>
 
-            {/* Billing Toggle */}
             <div className="flex items-center justify-center gap-1 bg-secondary rounded-xl p-1">
-              <button
-                onClick={() => setBillingPeriod("monthly")}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  billingPeriod === "monthly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                }`}
-              >
+              <button onClick={() => setBillingPeriod("monthly")}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${billingPeriod === "monthly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
                 شهري
               </button>
-              <button
-                onClick={() => setBillingPeriod("yearly")}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                  billingPeriod === "yearly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                }`}
-              >
-                سنوي
-                <span className="text-[9px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">-20%</span>
+              <button onClick={() => setBillingPeriod("yearly")}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${billingPeriod === "yearly" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+                سنوي <span className="text-[9px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">-20%</span>
               </button>
             </div>
 
-            {/* Plans */}
             <div className="space-y-3">
-              {/* Basic Plan */}
-              <button
-                onClick={() => setSelectedPlan("basic")}
-                className={`w-full text-right bg-card border-2 rounded-2xl p-4 transition-all ${
-                  selectedPlan === "basic" ? "border-primary shadow-sm" : "border-border"
-                }`}
-              >
+              <button onClick={() => setSelectedPlan("basic")}
+                className={`w-full text-right bg-card border-2 rounded-2xl p-4 transition-all ${selectedPlan === "basic" ? "border-primary shadow-sm" : "border-border"}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      selectedPlan === "basic" ? "border-primary" : "border-muted-foreground/30"
-                    }`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === "basic" ? "border-primary" : "border-muted-foreground/30"}`}>
                       {selectedPlan === "basic" && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                     </div>
                     <span className="text-sm font-bold text-foreground">الأساسية</span>
@@ -424,22 +390,13 @@ const Register = () => {
                 <p className="text-[11px] text-muted-foreground">مثالية للبدء • متجر واحد • 50 منتج</p>
               </button>
 
-              {/* Pro Plan */}
-              <button
-                onClick={() => setSelectedPlan("pro")}
-                className={`w-full text-right bg-card border-2 rounded-2xl overflow-hidden transition-all ${
-                  selectedPlan === "pro" ? "border-primary shadow-sm" : "border-border"
-                }`}
-              >
-                <div className="bg-primary text-primary-foreground text-[10px] font-bold text-center py-1">
-                  ⭐ الأكثر شعبية
-                </div>
+              <button onClick={() => setSelectedPlan("pro")}
+                className={`w-full text-right bg-card border-2 rounded-2xl overflow-hidden transition-all ${selectedPlan === "pro" ? "border-primary shadow-sm" : "border-border"}`}>
+                <div className="bg-primary text-primary-foreground text-[10px] font-bold text-center py-1">⭐ الأكثر شعبية</div>
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPlan === "pro" ? "border-primary" : "border-muted-foreground/30"
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === "pro" ? "border-primary" : "border-muted-foreground/30"}`}>
                         {selectedPlan === "pro" && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                       </div>
                       <span className="text-sm font-bold text-foreground">الاحترافية</span>
@@ -455,13 +412,10 @@ const Register = () => {
               </button>
             </div>
 
-            {/* Selected Plan Features */}
             <div className="bg-card border border-border rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <h4 className="text-xs font-bold text-foreground">
-                  ميزات الباقة {selectedPlan === "basic" ? "الأساسية" : "الاحترافية"}
-                </h4>
+                <h4 className="text-xs font-bold text-foreground">ميزات الباقة {selectedPlan === "basic" ? "الأساسية" : "الاحترافية"}</h4>
               </div>
               <div className="space-y-2.5">
                 {(selectedPlan === "basic" ? BASIC_FEATURES : PRO_FEATURES).map((f) => (
@@ -473,14 +427,6 @@ const Register = () => {
                   </div>
                 ))}
               </div>
-
-              {selectedPlan === "basic" && (
-                <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-[10px] text-muted-foreground text-center">
-                    تحتاج ميزات أكثر؟ <button onClick={() => setSelectedPlan("pro")} className="text-primary font-bold">جرّب الاحترافية</button>
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -489,17 +435,14 @@ const Register = () => {
       {/* Bottom CTA */}
       <div className="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border p-4">
         <Button onClick={handleNext} className="w-full h-12 rounded-xl text-sm font-bold gap-2">
-          {step === 3 ? (
-            <>
-              <Sparkles className="h-4 w-4" />
-              إنشاء المتجر - {selectedPlan === "basic" ? basicPrice.toLocaleString("ar-IQ") : proPrice.toLocaleString("ar-IQ")} د.ع/شهر
-            </>
+          {step === 4 ? (
+            <><Sparkles className="h-4 w-4" /> إنشاء المتجر - {selectedPlan === "basic" ? basicPrice.toLocaleString("ar-IQ") : proPrice.toLocaleString("ar-IQ")} د.ع/شهر</>
           ) : (
             "التالي"
           )}
         </Button>
-        {step === 2 && (
-          <button onClick={() => setStep(3)} className="w-full text-center mt-2">
+        {step === 3 && (
+          <button onClick={() => setStep(4)} className="w-full text-center mt-2">
             <span className="text-[11px] text-muted-foreground">تخطي هذه الخطوة</span>
           </button>
         )}
