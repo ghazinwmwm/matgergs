@@ -1,6 +1,6 @@
 import { 
   Store, UserCog, Palette, Truck, Activity, Ticket,
-  BarChart3, Settings, ChevronLeft
+  BarChart3, Settings, ChevronLeft, PenTool
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProBadge } from "@/components/ProGate";
