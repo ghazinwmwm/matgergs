@@ -53,7 +53,7 @@ export interface SectionConfig {
 }
 
 export interface ServiceItem { icon: string; title: string; desc: string; }
-export interface WorkItem { title: string; category: string; image?: string; }
+export interface WorkItem { title: string; category: string; image?: string; link?: string; }
 export interface TestimonialItem { name: string; role: string; text: string; rating: number; }
 
 export interface TemplateColors {
