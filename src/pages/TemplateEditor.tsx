@@ -429,14 +429,8 @@ const TemplateEditor = () => {
 
               {/* Fonts */}
               <Card>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-foreground">الخطوط</p>
-                  <input ref={fontInputRef} type="file" accept=".ttf,.otf,.woff,.woff2" className="hidden" onChange={handleFontUpload} />
-                  <button onClick={() => fontInputRef.current?.click()}
-                    className="flex items-center gap-1 text-[10px] font-medium text-primary hover:underline">
-                    <Upload className="h-3 w-3" /> رفع خط
-                  </button>
-                </div>
+                <p className="text-xs font-semibold text-foreground mb-3">الخطوط</p>
+                <input ref={fontInputRef} type="file" accept=".ttf,.otf,.woff,.woff2" className="hidden" onChange={handleFontUpload} />
 
                 {/* Custom fonts list */}
                 {config.customFonts.length > 0 && (
@@ -453,8 +447,15 @@ const TemplateEditor = () => {
                 )}
 
                 <div className="space-y-3">
+                  {/* Heading font */}
                   <div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5">خط العناوين</p>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] text-muted-foreground">خط العناوين</p>
+                      <button onClick={() => triggerFontUpload("heading")}
+                        className="flex items-center gap-1 text-[10px] font-medium text-primary hover:underline">
+                        <Upload className="h-3 w-3" /> رفع خط
+                      </button>
+                    </div>
                     <div className="grid grid-cols-3 gap-1.5">
                       {allFonts.map(font => (
                         <button key={font.value} onClick={() => update({ headingFont: font.value })}
@@ -466,8 +467,15 @@ const TemplateEditor = () => {
                       ))}
                     </div>
                   </div>
+                  {/* Body font */}
                   <div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5">خط النصوص</p>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] text-muted-foreground">خط النصوص</p>
+                      <button onClick={() => triggerFontUpload("body")}
+                        className="flex items-center gap-1 text-[10px] font-medium text-primary hover:underline">
+                        <Upload className="h-3 w-3" /> رفع خط
+                      </button>
+                    </div>
                     <div className="grid grid-cols-3 gap-1.5">
                       {allFonts.map(font => (
                         <button key={font.value} onClick={() => update({ bodyFont: font.value })}
