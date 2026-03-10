@@ -53,7 +53,7 @@ export interface SectionConfig {
 }
 
 export interface ServiceItem { icon: string; title: string; desc: string; }
-export interface WorkItem { title: string; category: string; image?: string; }
+export interface WorkItem { title: string; category: string; image?: string; link?: string; }
 export interface TestimonialItem { name: string; role: string; text: string; rating: number; }
 
 export interface TemplateColors {
@@ -151,9 +151,9 @@ const DEFAULT_CONFIG: TemplateConfig = {
     { icon: "Code", title: "تطوير ويب", desc: "مواقع ومتاجر بأحدث التقنيات" },
   ],
   works: [
-    { title: "هوية بصرية لمطعم", category: "هوية بصرية" },
-    { title: "تطبيق توصيل", category: "تصميم واجهات" },
-    { title: "موقع عقارات", category: "تطوير ويب" },
+    { title: "هوية بصرية لمطعم", category: "هوية بصرية", link: "" },
+    { title: "تطبيق توصيل", category: "تصميم واجهات", link: "" },
+    { title: "موقع عقارات", category: "تطوير ويب", link: "" },
   ],
   testimonials: [
     { name: "سارة أحمد", role: "مديرة تسويق", text: "تجربة رائعة غيّرت مساري المهني!", rating: 5 },

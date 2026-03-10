@@ -233,24 +233,28 @@ const Storefront = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                {config.works.map((work, i) => (
-                  <div key={i} className="group cursor-pointer">
-                    <div className="aspect-[4/3] rounded-2xl flex items-center justify-center relative overflow-hidden border border-border"
-                      style={{ background: `linear-gradient(135deg, ${colors.primary}20, ${colors.accent}15)` }}>
-                      <PenTool className="h-8 w-8 text-muted-foreground/20" />
-                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <div className="text-center">
-                          <ExternalLink className="h-5 w-5 text-background mx-auto mb-1.5" />
-                          <p className="text-[10px] font-bold text-background">عرض المشروع</p>
+                {config.works.map((work, i) => {
+                  const Wrapper = work.link ? 'a' : 'div';
+                  const wrapperProps = work.link ? { href: work.link, target: "_blank", rel: "noopener noreferrer" } : {};
+                  return (
+                    <Wrapper key={i} {...wrapperProps as any} className="group cursor-pointer block">
+                      <div className="aspect-[4/3] rounded-2xl flex items-center justify-center relative overflow-hidden border border-border"
+                        style={{ background: `linear-gradient(135deg, ${colors.primary}20, ${colors.accent}15)` }}>
+                        <PenTool className="h-8 w-8 text-muted-foreground/20" />
+                        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <div className="text-center">
+                            <ExternalLink className="h-5 w-5 text-background mx-auto mb-1.5" />
+                            <p className="text-[10px] font-bold text-background">{work.link ? 'فتح الرابط' : 'عرض المشروع'}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-2.5 px-1">
-                      <h3 className="text-xs font-bold text-foreground">{work.title}</h3>
-                      <p className="text-[10px] text-muted-foreground">{work.category}</p>
-                    </div>
-                  </div>
-                ))}
+                      <div className="mt-2.5 px-1">
+                        <h3 className="text-xs font-bold text-foreground">{work.title}</h3>
+                        <p className="text-[10px] text-muted-foreground">{work.category}</p>
+                      </div>
+                    </Wrapper>
+                  );
+                })}
               </div>
             </div>
           </section>
