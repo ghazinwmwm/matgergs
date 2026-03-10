@@ -135,7 +135,7 @@ const TemplateEditor = () => {
   };
 
   const handlePreview = () => {
-    window.open("/storefront", "storefront", `width=1200,height=800,scrollbars=yes,resizable=yes`);
+    window.open("/storefront", "_blank");
   };
 
   const handleSave = () => {

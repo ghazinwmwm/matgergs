@@ -84,7 +84,11 @@ const Templates = () => {
                       {isActive ? <><Check className="h-3 w-3" /> مُفعّل</> : <><Palette className="h-3 w-3" /> تطبيق</>}
                     </Button>
                     <Button variant="outline" size="sm" className="gap-1 text-xs"
-                      onClick={() => navigate(`/templates/preview/${template.id}`)}>
+                      onClick={() => {
+                        // Apply template first, then open in new tab
+                        applyTemplate(template.type);
+                        window.open("/storefront", "_blank");
+                      }}>
                       <Eye className="h-3 w-3" /> معاينة
                     </Button>
                   </div>

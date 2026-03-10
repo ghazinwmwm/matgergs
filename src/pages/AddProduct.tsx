@@ -164,24 +164,33 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
         <div className="space-y-6">
 
           {/* ═══ INLINE TYPE TOGGLE ═══ */}
-          <div className="flex gap-2 p-1 bg-muted rounded-xl">
-            <button
-              onClick={() => setProductType("physical")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-                productType === "physical" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Package className="h-3.5 w-3.5" /> منتج فيزيائي
-            </button>
-            <button
-              onClick={() => setProductType("digital")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-                productType === "digital" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Monitor className="h-3.5 w-3.5" /> منتج رقمي
-            </button>
-          </div>
+          {showTypeToggle ? (
+            <div className="flex gap-2 p-1 bg-muted rounded-xl">
+              <button
+                onClick={() => setProductType("physical")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                  productType === "physical" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                <Package className="h-3.5 w-3.5" /> منتج فيزيائي
+              </button>
+              <button
+                onClick={() => setProductType("digital")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                  productType === "digital" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                <Monitor className="h-3.5 w-3.5" /> منتج رقمي
+              </button>
+            </div>
+          ) : (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center gap-2">
+              {productType === "digital" ? <Monitor className="h-4 w-4 text-primary" /> : <Package className="h-4 w-4 text-primary" />}
+              <span className="text-xs font-semibold text-primary">
+                {businessType === "digital" ? "منتج رقمي" : businessType === "service" ? "خدمة" : "منتج فيزيائي"}
+              </span>
+            </div>
+          )}
 
           {/* ═══ BASIC DETAILS ═══ */}
           <section className="space-y-5">
