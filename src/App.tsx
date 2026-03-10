@@ -29,6 +29,7 @@ import Profile from "./pages/Profile";
 import More from "./pages/More";
 import Plans from "./pages/Plans";
 import PaymentLinks from "./pages/PaymentLinks";
+import PaymentPage from "./pages/PaymentPage";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import BottomBar from "./components/BottomBar";
@@ -53,6 +54,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/storefront" element={<Storefront />} />
+        <Route path="/pay/:id" element={<PaymentPage />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     );
@@ -81,6 +83,7 @@ const AppRoutes = () => {
         <Route path="/more" element={<More />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/payment-links" element={<PaymentLinks />} />
+        <Route path="/pay/:id" element={<PaymentPage />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
