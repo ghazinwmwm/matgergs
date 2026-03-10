@@ -29,6 +29,7 @@ import Profile from "./pages/Profile";
 import More from "./pages/More";
 import Plans from "./pages/Plans";
 import PaymentLinks from "./pages/PaymentLinks";
+import PaymentPage from "./pages/PaymentPage";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import BottomBar from "./components/BottomBar";
