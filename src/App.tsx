@@ -54,6 +54,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/storefront" element={<Storefront />} />
+        <Route path="/pay/:id" element={<PaymentPage />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     );
