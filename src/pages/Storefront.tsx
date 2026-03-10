@@ -507,12 +507,14 @@ const Storefront = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={openCartDrawer} className="relative w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                <ShoppingCart className="h-4 w-4 text-foreground" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full text-[8px] font-bold flex items-center justify-center animate-in zoom-in text-white" style={{ backgroundColor: colors.primary }}>{cartCount}</span>
-                )}
-              </button>
+              {storeEnabled && (
+                <button onClick={openCartDrawer} className="relative w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <ShoppingCart className="h-4 w-4 text-foreground" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full text-[8px] font-bold flex items-center justify-center animate-in zoom-in text-white" style={{ backgroundColor: colors.primary }}>{cartCount}</span>
+                  )}
+                </button>
+              )}
               <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="sm:hidden w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center">
                 {showMobileMenu ? <X className="h-4 w-4 text-foreground" /> : <Menu className="h-4 w-4 text-foreground" />}
               </button>
