@@ -225,8 +225,30 @@ export const TemplateConfigProvider = ({ children }: { children: ReactNode }) =>
     return COLOR_PRESETS[config.selectedPreset] || COLOR_PRESETS[0];
   }, [config.useCustomColors, config.colors, config.selectedPreset]);
 
+  // Generate CSS custom properties for the storefront to override Tailwind tokens
+  const storefrontCssVars = useMemo(() => {
+    const c = getActiveColors();
+    const isDark = (hexToHsl(c.bg)?.l ?? 100) < 50;
+    return {
+      '--background': hslString(c.bg),
+      '--foreground': hslString(c.text),
+      '--card': isDark ? adjustLightness(c.bg, 8) : adjustLightness(c.bg, -3),
+      '--card-foreground': hslString(c.text),
+      '--primary': hslString(c.primary),
+      '--primary-foreground': isDark ? '0 0% 100%' : '0 0% 100%',
+      '--secondary': isDark ? adjustLightness(c.bg, 12) : adjustLightness(c.bg, -6),
+      '--secondary-foreground': hslString(c.text),
+      '--muted': isDark ? adjustLightness(c.bg, 15) : adjustLightness(c.bg, -8),
+      '--muted-foreground': adjustLightness(c.text, isDark ? -30 : 30),
+      '--accent': hslString(c.accent),
+      '--accent-foreground': hslString(c.text),
+      '--border': isDark ? adjustLightness(c.bg, 18) : adjustLightness(c.bg, -12),
+      '--ring': hslString(c.primary),
+    } as Record<string, string>;
+  }, [getActiveColors]);
+
   return (
-    <TemplateConfigContext.Provider value={{ config, updateConfig, resetConfig, getActiveColors }}>
+    <TemplateConfigContext.Provider value={{ config, updateConfig, resetConfig, getActiveColors, storefrontCssVars }}>
       {children}
     </TemplateConfigContext.Provider>
   );
