@@ -138,6 +138,16 @@ const DEFAULT_CONFIG: TemplateConfig = {
 // CONTEXT
 // ═══════════════════════════════════════
 
+const STORAGE_KEY = "template-config";
+
+const loadConfig = (): TemplateConfig => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+  } catch {}
+  return DEFAULT_CONFIG;
+};
+
 interface TemplateConfigContextType {
   config: TemplateConfig;
   updateConfig: (partial: Partial<TemplateConfig>) => void;
@@ -148,18 +158,34 @@ interface TemplateConfigContextType {
 const TemplateConfigContext = createContext<TemplateConfigContextType | undefined>(undefined);
 
 export const TemplateConfigProvider = ({ children }: { children: ReactNode }) => {
-  const [config, setConfig] = useState<TemplateConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<TemplateConfig>(loadConfig);
 
-  const updateConfig = (partial: Partial<TemplateConfig>) => {
+  // Persist to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  }, [config]);
+
+  // Listen for storage events from other windows/tabs
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try { setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(e.newValue) }); } catch {}
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  const updateConfig = useCallback((partial: Partial<TemplateConfig>) => {
     setConfig(prev => ({ ...prev, ...partial }));
-  };
+  }, []);
 
-  const resetConfig = () => setConfig(DEFAULT_CONFIG);
+  const resetConfig = useCallback(() => setConfig(DEFAULT_CONFIG), []);
 
-  const getActiveColors = (): TemplateColors => {
+  const getActiveColors = useCallback((): TemplateColors => {
     if (config.useCustomColors) return config.colors;
     return COLOR_PRESETS[config.selectedPreset] || COLOR_PRESETS[0];
-  };
+  }, [config.useCustomColors, config.colors, config.selectedPreset]);
 
   return (
     <TemplateConfigContext.Provider value={{ config, updateConfig, resetConfig, getActiveColors }}>
