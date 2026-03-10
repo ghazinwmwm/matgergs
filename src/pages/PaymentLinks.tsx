@@ -173,6 +173,10 @@ const PaymentLinks = () => {
                     {copiedId === link.id ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                     {copiedId === link.id ? "تم النسخ" : "نسخ"}
                   </Button>
+                  <Button onClick={() => window.open(generateLink(link), "_blank")} variant="outline" size="sm"
+                    className="flex-1 h-9 rounded-xl gap-1.5 text-xs font-semibold">
+                    <ExternalLink className="h-3 w-3" /> فتح
+                  </Button>
                   <Button onClick={() => handleShareWhatsApp(link)} variant="outline" size="sm"
                     className="flex-1 h-9 rounded-xl gap-1.5 text-xs font-semibold">
                     <MessageCircle className="h-3 w-3" /> واتساب
