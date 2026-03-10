@@ -20,7 +20,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const Storefront = () => {
   const { products } = useInventory();
-  const { config, getActiveColors } = useTemplateConfig();
+  const { config, getActiveColors, storefrontCssVars } = useTemplateConfig();
   const colors = getActiveColors();
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
