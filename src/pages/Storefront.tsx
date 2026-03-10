@@ -20,7 +20,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const Storefront = () => {
   const { products } = useInventory();
-  const { config, getActiveColors } = useTemplateConfig();
+  const { config, getActiveColors, storefrontCssVars } = useTemplateConfig();
   const colors = getActiveColors();
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -476,7 +476,7 @@ const Storefront = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ ...storeStyle, backgroundColor: colors.bg, color: colors.text }}>
+    <div className="min-h-screen" style={{ ...storeStyle, ...storefrontCssVars, backgroundColor: colors.bg, color: colors.text }}>
 
       {/* ══════════════ NAVBAR ══════════════ */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-border" style={{ backgroundColor: `${colors.bg}CC` }}>

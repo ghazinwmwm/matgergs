@@ -479,6 +479,15 @@ const TemplateEditor = () => {
                       className="flex-1 accent-[hsl(var(--primary))]" />
                     <span className="text-sm font-bold text-foreground bg-muted rounded-lg px-2.5 py-1 min-w-[45px] text-center">{config.baseFontSize}</span>
                   </div>
+                  <div className="mt-3 rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+                    <p className="text-[10px] text-muted-foreground font-semibold">معاينة حجم الخط</p>
+                    <p className="font-bold" style={{ fontFamily: config.headingFont, fontSize: `${Math.min(Number(config.baseFontSize) + 6, 26)}px`, color: activeColors.text }}>
+                      عنوان تجريبي للمعاينة
+                    </p>
+                    <p style={{ fontFamily: config.bodyFont, fontSize: `${config.baseFontSize}px`, color: `${activeColors.text}99` }}>
+                      هذا نص تجريبي لمعاينة حجم الخط الذي اخترته. يمكنك تحريك المؤشر لتغيير الحجم ورؤية النتيجة هنا مباشرة.
+                    </p>
+                  </div>
                 </div>
               </EditorCard>
             </div>
