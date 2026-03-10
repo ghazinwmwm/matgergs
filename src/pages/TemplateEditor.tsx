@@ -353,19 +353,10 @@ const TemplateEditor = () => {
                     rows={3} className="text-xs rounded-xl resize-none" placeholder="نبذة تعريفية" />
                 </ContentBlock>
 
-                {/* Store (always visible, cannot be hidden) */}
-                <div className="bg-card border border-primary/30 rounded-2xl overflow-hidden">
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                      <PenTool className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[13px] font-semibold text-foreground">المتجر (المنتجات)</p>
-                      <p className="text-[10px] text-muted-foreground">مفعّل دائماً</p>
-                    </div>
-                    <Check className="h-4 w-4 text-primary" />
-                  </div>
-                </div>
+                {/* Store */}
+                <ContentBlock title="المتجر (المنتجات)" icon={<PenTool className="h-4 w-4" />}
+                  enabled={config.sections.find(s => s.id === "store")?.enabled ?? true}
+                  onToggle={() => toggleSection("store")} open={false} onOpenToggle={() => {}} noContent />
               </div>
             </div>
           )}
