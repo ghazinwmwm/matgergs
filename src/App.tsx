@@ -83,6 +83,7 @@ const AppRoutes = () => {
         <Route path="/more" element={<More />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/payment-links" element={<PaymentLinks />} />
+        <Route path="/pay/:id" element={<PaymentPage />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
