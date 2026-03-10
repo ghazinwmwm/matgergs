@@ -56,12 +56,7 @@ type ProductType = "physical" | "digital";
 
 const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProps) => {
   const navigate = useNavigate();
-  const { businessType } = useOnboarding();
-  
-  // Auto-set product type based on business type
-  const defaultType: ProductType = businessType === "physical" ? "physical" : "digital";
-  const showTypeToggle = businessType === "physical"; // Only physical stores can switch
-  const [productType, setProductType] = useState<ProductType>(defaultType);
+  const [productType, setProductType] = useState<ProductType>("physical");
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
