@@ -47,7 +47,7 @@ const AppRoutes = () => {
   const location = useLocation();
 
   // Storefront is completely separate - no dashboard UI
-  const isStorefront = location.pathname === "/storefront";
+  const isStorefront = location.pathname === "/storefront" || location.pathname.startsWith("/pay/");
 
   if (!isOnboarded) {
     return (
