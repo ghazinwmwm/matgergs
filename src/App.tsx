@@ -95,11 +95,13 @@ const App = () => (
       <LanguageProvider>
       <OnboardingProvider>
       <StoreProvider>
+      <TemplateConfigProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+      </TemplateConfigProvider>
       </StoreProvider>
       </OnboardingProvider>
       </LanguageProvider>
