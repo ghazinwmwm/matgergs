@@ -191,6 +191,7 @@ interface TemplateConfigContextType {
   updateConfig: (partial: Partial<TemplateConfig>) => void;
   resetConfig: () => void;
   getActiveColors: () => TemplateColors;
+  storefrontCssVars: Record<string, string>;
 }
 
 const TemplateConfigContext = createContext<TemplateConfigContextType | undefined>(undefined);
