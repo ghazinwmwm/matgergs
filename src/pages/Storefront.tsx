@@ -636,7 +636,7 @@ const Storefront = () => {
         </div>
       )}
 
-      {/* ══════════════ CHECKOUT DRAWER ══════════════ */}
+      {/* ══════════════ CHECKOUT DRAWER (SINGLE PAGE) ══════════════ */}
       {showCart && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={() => { setShowCart(false); setCheckoutStep("cart"); }} />
@@ -644,155 +644,25 @@ const Storefront = () => {
 
             <div className="border-b border-border">
               <div className="flex items-center justify-between px-4 py-3">
-                <button onClick={() => {
-                  if (checkoutStep === "info") setCheckoutStep("cart");
-                  else if (checkoutStep === "confirm") setCheckoutStep("info");
-                  else { setShowCart(false); setCheckoutStep("cart"); }
-                }} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  {checkoutStep === "cart" ? <X className="h-4 w-4 text-foreground" /> : <ArrowRight className="h-4 w-4 text-foreground" />}
+                <button onClick={() => { setShowCart(false); setCheckoutStep("cart"); }} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <X className="h-4 w-4 text-foreground" />
                 </button>
                 <h2 className="text-sm font-bold text-foreground">
-                  {checkoutStep === "cart" && `السلة (${cartCount})`}
-                  {checkoutStep === "info" && "معلومات الطلب"}
-                  {checkoutStep === "confirm" && "تأكيد الطلب"}
-                  {checkoutStep === "success" && "تم الطلب ✓"}
+                  {checkoutStep === "success" ? "تم الطلب ✓" : `إتمام الشراء (${cartCount})`}
                 </h2>
                 <div className="w-8" />
               </div>
-              {checkoutStep !== "success" && (
-                <div className="flex gap-1 px-4 pb-3">
-                  {["cart", "info", "confirm"].map((step, i) => (
-                    <div key={step} className="h-1 flex-1 rounded-full transition-colors"
-                      style={{ backgroundColor: ["cart", "info", "confirm"].indexOf(checkoutStep) >= i ? colors.primary : 'var(--border)' }} />
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {checkoutStep === "cart" && (
-                cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <ShoppingCart className="h-12 w-12 mb-3 opacity-20" />
-                    <p className="text-sm">السلة فارغة</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {cart.map(({ product, qty }) => {
-                      const price = getDiscountedPrice(product);
-                      const Icon = getProductIcon(product.category);
-                      return (
-                        <div key={product.id} className="flex gap-3 p-4">
-                          <div className="w-14 h-14 rounded-xl bg-muted/50 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-6 w-6 text-muted-foreground/30" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-foreground line-clamp-1">{product.name}</p>
-                            <p className="text-xs font-bold mt-0.5" style={{ color: colors.primary }}>{price.toLocaleString("ar-IQ")} د.ع</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <button onClick={() => updateCartQty(product.id, -1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center">
-                                <Minus className="h-3 w-3 text-foreground" />
-                              </button>
-                              <span className="text-xs font-bold text-foreground w-6 text-center">{qty}</span>
-                              <button onClick={() => updateCartQty(product.id, 1)} className="w-7 h-7 rounded-lg text-white flex items-center justify-center" style={{ backgroundColor: colors.primary }}>
-                                <Plus className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </div>
-                          <button onClick={() => updateCartQty(product.id, -qty)} className="self-start mt-1">
-                            <X className="h-4 w-4 text-muted-foreground" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
-              )}
-
-              {checkoutStep === "info" && (
-                <div className="p-4 space-y-4">
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-foreground mb-1 block">الاسم الكامل *</label>
-                      <input value={customerInfo.name} onChange={(e) => setCustomerInfo(p => ({ ...p, name: e.target.value }))}
-                        className="w-full h-11 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                        placeholder="أحمد محمد" />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-foreground mb-1 block">رقم الهاتف *</label>
-                      <input value={customerInfo.phone} onChange={(e) => setCustomerInfo(p => ({ ...p, phone: e.target.value }))}
-                        className="w-full h-11 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                        placeholder="07701234567" type="tel" dir="ltr" />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-foreground mb-1 block">البريد الإلكتروني</label>
-                      <input value={customerInfo.email} onChange={(e) => setCustomerInfo(p => ({ ...p, email: e.target.value }))}
-                        className="w-full h-11 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                        placeholder="ahmed@email.com" type="email" dir="ltr" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-foreground mb-2 block">طريقة الدفع</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => setPaymentMethod("electronic")}
-                        className="p-3 rounded-xl border-2 text-center transition-all"
-                        style={paymentMethod === "electronic" ? { borderColor: colors.primary, backgroundColor: `${colors.primary}08` } : { borderColor: 'var(--border)' }}>
-                        <CreditCard className="h-5 w-5 mx-auto mb-1" style={{ color: paymentMethod === "electronic" ? colors.primary : undefined }} />
-                        <p className="text-[10px] font-bold text-foreground">دفع إلكتروني</p>
-                      </button>
-                      <button onClick={() => setPaymentMethod("cod")}
-                        className="p-3 rounded-xl border-2 text-center transition-all"
-                        style={paymentMethod === "cod" ? { borderColor: colors.primary, backgroundColor: `${colors.primary}08` } : { borderColor: 'var(--border)' }}>
-                        <Download className="h-5 w-5 mx-auto mb-1" style={{ color: paymentMethod === "cod" ? colors.primary : undefined }} />
-                        <p className="text-[10px] font-bold text-foreground">تحويل</p>
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-foreground mb-1 block">ملاحظات <span className="text-muted-foreground">(اختياري)</span></label>
-                    <textarea value={customerInfo.notes} onChange={(e) => setCustomerInfo(p => ({ ...p, notes: e.target.value }))}
-                      className="w-full h-20 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-none"
-                      placeholder="أي ملاحظات..." />
-                  </div>
-                </div>
-              )}
-
-              {checkoutStep === "confirm" && (
-                <div className="p-4 space-y-4">
-                  <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-                    <h3 className="text-xs font-bold text-foreground">ملخص الطلب</h3>
-                    {cart.map(({ product, qty }) => (
-                      <div key={product.id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-muted-foreground">×{qty}</span>
-                          <span className="text-[11px] text-foreground line-clamp-1">{product.name}</span>
-                        </div>
-                        <span className="text-[11px] font-bold text-foreground">{(getDiscountedPrice(product) * qty).toLocaleString("ar-IQ")}</span>
-                      </div>
-                    ))}
-                    <div className="border-t border-border pt-2 flex items-center justify-between">
-                      <span className="text-xs font-bold text-foreground">المجموع</span>
-                      <span className="text-base font-bold" style={{ color: colors.primary }}>{cartTotal.toLocaleString("ar-IQ")} <span className="text-[10px] text-muted-foreground">د.ع</span></span>
-                    </div>
-                  </div>
-                  <div className="rounded-xl border border-border bg-card p-4 space-y-2">
-                    <h3 className="text-xs font-bold text-foreground">معلومات العميل</h3>
-                    <div className="flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[11px] text-foreground">{customerInfo.name}</span></div>
-                    <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[11px] text-foreground" dir="ltr">{customerInfo.phone}</span></div>
-                    {customerInfo.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[11px] text-foreground" dir="ltr">{customerInfo.email}</span></div>}
-                    <div className="flex items-center gap-2"><CreditCard className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[11px] text-foreground">{paymentMethod === "electronic" ? "دفع إلكتروني" : "تحويل"}</span></div>
-                  </div>
-                </div>
-              )}
-
-              {checkoutStep === "success" && (
+              {checkoutStep === "success" ? (
                 <div className="flex flex-col items-center justify-center h-full py-20 px-8 text-center">
                   <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 animate-in zoom-in" style={{ backgroundColor: `${colors.primary}15` }}>
                     <Check className="h-10 w-10" style={{ color: colors.primary }} />
                   </div>
                   <h2 className="text-xl font-bold text-foreground mb-2">تم تأكيد طلبك! 🎉</h2>
                   <p className="text-sm text-muted-foreground mb-1">رقم الطلب: #{Math.floor(1000 + Math.random() * 9000)}</p>
-                  <p className="text-xs text-muted-foreground mb-6">سيتم إرسال رابط التحميل إلى بريدك الإلكتروني وواتساب</p>
+                  <p className="text-xs text-muted-foreground mb-6">سيتم التواصل معك عبر الواتساب</p>
                   <div className="flex gap-3">
                     <div className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-medium" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>
                       <Download className="h-3.5 w-3.5" /> تحميل فوري
@@ -802,29 +672,110 @@ const Storefront = () => {
                     </div>
                   </div>
                 </div>
+              ) : cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <ShoppingCart className="h-12 w-12 mb-3 opacity-20" />
+                  <p className="text-sm">السلة فارغة</p>
+                </div>
+              ) : (
+                <div className="p-4 space-y-5">
+                  {/* Cart Items */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold text-foreground">المنتجات</p>
+                    {cart.map(({ product, qty }) => {
+                      const price = getDiscountedPrice(product);
+                      const Icon = getProductIcon(product.category);
+                      return (
+                        <div key={product.id} className="flex gap-3 bg-muted/30 rounded-xl p-3">
+                          <div className="w-12 h-12 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
+                            <Icon className="h-5 w-5 text-muted-foreground/30" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-medium text-foreground line-clamp-1">{product.name}</p>
+                            <p className="text-[11px] font-bold mt-0.5" style={{ color: colors.primary }}>{price.toLocaleString("ar-IQ")} د.ع</p>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => updateCartQty(product.id, -1)} className="w-6 h-6 rounded-lg border border-border flex items-center justify-center">
+                              <Minus className="h-3 w-3 text-foreground" />
+                            </button>
+                            <span className="text-[11px] font-bold text-foreground w-5 text-center">{qty}</span>
+                            <button onClick={() => updateCartQty(product.id, 1)} className="w-6 h-6 rounded-lg text-white flex items-center justify-center" style={{ backgroundColor: colors.primary }}>
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          </div>
+                          <button onClick={() => updateCartQty(product.id, -qty)} className="self-center">
+                            <X className="h-3.5 w-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Customer Info */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-bold text-foreground">معلومات الطلب</p>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground mb-1 block">الاسم الكامل *</label>
+                      <input value={customerInfo.name} onChange={(e) => setCustomerInfo(p => ({ ...p, name: e.target.value }))}
+                        className="w-full h-10 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+                        placeholder="الاسم الكامل" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground mb-1 block">رقم الهاتف *</label>
+                      <input value={customerInfo.phone} onChange={(e) => setCustomerInfo(p => ({ ...p, phone: e.target.value }))}
+                        className="w-full h-10 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+                        placeholder="07701234567" type="tel" dir="ltr" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground mb-1 block">البريد الإلكتروني</label>
+                      <input value={customerInfo.email} onChange={(e) => setCustomerInfo(p => ({ ...p, email: e.target.value }))}
+                        className="w-full h-10 rounded-xl border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+                        placeholder="email@example.com" type="email" dir="ltr" />
+                    </div>
+                  </div>
+
+                  {/* Payment Method */}
+                  <div>
+                    <p className="text-xs font-bold text-foreground mb-2">طريقة الدفع</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={() => setPaymentMethod("electronic")}
+                        className="p-3 rounded-xl border-2 text-center transition-all"
+                        style={paymentMethod === "electronic" ? { borderColor: colors.primary, backgroundColor: `${colors.primary}08` } : { borderColor: 'var(--border)' }}>
+                        <CreditCard className="h-4 w-4 mx-auto mb-1" style={{ color: paymentMethod === "electronic" ? colors.primary : undefined }} />
+                        <p className="text-[10px] font-bold text-foreground">دفع إلكتروني</p>
+                      </button>
+                      <button onClick={() => setPaymentMethod("cod")}
+                        className="p-3 rounded-xl border-2 text-center transition-all"
+                        style={paymentMethod === "cod" ? { borderColor: colors.primary, backgroundColor: `${colors.primary}08` } : { borderColor: 'var(--border)' }}>
+                        <Download className="h-4 w-4 mx-auto mb-1" style={{ color: paymentMethod === "cod" ? colors.primary : undefined }} />
+                        <p className="text-[10px] font-bold text-foreground">تحويل</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-1 block">ملاحظات (اختياري)</label>
+                    <textarea value={customerInfo.notes} onChange={(e) => setCustomerInfo(p => ({ ...p, notes: e.target.value }))}
+                      className="w-full h-16 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-none"
+                      placeholder="ملاحظات..." />
+                  </div>
+                </div>
               )}
             </div>
 
             {checkoutStep !== "success" && cart.length > 0 && (
               <div className="border-t border-border p-4 space-y-3">
-                {checkoutStep !== "confirm" && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">المجموع</span>
-                    <span className="text-lg font-bold text-foreground">{cartTotal.toLocaleString("ar-IQ")} <span className="text-xs text-muted-foreground">د.ع</span></span>
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-foreground">المجموع</span>
+                  <span className="text-lg font-bold" style={{ color: colors.primary }}>{cartTotal.toLocaleString("ar-IQ")} <span className="text-xs text-muted-foreground">د.ع</span></span>
+                </div>
                 <button
-                  disabled={checkoutStep === "info" && !isInfoValid}
-                  onClick={() => {
-                    if (checkoutStep === "cart") setCheckoutStep("info");
-                    else if (checkoutStep === "info") setCheckoutStep("confirm");
-                    else if (checkoutStep === "confirm") handlePlaceOrder();
-                  }}
+                  disabled={!isInfoValid}
+                  onClick={handlePlaceOrder}
                   className="w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform text-white"
                   style={{ backgroundColor: colors.primary }}>
-                  {checkoutStep === "cart" && <><ChevronLeft className="h-4 w-4" /> متابعة الطلب</>}
-                  {checkoutStep === "info" && <><ChevronLeft className="h-4 w-4" /> مراجعة وتأكيد</>}
-                  {checkoutStep === "confirm" && <><Check className="h-4 w-4" /> تأكيد الطلب</>}
+                  <Check className="h-4 w-4" /> تأكيد الطلب
                 </button>
               </div>
             )}
