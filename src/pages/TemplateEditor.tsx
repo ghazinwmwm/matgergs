@@ -327,11 +327,10 @@ const TemplateEditor = () => {
                         </button>
 
                         {/* Icon */}
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: section.enabled ? `${section.color}15` : undefined }}
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${!section.enabled ? 'bg-muted' : ''}`}>
-                          <Icon className="h-5 w-5" style={{ color: section.enabled ? section.color : undefined }}
-                            className={`h-5 w-5 ${!section.enabled ? 'text-muted-foreground' : ''}`} />
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${!section.enabled ? 'bg-muted' : ''}`}
+                          style={section.enabled ? { backgroundColor: `${section.color}15` } : undefined}>
+                          <Icon className={`h-5 w-5 ${!section.enabled ? 'text-muted-foreground' : ''}`}
+                            style={section.enabled ? { color: section.color } : undefined} />
                         </div>
 
                         {/* Label */}
