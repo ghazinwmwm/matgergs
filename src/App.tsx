@@ -28,6 +28,7 @@ import Stats from "./pages/Stats";
 import Profile from "./pages/Profile";
 import More from "./pages/More";
 import Plans from "./pages/Plans";
+import PaymentLinks from "./pages/PaymentLinks";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import BottomBar from "./components/BottomBar";
@@ -79,6 +80,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/more" element={<More />} />
         <Route path="/plans" element={<Plans />} />
+        <Route path="/payment-links" element={<PaymentLinks />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
