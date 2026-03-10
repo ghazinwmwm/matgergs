@@ -20,6 +20,7 @@ const More = () => {
         { icon: Ticket, label: t.more.coupons, path: "/coupons", desc: t.more.couponsDesc, minPlan: "basic" as const },
         { icon: Palette, label: t.more.templates, path: "/templates", desc: t.more.templatesDesc, minPlan: "pro" as const },
         { icon: PenTool, label: "تخصيص القالب", path: "/template-editor", desc: "عدّل ألوان وأقسام ومحتوى متجرك", minPlan: "basic" as const },
+        { icon: Link2, label: "روابط الدفع", path: "/payment-links", desc: "أنشئ روابط دفع سريعة لعملائك", minPlan: "basic" as const },
       ],
     },
     {

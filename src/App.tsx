@@ -80,6 +80,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/more" element={<More />} />
         <Route path="/plans" element={<Plans />} />
+        <Route path="/payment-links" element={<PaymentLinks />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
