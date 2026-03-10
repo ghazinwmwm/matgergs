@@ -103,6 +103,7 @@ const Storefront = () => {
   // Build enabled sections in order
   const enabledSections = config.sections.filter(s => s.enabled);
   const isSectionEnabled = (id: string) => enabledSections.some(s => s.id === id || s.id.startsWith(id));
+  const storeEnabled = isSectionEnabled("store");
 
   // Dynamic nav items from enabled sections
   const sectionIdToNav: Record<string, { id: string; label: string }> = {
