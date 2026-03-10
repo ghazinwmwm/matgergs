@@ -75,7 +75,8 @@ const TemplateEditor = () => {
     e.target.value = "";
   };
 
-  // Font upload
+  // Font upload - target: "heading" or "body"
+  const fontUploadTarget = useRef<"heading" | "body">("heading");
   const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -93,11 +94,21 @@ const TemplateEditor = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const newFont: CustomFont = { name: fontName, url: reader.result as string };
-      update({ customFonts: [...config.customFonts, newFont] });
-      toast({ title: `تم رفع الخط "${fontName}"` });
+      const alreadyExists = config.customFonts.some(f => f.name === fontName);
+      const updatedFonts = alreadyExists ? config.customFonts : [...config.customFonts, newFont];
+      const target = fontUploadTarget.current;
+      update({
+        customFonts: updatedFonts,
+        ...(target === "heading" ? { headingFont: fontName } : { bodyFont: fontName }),
+      });
+      toast({ title: `تم تعيين "${fontName}" كخط ${target === "heading" ? "العناوين" : "النصوص"}` });
     };
     reader.readAsDataURL(file);
     e.target.value = "";
+  };
+  const triggerFontUpload = (target: "heading" | "body") => {
+    fontUploadTarget.current = target;
+    fontInputRef.current?.click();
   };
 
   const removeCustomFont = (name: string) => {
