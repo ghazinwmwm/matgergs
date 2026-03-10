@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers } from "lucide-react";
 import type { Product } from "@/types/product";
-import { useOnboarding } from "@/hooks/useOnboarding";
+
 
 const EXAMPLE_SIZES = ["S", "M", "L", "XL"];
 const EXAMPLE_COLORS = [
