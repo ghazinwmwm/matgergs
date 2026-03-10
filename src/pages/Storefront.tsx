@@ -103,6 +103,7 @@ const Storefront = () => {
   // Build enabled sections in order
   const enabledSections = config.sections.filter(s => s.enabled);
   const isSectionEnabled = (id: string) => enabledSections.some(s => s.id === id || s.id.startsWith(id));
+  const storeEnabled = isSectionEnabled("store");
 
   // Dynamic nav items from enabled sections
   const sectionIdToNav: Record<string, { id: string; label: string }> = {
@@ -506,12 +507,14 @@ const Storefront = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={openCartDrawer} className="relative w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                <ShoppingCart className="h-4 w-4 text-foreground" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full text-[8px] font-bold flex items-center justify-center animate-in zoom-in text-white" style={{ backgroundColor: colors.primary }}>{cartCount}</span>
-                )}
-              </button>
+              {storeEnabled && (
+                <button onClick={openCartDrawer} className="relative w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <ShoppingCart className="h-4 w-4 text-foreground" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full text-[8px] font-bold flex items-center justify-center animate-in zoom-in text-white" style={{ backgroundColor: colors.primary }}>{cartCount}</span>
+                  )}
+                </button>
+              )}
               <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="sm:hidden w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center">
                 {showMobileMenu ? <X className="h-4 w-4 text-foreground" /> : <Menu className="h-4 w-4 text-foreground" />}
               </button>
@@ -790,7 +793,7 @@ const Storefront = () => {
       </a>
 
       {/* Floating cart */}
-      {cartCount > 0 && !showCart && !selectedProduct && (
+      {storeEnabled && cartCount > 0 && !showCart && !selectedProduct && (
         <button onClick={openCartDrawer}
           className="fixed bottom-6 right-4 h-12 px-5 rounded-full shadow-lg z-30 flex items-center gap-2 animate-in slide-in-from-bottom font-bold text-sm active:scale-95 transition-transform text-white"
           style={{ backgroundColor: colors.primary }}>
