@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers } from "lucide-react";
 import type { Product } from "@/types/product";
 
 const EXAMPLE_SIZES = ["S", "M", "L", "XL"];
@@ -30,14 +30,32 @@ const RETURN_POLICIES = [
   { label: "استرجاع خلال 30 يوم", value: "30-days" },
 ];
 
+const DIGITAL_CATEGORIES = [
+  { label: "دورة تعليمية", value: "دورات", icon: Monitor },
+  { label: "كتاب إلكتروني", value: "كتب", icon: FileText },
+  { label: "قالب / تصميم", value: "قوالب", icon: Layers },
+  { label: "ملف رقمي آخر", value: "ملفات رقمية", icon: Download },
+];
+
+const FILE_TYPES = [
+  { label: "PDF", value: "pdf" },
+  { label: "فيديو (MP4)", value: "video" },
+  { label: "صورة (PSD/AI/SVG)", value: "image" },
+  { label: "ملف مضغوط (ZIP)", value: "zip" },
+  { label: "رابط خارجي", value: "link" },
+];
+
 interface AddProductPageProps {
   categories: string[];
   onAdd: (product: Product) => void;
   onAddCategory: (cat: string) => void;
 }
 
+type ProductType = "physical" | "digital";
+
 const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProps) => {
   const navigate = useNavigate();
+  const [productType, setProductType] = useState<ProductType | null>(null);
   
   // Basic
   const [name, setName] = useState("");
@@ -47,7 +65,14 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [discount, setDiscount] = useState("");
   const [images, setImages] = useState<string[]>([]);
 
-  // Advanced
+  // Digital specific
+  const [digitalCategory, setDigitalCategory] = useState("");
+  const [fileType, setFileType] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
+  const [lessonCount, setLessonCount] = useState("");
+  const [duration, setDuration] = useState("");
+
+  // Physical - Advanced
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
@@ -58,6 +83,7 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [extraSizes, setExtraSizes] = useState<string[]>([]);
   const [returnPolicy, setReturnPolicy] = useState("");
   const [deliveryDays, setDeliveryDays] = useState("");
+  const [stock, setStock] = useState("");
 
   // Category suggestions
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
@@ -84,7 +110,6 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
       reader.onloadend = () => setImages((prev) => [...prev, reader.result as string]);
       reader.readAsDataURL(file);
     });
-    // Reset input so same file can be selected again
     e.target.value = "";
   };
 
@@ -111,7 +136,6 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const handleCategoryChange = (val: string) => {
     setCategory(val);
     setShowCategorySuggestions(true);
-    // Auto-add new category when it doesn't exist
     if (val.trim() && !categories.includes(val.trim())) {
       onAddCategory(val.trim());
     }
@@ -124,31 +148,116 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
 
   const handleSubmit = () => {
     if (!name.trim() || !price) return;
+    const finalCategory = productType === "digital" ? (digitalCategory || "ملفات رقمية") : (category.trim() || "أخرى");
     const product: Product = {
       id: crypto.randomUUID(),
       name: name.trim(),
       description: description.trim(),
-      category: category.trim() || "أخرى",
+      category: finalCategory,
       price: parseFloat(price),
       discount: discount ? parseFloat(discount) : 0,
       images,
-      sizes: selectedSizes,
-      colors: selectedColors,
-      returnPolicy: returnPolicy || "",
-      deliveryDays: deliveryDays ? parseInt(deliveryDays) : null,
+      sizes: productType === "physical" ? selectedSizes : [],
+      colors: productType === "physical" ? selectedColors : [],
+      returnPolicy: productType === "physical" ? (returnPolicy || "") : "no-return",
+      deliveryDays: productType === "physical" && deliveryDays ? parseInt(deliveryDays) : null,
+      stock: productType === "physical" && stock ? parseInt(stock) : undefined,
     };
     onAdd(product);
     navigate("/");
   };
 
+  // ═══════ TYPE SELECTION SCREEN ═══════
+  if (!productType) {
+    return (
+      <div className="min-h-screen bg-background pb-28">
+        <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
+          <div className="container mx-auto max-w-2xl px-4 py-4 flex items-center gap-3">
+            <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary transition-colors">
+              <ArrowRight className="h-5 w-5 text-foreground" />
+            </button>
+            <h1 className="text-lg font-bold text-foreground">إضافة منتج جديد</h1>
+          </div>
+        </header>
+
+        <main className="container mx-auto max-w-2xl px-4 py-10">
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-foreground mb-2">ما نوع المنتج؟</h2>
+            <p className="text-sm text-muted-foreground">اختر نوع المنتج لتخصيص حقول الإضافة</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 max-w-sm mx-auto">
+            {/* Physical Product */}
+            <button
+              onClick={() => setProductType("physical")}
+              className="group relative bg-card border-2 border-border rounded-2xl p-6 text-right hover:border-primary/50 hover:shadow-lg transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                  <Package className="h-7 w-7 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-foreground mb-1">منتج فيزيائي</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    ملابس، أحذية، إلكترونيات، أو أي منتج يحتاج شحن وتوصيل
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {["مقاسات", "ألوان", "شحن", "مخزون"].map(tag => (
+                      <span key={tag} className="text-[9px] px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {/* Digital Product */}
+            <button
+              onClick={() => setProductType("digital")}
+              className="group relative bg-card border-2 border-border rounded-2xl p-6 text-right hover:border-primary/50 hover:shadow-lg transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/15 transition-colors">
+                  <Monitor className="h-7 w-7 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-foreground mb-1">منتج رقمي</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    دورات، كتب إلكترونية، قوالب تصميم، أو أي ملف رقمي
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {["تحميل فوري", "رابط آمن", "بلا شحن", "بلا مخزون"].map(tag => (
+                      <span key={tag} className="text-[9px] px-2 py-0.5 rounded-full bg-accent/10 text-accent-foreground">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ═══════ PRODUCT FORM ═══════
   return (
     <div className="min-h-screen bg-background pb-28">
       <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto max-w-2xl px-4 py-4 flex items-center gap-3">
-          <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary transition-colors">
+          <button onClick={() => setProductType(null)} className="p-2 rounded-lg hover:bg-secondary transition-colors">
             <ArrowRight className="h-5 w-5 text-foreground" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">إضافة منتج جديد</h1>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-foreground">
+              {productType === "digital" ? "إضافة منتج رقمي" : "إضافة منتج فيزيائي"}
+            </h1>
+          </div>
+          <button
+            onClick={() => setProductType(productType === "digital" ? "physical" : "digital")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground text-[11px] font-medium hover:bg-muted transition-colors"
+          >
+            {productType === "digital" ? <Package className="h-3 w-3" /> : <Monitor className="h-3 w-3" />}
+            {productType === "digital" ? "فيزيائي" : "رقمي"}
+          </button>
         </div>
       </header>
 
@@ -158,10 +267,10 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
           <section className="space-y-5">
             <h2 className="text-sm font-semibold text-muted-foreground tracking-wide">التفاصيل الأساسية</h2>
 
-            {/* Images */}
+            {/* Images / Cover */}
             <div className="space-y-2">
-              <Label>صور المنتج</Label>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+              <Label>{productType === "digital" ? "صورة الغلاف" : "صور المنتج"}</Label>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple={productType === "physical"} className="hidden" onChange={handleImageUpload} />
               <div className="flex gap-3 flex-wrap">
                 {images.map((img, i) => (
                   <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-border group">
@@ -179,7 +288,7 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
                   className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                 >
                   <Upload className="h-5 w-5" />
-                  <span className="text-[10px]">رفع صورة</span>
+                  <span className="text-[10px]">{productType === "digital" ? "غلاف" : "رفع صورة"}</span>
                 </button>
               </div>
             </div>
@@ -187,39 +296,61 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
             {/* Name */}
             <div className="space-y-2">
               <Label>اسم المنتج *</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: قميص رجالي" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={productType === "digital" ? "مثال: دورة تصميم UI/UX" : "مثال: قميص رجالي"} />
             </div>
 
             {/* Description */}
             <div className="space-y-2">
               <Label>وصف المنتج</Label>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="وصف مختصر للمنتج..." rows={3} />
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={productType === "digital" ? "وصف المنتج الرقمي ومحتوياته..." : "وصف مختصر للمنتج..."} rows={3} />
             </div>
 
-            {/* Category - autocomplete */}
-            <div className="space-y-2 relative">
-              <Label>الصنف</Label>
-              <Input
-                value={category}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                onFocus={() => setShowCategorySuggestions(true)}
-                onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 150)}
-                placeholder="اكتب اسم الصنف..."
-              />
-              {showCategorySuggestions && filteredCategories.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-card border border-border rounded-lg shadow-lg py-1 max-h-40 overflow-y-auto">
-                  {filteredCategories.map((cat) => (
+            {/* Category */}
+            {productType === "digital" ? (
+              <div className="space-y-2">
+                <Label>نوع المنتج الرقمي</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {DIGITAL_CATEGORIES.map(cat => (
                     <button
-                      key={cat}
-                      onMouseDown={() => selectCategorySuggestion(cat)}
-                      className="w-full text-right px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
+                      key={cat.value}
+                      onClick={() => setDigitalCategory(cat.value)}
+                      className={`flex items-center gap-2.5 p-3 rounded-xl border text-right transition-all ${
+                        digitalCategory === cat.value
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border bg-card hover:border-primary/30"
+                      }`}
                     >
-                      {cat}
+                      <cat.icon className={`h-4 w-4 flex-shrink-0 ${digitalCategory === cat.value ? "text-primary" : "text-muted-foreground"}`} />
+                      <span className={`text-xs font-medium ${digitalCategory === cat.value ? "text-primary" : "text-foreground"}`}>{cat.label}</span>
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-2 relative">
+                <Label>الصنف</Label>
+                <Input
+                  value={category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  onFocus={() => setShowCategorySuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 150)}
+                  placeholder="اكتب اسم الصنف..."
+                />
+                {showCategorySuggestions && filteredCategories.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-card border border-border rounded-lg shadow-lg py-1 max-h-40 overflow-y-auto">
+                    {filteredCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        onMouseDown={() => selectCategorySuggestion(cat)}
+                        className="w-full text-right px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Price & Discount */}
             <div className="grid grid-cols-2 gap-4">
@@ -234,99 +365,159 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
             </div>
           </section>
 
-          {/* ===== التفاصيل المتقدمة ===== */}
-          <section>
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="w-full flex items-center justify-between py-3 border-t border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <span>التفاصيل المتقدمة (اختياري)</span>
-              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </button>
+          {/* ===== DIGITAL-SPECIFIC FIELDS ===== */}
+          {productType === "digital" && (
+            <section className="space-y-5">
+              <h2 className="text-sm font-semibold text-muted-foreground tracking-wide">تفاصيل المنتج الرقمي</h2>
 
-            {showAdvanced && (
-              <div className="space-y-5 pt-2 animate-slide-in">
-                {/* Sizes */}
-                <div className="space-y-2">
-                  <Label className="text-sm">الأحجام</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {allSizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => toggleSize(size)}
-                        className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                          selectedSizes.includes(size)
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-secondary text-secondary-foreground border-border hover:border-primary"
-                        }`}
-                      >
-                        {size}
-                      </button>
+              {/* File type */}
+              <div className="space-y-2">
+                <Label>نوع الملف</Label>
+                <Select value={fileType} onValueChange={setFileType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر نوع الملف" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILE_TYPES.map(ft => (
+                      <SelectItem key={ft.value} value={ft.value}>{ft.label}</SelectItem>
                     ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Input
-                      value={customSize}
-                      onChange={(e) => setCustomSize(e.target.value)}
-                      placeholder="حجم مخصص..."
-                      className="flex-1 max-w-[180px]"
-                      onKeyDown={(e) => e.key === "Enter" && addCustomSize()}
-                    />
-                    <Button type="button" variant="outline" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
-                      أضف
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Colors */}
-                <div className="space-y-2">
-                  <Label className="text-sm">الألوان</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {allColors.map((color) => (
-                      <button
-                        key={color.value}
-                        onClick={() => toggleColor(color.value)}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors ${
-                          selectedColors.includes(color.value)
-                            ? "border-primary ring-2 ring-primary/30"
-                            : "border-border hover:border-primary"
-                        }`}
-                      >
-                        <span className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: color.value }} />
-                        {color.name}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <input type="color" value={customColor} onChange={(e) => setCustomColor(e.target.value)} className="w-9 h-9 rounded border border-border cursor-pointer" />
-                    <Input value={customColorName} onChange={(e) => setCustomColorName(e.target.value)} placeholder="اسم اللون..." className="flex-1" onKeyDown={(e) => e.key === "Enter" && addCustomColor()} />
-                    <Button type="button" variant="outline" size="sm" onClick={addCustomColor} disabled={!customColorName.trim()}>أضف</Button>
-                  </div>
-                </div>
-
-                {/* Return Policy */}
-                <div className="space-y-2">
-                  <Label className="text-sm">سياسة الاسترجاع</Label>
-                  <Select value={returnPolicy} onValueChange={setReturnPolicy}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر سياسة الاسترجاع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RETURN_POLICIES.map((p) => (
-                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Delivery Days */}
-                <div className="space-y-2">
-                  <Label className="text-sm">مدة التوصيل (بالأيام)</Label>
-                  <Input type="number" min="0" value={deliveryDays} onChange={(e) => setDeliveryDays(e.target.value)} placeholder="مثال: 3" />
-                </div>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </section>
+
+              {/* Download link */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  رابط التحميل / الوصول
+                </Label>
+                <Input value={downloadLink} onChange={(e) => setDownloadLink(e.target.value)} placeholder="https://..." dir="ltr" />
+                <p className="text-[10px] text-muted-foreground">سيتم إرسال الرابط للعميل بعد الشراء</p>
+              </div>
+
+              {/* Course-specific fields */}
+              {digitalCategory === "دورات" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                      عدد الدروس
+                    </Label>
+                    <Input type="number" min="1" value={lessonCount} onChange={(e) => setLessonCount(e.target.value)} placeholder="45" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      المدة (بالساعات)
+                    </Label>
+                    <Input type="number" min="0" step="0.5" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="12" />
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ===== PHYSICAL-SPECIFIC ADVANCED ===== */}
+          {productType === "physical" && (
+            <section>
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full flex items-center justify-between py-3 border-t border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span>التفاصيل المتقدمة (اختياري)</span>
+                {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+
+              {showAdvanced && (
+                <div className="space-y-5 pt-2 animate-slide-in">
+                  {/* Stock */}
+                  <div className="space-y-2">
+                    <Label className="text-sm">المخزون</Label>
+                    <Input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="عدد القطع المتوفرة" />
+                  </div>
+
+                  {/* Sizes */}
+                  <div className="space-y-2">
+                    <Label className="text-sm">الأحجام</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {allSizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => toggleSize(size)}
+                          className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                            selectedSizes.includes(size)
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-secondary text-secondary-foreground border-border hover:border-primary"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={customSize}
+                        onChange={(e) => setCustomSize(e.target.value)}
+                        placeholder="حجم مخصص..."
+                        className="flex-1 max-w-[180px]"
+                        onKeyDown={(e) => e.key === "Enter" && addCustomSize()}
+                      />
+                      <Button type="button" variant="outline" size="sm" onClick={addCustomSize} disabled={!customSize.trim()}>
+                        أضف
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Colors */}
+                  <div className="space-y-2">
+                    <Label className="text-sm">الألوان</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {allColors.map((color) => (
+                        <button
+                          key={color.value}
+                          onClick={() => toggleColor(color.value)}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                            selectedColors.includes(color.value)
+                              ? "border-primary ring-2 ring-primary/30"
+                              : "border-border hover:border-primary"
+                          }`}
+                        >
+                          <span className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: color.value }} />
+                          {color.name}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <input type="color" value={customColor} onChange={(e) => setCustomColor(e.target.value)} className="w-9 h-9 rounded border border-border cursor-pointer" />
+                      <Input value={customColorName} onChange={(e) => setCustomColorName(e.target.value)} placeholder="اسم اللون..." className="flex-1" onKeyDown={(e) => e.key === "Enter" && addCustomColor()} />
+                      <Button type="button" variant="outline" size="sm" onClick={addCustomColor} disabled={!customColorName.trim()}>أضف</Button>
+                    </div>
+                  </div>
+
+                  {/* Return Policy */}
+                  <div className="space-y-2">
+                    <Label className="text-sm">سياسة الاسترجاع</Label>
+                    <Select value={returnPolicy} onValueChange={setReturnPolicy}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر سياسة الاسترجاع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RETURN_POLICIES.map((p) => (
+                          <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Delivery Days */}
+                  <div className="space-y-2">
+                    <Label className="text-sm">مدة التوصيل (بالأيام)</Label>
+                    <Input type="number" min="0" value={deliveryDays} onChange={(e) => setDeliveryDays(e.target.value)} placeholder="مثال: 3" />
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Submit */}
           <div className="pt-2 pb-8">

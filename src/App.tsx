@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { PlanProvider } from "./hooks/usePlan";
 import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./hooks/useTheme";
@@ -19,6 +19,7 @@ import StoreSettings from "./pages/StoreSettings";
 import Team from "./pages/Team";
 import Templates from "./pages/Templates";
 import TemplatePreview from "./pages/TemplatePreview";
+import TemplateEditor from "./pages/TemplateEditor";
 import Storefront from "./pages/Storefront";
 import Delivery from "./pages/Delivery";
 import Tracking from "./pages/Tracking";
@@ -40,11 +41,16 @@ const AddProductWrapper = () => {
 
 const AppRoutes = () => {
   const { isOnboarded } = useOnboarding();
+  const location = useLocation();
+
+  // Storefront is completely separate - no dashboard UI
+  const isStorefront = location.pathname === "/storefront";
 
   if (!isOnboarded) {
     return (
       <Routes>
         <Route path="/register" element={<Register />} />
+        <Route path="/storefront" element={<Storefront />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     );
@@ -64,6 +70,7 @@ const AppRoutes = () => {
         <Route path="/team" element={<Team />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/preview/:id" element={<TemplatePreview />} />
+        <Route path="/template-editor" element={<TemplateEditor />} />
         <Route path="/storefront" element={<Storefront />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/tracking" element={<Tracking />} />
@@ -74,7 +81,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <BottomBar />
+      {!isStorefront && <BottomBar />}
     </>
   );
 };

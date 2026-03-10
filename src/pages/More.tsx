@@ -1,6 +1,6 @@
 import { 
   Store, UserCog, Palette, Truck, Activity, Ticket,
-  BarChart3, Settings, ChevronLeft
+  BarChart3, Settings, ChevronLeft, PenTool
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProBadge } from "@/components/ProGate";
@@ -19,6 +19,7 @@ const More = () => {
         { icon: UserCog, label: t.more.team, path: "/team", desc: t.more.teamDesc, minPlan: "basic" as const },
         { icon: Ticket, label: t.more.coupons, path: "/coupons", desc: t.more.couponsDesc, minPlan: "basic" as const },
         { icon: Palette, label: t.more.templates, path: "/templates", desc: t.more.templatesDesc, minPlan: "pro" as const },
+        { icon: PenTool, label: "تخصيص القالب", path: "/template-editor", desc: "عدّل ألوان وأقسام ومحتوى متجرك", minPlan: "basic" as const },
       ],
     },
     {
