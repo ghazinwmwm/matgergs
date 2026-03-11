@@ -68,6 +68,25 @@ export interface TemplateColors {
   text: string;
 }
 
+export interface AnnouncementBar {
+  enabled: boolean;
+  text: string;
+  bgColor: string;
+  textColor: string;
+}
+
+export interface CategorySectionItem {
+  id: string;
+  category: string;
+  enabled: boolean;
+}
+
+export interface CategoryIconItem {
+  category: string;
+  image: string | null;
+  icon: string;
+}
+
 export interface TemplateConfig {
   businessType: BusinessType;
 
@@ -100,6 +119,13 @@ export interface TemplateConfig {
   ctaButton: string;
   aboutText: string;
   aboutFeatures: string[];
+
+  // Storefront enhancements
+  announcementBar: AnnouncementBar;
+  bannerImages: string[];
+  categorySections: CategorySectionItem[];
+  categoryIcons: CategoryIconItem[];
+  categoryDisplayMode: "pills" | "icons";
 
   // Contact
   contactEmail: string;
@@ -187,6 +213,28 @@ const DEFAULT_CONFIG: TemplateConfig = {
   ctaButton: "تواصل معنا",
   aboutText: "نقدم أفضل الخدمات والمنتجات.",
   aboutFeatures: ["جودة عالية", "تسليم سريع", "دعم مستمر"],
+
+  announcementBar: {
+    enabled: true,
+    text: "🚚 التوصيل مجاني لكل محافظات العراق",
+    bgColor: "#0EA5E9",
+    textColor: "#FFFFFF",
+  },
+  bannerImages: [],
+  categorySections: [
+    { id: "cs-1", category: "ملابس رجالية", enabled: true },
+    { id: "cs-2", category: "أحذية", enabled: true },
+    { id: "cs-3", category: "إلكترونيات", enabled: true },
+  ],
+  categoryIcons: [
+    { category: "ملابس رجالية", image: null, icon: "Shirt" },
+    { category: "ملابس نسائية", image: null, icon: "Sparkles" },
+    { category: "أحذية", image: null, icon: "Footprints" },
+    { category: "إكسسوارات", image: null, icon: "Watch" },
+    { category: "إلكترونيات", image: null, icon: "Smartphone" },
+    { category: "أخرى", image: null, icon: "Package" },
+  ],
+  categoryDisplayMode: "icons",
 
   contactEmail: "",
   contactPhone: "",

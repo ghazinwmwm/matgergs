@@ -5,7 +5,8 @@ import {
   Globe, Instagram, Phone, Mail, MessageCircle,
   Plus, Trash2, Upload, Star, Quote,
   Zap, PenTool, ChevronDown, RotateCcw, Check,
-  Image, X
+  Image, X, Megaphone, GripVertical, Package,
+  Shirt, Watch, Smartphone, Footprints, Camera, Monitor, Code
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,9 @@ import {
   type WorkItem,
   type TestimonialItem,
   type CustomFont,
+  type CategorySectionItem,
 } from "@/hooks/useTemplateConfig";
+import { useInventory } from "@/hooks/useInventory";
 
 // ═══════════════════════════════════════
 // BUILT-IN + CUSTOM FONTS
@@ -36,16 +39,25 @@ const BUILTIN_FONTS = [
   { value: "Rubik", label: "روبيك" },
 ];
 
-type TabId = "brand" | "design" | "contact";
+const CATEGORY_ICON_OPTIONS = [
+  "Package", "Shirt", "Sparkles", "Watch", "Smartphone", "Footprints",
+  "Star", "Palette", "Camera", "Monitor", "Code", "PenTool",
+];
+
+type TabId = "brand" | "design" | "storefront" | "contact";
 
 const TemplateEditor = () => {
   const navigate = useNavigate();
   const { config, updateConfig, resetConfig, getActiveColors } = useTemplateConfig();
+  const { categories } = useInventory();
   const [activeTab, setActiveTab] = useState<TabId>("brand");
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [hasChanges, setHasChanges] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const fontInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const categoryImageInputRef = useRef<HTMLInputElement>(null);
+  const categoryImageTarget = useRef<string>("");
 
   const toggleOpen = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   const activeColors = getActiveColors();
@@ -55,7 +67,6 @@ const TemplateEditor = () => {
     ...config.customFonts.map(f => ({ value: f.name, label: `✦ ${f.name}` })),
   ];
 
-  // Wrap updateConfig to track changes
   const update = (partial: Parameters<typeof updateConfig>[0]) => {
     updateConfig(partial);
     setHasChanges(true);
@@ -75,7 +86,49 @@ const TemplateEditor = () => {
     e.target.value = "";
   };
 
-  // Font upload - target: "heading" or "body"
+  // Banner upload
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "حجم الملف كبير", description: "الحد الأقصى 5MB", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      update({ bannerImages: [...config.bannerImages, reader.result as string] });
+      toast({ title: "✓ تم إضافة البنر" });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const removeBanner = (i: number) => {
+    update({ bannerImages: config.bannerImages.filter((_, idx) => idx !== i) });
+  };
+
+  // Category image upload
+  const handleCategoryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "حجم الملف كبير", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const cat = categoryImageTarget.current;
+      update({
+        categoryIcons: config.categoryIcons.map(ci =>
+          ci.category === cat ? { ...ci, image: reader.result as string } : ci
+        ),
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  // Font upload
   const fontUploadTarget = useRef<"heading" | "body">("heading");
   const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -145,6 +198,31 @@ const TemplateEditor = () => {
     update({ testimonials: config.testimonials.map((t, idx) => idx === i ? { ...t, [field]: value } : t) });
   };
 
+  // Category sections
+  const addCategorySection = () => {
+    const usedCats = config.categorySections.map(cs => cs.category);
+    const availableCat = categories.find(c => !usedCats.includes(c)) || "قسم جديد";
+    update({
+      categorySections: [...config.categorySections, { id: `cs-${Date.now()}`, category: availableCat, enabled: true }],
+    });
+  };
+  const removeCategorySection = (id: string) => {
+    update({ categorySections: config.categorySections.filter(cs => cs.id !== id) });
+  };
+  const toggleCategorySection = (id: string) => {
+    update({ categorySections: config.categorySections.map(cs => cs.id === id ? { ...cs, enabled: !cs.enabled } : cs) });
+  };
+  const updateCategorySection = (id: string, category: string) => {
+    update({ categorySections: config.categorySections.map(cs => cs.id === id ? { ...cs, category } : cs) });
+  };
+  const moveCategorySection = (index: number, direction: -1 | 1) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= config.categorySections.length) return;
+    const arr = [...config.categorySections];
+    [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
+    update({ categorySections: arr });
+  };
+
   const handlePreview = () => {
     window.open("/storefront", "_blank");
   };
@@ -164,6 +242,7 @@ const TemplateEditor = () => {
 
   const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
     { id: "brand", label: "الهوية", icon: Type },
+    { id: "storefront", label: "المتجر", icon: Package },
     { id: "design", label: "التصميم", icon: Palette },
     { id: "contact", label: "التواصل", icon: Phone },
   ];
@@ -171,6 +250,10 @@ const TemplateEditor = () => {
   return (
     <div className="min-h-screen bg-background pb-36" dir="rtl">
       <PageHeader title="تخصيص المتجر" subtitle="عدّل هوية ومحتوى متجرك" />
+
+      {/* Hidden inputs */}
+      <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+      <input ref={categoryImageInputRef} type="file" accept="image/*" className="hidden" onChange={handleCategoryImageUpload} />
 
       <main className="container mx-auto max-w-lg px-4">
 
@@ -229,7 +312,7 @@ const TemplateEditor = () => {
                   rows={2} className="text-sm resize-none rounded-xl" placeholder="وصف المتجر" />
               </Card>
 
-              {/* Hero Buttons (only shown if hero section is enabled) */}
+              {/* Hero Buttons */}
               {config.sections.find(s => s.id === "hero")?.enabled && (
                 <Card>
                   <p className="text-xs font-semibold text-muted-foreground mb-2">أزرار صفحة الهبوط</p>
@@ -246,12 +329,10 @@ const TemplateEditor = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground px-1">أقسام المتجر <span className="text-[10px] font-normal">(فعّل الأقسام التي تحتاجها)</span></p>
 
-                {/* Hero */}
                 <ContentBlock title="صفحة الهبوط" icon={<Sparkles className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "hero")?.enabled ?? false}
                   onToggle={() => toggleSection("hero")} open={false} onOpenToggle={() => {}} noContent />
 
-                {/* Services */}
                 <ContentBlock title="الخدمات" icon={<Zap className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "services")?.enabled ?? false}
                   onToggle={() => toggleSection("services")}
@@ -275,7 +356,6 @@ const TemplateEditor = () => {
                   </div>
                 </ContentBlock>
 
-                {/* Works */}
                 <ContentBlock title="معرض الأعمال" icon={<Image className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "works")?.enabled ?? false}
                   onToggle={() => toggleSection("works")}
@@ -305,7 +385,6 @@ const TemplateEditor = () => {
                   </div>
                 </ContentBlock>
 
-                {/* Testimonials */}
                 <ContentBlock title="آراء العملاء" icon={<Quote className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "testimonials")?.enabled ?? false}
                   onToggle={() => toggleSection("testimonials")}
@@ -340,7 +419,6 @@ const TemplateEditor = () => {
                   </div>
                 </ContentBlock>
 
-                {/* CTA */}
                 <ContentBlock title="دعوة للإجراء" icon={<Zap className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "cta")?.enabled ?? false}
                   onToggle={() => toggleSection("cta")}
@@ -355,7 +433,6 @@ const TemplateEditor = () => {
                   </div>
                 </ContentBlock>
 
-                {/* About */}
                 <ContentBlock title="من نحن" icon={<Globe className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "about")?.enabled ?? false}
                   onToggle={() => toggleSection("about")}
@@ -364,11 +441,198 @@ const TemplateEditor = () => {
                     rows={3} className="text-xs rounded-xl resize-none" placeholder="نبذة تعريفية" />
                 </ContentBlock>
 
-                {/* Store */}
                 <ContentBlock title="المتجر (المنتجات)" icon={<PenTool className="h-4 w-4" />}
                   enabled={config.sections.find(s => s.id === "store")?.enabled ?? true}
                   onToggle={() => toggleSection("store")} open={false} onOpenToggle={() => {}} noContent />
               </div>
+            </div>
+          )}
+
+          {/* ═══ STOREFRONT TAB (NEW) ═══ */}
+          {activeTab === "storefront" && (
+            <div className="space-y-4">
+
+              {/* Announcement Bar */}
+              <Card>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Megaphone className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-semibold text-foreground">شريط الإعلان</p>
+                  </div>
+                  <Switch checked={config.announcementBar.enabled}
+                    onCheckedChange={v => update({ announcementBar: { ...config.announcementBar, enabled: v } })} />
+                </div>
+                {config.announcementBar.enabled && (
+                  <div className="space-y-2">
+                    <Input value={config.announcementBar.text}
+                      onChange={e => update({ announcementBar: { ...config.announcementBar, text: e.target.value } })}
+                      className="text-sm rounded-xl" placeholder="نص الإعلان..." />
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center gap-2 bg-muted/20 rounded-xl p-2">
+                        <input type="color" value={config.announcementBar.bgColor}
+                          onChange={e => update({ announcementBar: { ...config.announcementBar, bgColor: e.target.value } })}
+                          className="w-7 h-7 rounded-lg border-0 cursor-pointer bg-transparent" />
+                        <div>
+                          <p className="text-[10px] text-muted-foreground">لون الخلفية</p>
+                        </div>
+                      </div>
+                      <div className="flex-1 flex items-center gap-2 bg-muted/20 rounded-xl p-2">
+                        <input type="color" value={config.announcementBar.textColor}
+                          onChange={e => update({ announcementBar: { ...config.announcementBar, textColor: e.target.value } })}
+                          className="w-7 h-7 rounded-lg border-0 cursor-pointer bg-transparent" />
+                        <div>
+                          <p className="text-[10px] text-muted-foreground">لون النص</p>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Preview */}
+                    <div className="rounded-xl overflow-hidden">
+                      <div className="text-center py-2 px-3 text-xs font-semibold"
+                        style={{ backgroundColor: config.announcementBar.bgColor, color: config.announcementBar.textColor }}>
+                        {config.announcementBar.text}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Card>
+
+              {/* Banner Images */}
+              <Card>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Image className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-semibold text-foreground">صور البنر</p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">{config.bannerImages.length} صورة</span>
+                </div>
+                <div className="space-y-2">
+                  {config.bannerImages.map((img, i) => (
+                    <div key={i} className="relative rounded-xl overflow-hidden border border-border">
+                      <img src={img} alt="" className="w-full h-24 object-cover" />
+                      <button onClick={() => removeBanner(i)}
+                        className="absolute top-2 left-2 w-6 h-6 rounded-full bg-destructive/90 flex items-center justify-center">
+                        <X className="h-3 w-3 text-destructive-foreground" />
+                      </button>
+                      <span className="absolute top-2 right-2 text-[9px] bg-foreground/60 text-background px-2 py-0.5 rounded-full font-bold">{i + 1}</span>
+                    </div>
+                  ))}
+                  <button onClick={() => bannerInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-1.5 py-4 rounded-xl border-2 border-dashed border-border text-muted-foreground hover:border-primary/30 hover:text-primary transition-all text-xs font-medium">
+                    <Upload className="h-4 w-4" /> إضافة صورة بنر
+                  </button>
+                  <p className="text-[10px] text-muted-foreground text-center">الحد الأقصى 5MB لكل صورة • يفضل 1200×400</p>
+                </div>
+              </Card>
+
+              {/* Category Display Mode */}
+              <Card>
+                <div className="flex items-center gap-2 mb-3">
+                  <Package className="h-4 w-4 text-primary" />
+                  <p className="text-xs font-semibold text-foreground">عرض الأقسام</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <button onClick={() => update({ categoryDisplayMode: "icons" })}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                      config.categoryDisplayMode === "icons" ? "border-primary bg-primary/5" : "border-border"
+                    }`}>
+                    <Package className="h-5 w-5 mx-auto mb-1" />
+                    <p className="text-[10px] font-bold text-foreground">أيقونات</p>
+                    <p className="text-[9px] text-muted-foreground">مع صور أو رموز</p>
+                  </button>
+                  <button onClick={() => update({ categoryDisplayMode: "pills" })}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                      config.categoryDisplayMode === "pills" ? "border-primary bg-primary/5" : "border-border"
+                    }`}>
+                    <div className="flex gap-1 justify-center mb-1">
+                      <span className="px-2 py-0.5 rounded-full bg-primary/20 text-[8px]">قسم</span>
+                      <span className="px-2 py-0.5 rounded-full bg-muted text-[8px]">قسم</span>
+                    </div>
+                    <p className="text-[10px] font-bold text-foreground">أزرار</p>
+                    <p className="text-[9px] text-muted-foreground">نمط كلاسيكي</p>
+                  </button>
+                </div>
+
+                {/* Category Icons config */}
+                {config.categoryDisplayMode === "icons" && (
+                  <div className="space-y-2 border-t border-border/50 pt-3">
+                    <p className="text-[10px] font-semibold text-muted-foreground">أيقونات الأقسام</p>
+                    {config.categoryIcons.map((ci) => (
+                      <div key={ci.category} className="flex items-center gap-2 bg-muted/20 rounded-xl p-2">
+                        <div className="w-10 h-10 rounded-xl border border-border flex items-center justify-center overflow-hidden bg-card cursor-pointer"
+                          onClick={() => { categoryImageTarget.current = ci.category; categoryImageInputRef.current?.click(); }}>
+                          {ci.image ? (
+                            <img src={ci.image} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            (() => { const CI = getCategoryIcon(ci.icon); return <CI className="h-5 w-5 text-muted-foreground" />; })()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-medium text-foreground truncate">{ci.category}</p>
+                          <div className="flex gap-1 mt-1 overflow-x-auto">
+                            {CATEGORY_ICON_OPTIONS.slice(0, 6).map(icon => {
+                              const IconComp = getCategoryIcon(icon);
+                              return (
+                                <button key={icon} onClick={() => update({
+                                  categoryIcons: config.categoryIcons.map(c => c.category === ci.category ? { ...c, icon, image: null } : c)
+                                })}
+                                  className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${ci.icon === icon && !ci.image ? "bg-primary/15 ring-1 ring-primary" : "hover:bg-muted"}`}>
+                                  <IconComp className="h-3 w-3" />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        {ci.image && (
+                          <button onClick={() => update({
+                            categoryIcons: config.categoryIcons.map(c => c.category === ci.category ? { ...c, image: null } : c)
+                          })} className="text-muted-foreground hover:text-destructive p-1">
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+
+              {/* Category Sections (horizontal rows) */}
+              <Card>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <GripVertical className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-semibold text-foreground">أقسام المنتجات (صفوف أفقية)</p>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground mb-3">أضف صفوف أفقية للمنتجات حسب القسم وعدّل ترتيبها</p>
+                <div className="space-y-2">
+                  {config.categorySections.map((cs, i) => (
+                    <div key={cs.id} className="flex items-center gap-2 bg-muted/20 rounded-xl p-2.5">
+                      <div className="flex flex-col gap-0.5">
+                        <button onClick={() => moveCategorySection(i, -1)} disabled={i === 0}
+                          className="text-muted-foreground hover:text-foreground disabled:opacity-30 p-0.5">
+                          <ChevronDown className="h-3 w-3 rotate-180" />
+                        </button>
+                        <button onClick={() => moveCategorySection(i, 1)} disabled={i === config.categorySections.length - 1}
+                          className="text-muted-foreground hover:text-foreground disabled:opacity-30 p-0.5">
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <select value={cs.category}
+                        onChange={e => updateCategorySection(cs.id, e.target.value)}
+                        className="flex-1 h-8 text-xs rounded-lg border border-border bg-card px-2 text-foreground">
+                        {categories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                      <Switch checked={cs.enabled} onCheckedChange={() => toggleCategorySection(cs.id)} />
+                      <button onClick={() => removeCategorySection(cs.id)} className="text-muted-foreground hover:text-destructive p-1">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  <AddButton onClick={addCategorySection} />
+                </div>
+              </Card>
             </div>
           )}
 
@@ -432,7 +696,6 @@ const TemplateEditor = () => {
                 <p className="text-xs font-semibold text-foreground mb-3">الخطوط</p>
                 <input ref={fontInputRef} type="file" accept=".ttf,.otf,.woff,.woff2" className="hidden" onChange={handleFontUpload} />
 
-                {/* Custom fonts list */}
                 {config.customFonts.length > 0 && (
                   <div className="mb-3 space-y-1.5">
                     {config.customFonts.map(font => (
@@ -447,7 +710,6 @@ const TemplateEditor = () => {
                 )}
 
                 <div className="space-y-3">
-                  {/* Heading font */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-[10px] text-muted-foreground">خط العناوين</p>
@@ -467,7 +729,6 @@ const TemplateEditor = () => {
                       ))}
                     </div>
                   </div>
-                  {/* Body font */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-[10px] text-muted-foreground">خط النصوص</p>
@@ -608,4 +869,13 @@ export default TemplateEditor;
 export const getIconComponent = (iconName: string): React.ElementType => {
   const MAP: Record<string, React.ElementType> = { Palette, Sparkles, PenTool, Zap, Star, Globe, Image, Quote };
   return MAP[iconName] || Sparkles;
+};
+
+// Helper for category icons
+const getCategoryIcon = (iconName: string): React.ElementType => {
+  const MAP: Record<string, React.ElementType> = {
+    Package, Shirt, Sparkles, Watch, Smartphone, Footprints,
+    Star, Palette, Camera, Monitor, Code, PenTool,
+  };
+  return MAP[iconName] || Package;
 };
