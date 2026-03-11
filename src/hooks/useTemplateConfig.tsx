@@ -68,6 +68,25 @@ export interface TemplateColors {
   text: string;
 }
 
+export interface AnnouncementBar {
+  enabled: boolean;
+  text: string;
+  bgColor: string;
+  textColor: string;
+}
+
+export interface CategorySectionItem {
+  id: string;
+  category: string;
+  enabled: boolean;
+}
+
+export interface CategoryIconItem {
+  category: string;
+  image: string | null;
+  icon: string;
+}
+
 export interface TemplateConfig {
   businessType: BusinessType;
 
@@ -100,6 +119,13 @@ export interface TemplateConfig {
   ctaButton: string;
   aboutText: string;
   aboutFeatures: string[];
+
+  // Storefront enhancements
+  announcementBar: AnnouncementBar;
+  bannerImages: string[];
+  categorySections: CategorySectionItem[];
+  categoryIcons: CategoryIconItem[];
+  categoryDisplayMode: "pills" | "icons";
 
   // Contact
   contactEmail: string;
