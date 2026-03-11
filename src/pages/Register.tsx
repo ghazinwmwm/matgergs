@@ -221,59 +221,8 @@ const Register = () => {
       {/* Content */}
       <div className="flex-1 container mx-auto px-4 py-6 overflow-y-auto pb-28">
 
-        {/* Step 1: Business Type */}
+        {/* Step 1: Store Info */}
         {step === 1 && (
-          <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
-            <div className="text-center">
-              <h2 className="text-lg font-bold text-foreground">شنو نوع نشاطك؟</h2>
-              <p className="text-xs text-muted-foreground mt-1">هذا يحدد القالب والإعدادات المناسبة لك</p>
-            </div>
-
-            <div className="space-y-3">
-              {BUSINESS_TYPES.map((type) => {
-                const Icon = type.icon;
-                const isSelected = businessType === type.id;
-                return (
-                  <button key={type.id} onClick={() => setBusinessType(type.id)}
-                    className={`w-full text-right bg-card border-2 rounded-2xl p-5 transition-all ${
-                      isSelected ? "border-primary shadow-md" : "border-border hover:border-primary/30"
-                    }`}>
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-colors ${
-                        isSelected ? "bg-primary/10" : "bg-muted"
-                      }`}>
-                        {type.emoji}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-foreground">{type.label}</h3>
-                          {isSelected && (
-                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                              <Check className="h-3 w-3 text-primary-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{type.desc}</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                {businessType === "digital" && "ستتمكن من بيع الملفات والدورات عبر رابط تحميل أو بريد إلكتروني."}
-                {businessType === "service" && "ستحصل على صفحة هبوط ومعرض أعمال مع إمكانية إنشاء روابط دفع سريعة."}
-                {businessType === "physical" && "ستتمكن من إضافة منتجاتك وإدارة الطلبات والتوصيل بسهولة."}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Store Info */}
-        {step === 2 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">معلومات المتجر</h2>
