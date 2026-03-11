@@ -111,7 +111,7 @@ const Register = () => {
 
   const handleGoogleSignIn = () => {
     toast({ title: "تم تسجيل الدخول بنجاح", description: "مرحباً بك!" });
-    setStep(1);
+    // Don't auto-advance, let user pick business type and click next
   };
 
   const basicPrice = billingPeriod === "yearly" ? 12000 : 15000;
