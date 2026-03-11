@@ -14,10 +14,9 @@ import { useOnboarding, type BusinessType } from "@/hooks/useOnboarding";
 import { useTemplateConfig } from "@/hooks/useTemplateConfig";
 
 const STEPS = [
-  { id: 1, label: "النشاط", icon: Store },
-  { id: 2, label: "المتجر", icon: Palette },
-  { id: 3, label: "التواصل", icon: Link2 },
-  { id: 4, label: "الباقة", icon: CreditCard },
+  { id: 1, label: "المتجر", icon: Palette },
+  { id: 2, label: "التواصل", icon: Link2 },
+  { id: 3, label: "الباقة", icon: CreditCard },
 ];
 
 const BUSINESS_TYPES: { id: BusinessType; label: string; desc: string; icon: React.ElementType; emoji: string }[] = [
@@ -60,7 +59,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { completeOnboarding, setBusinessType: saveBusinessType } = useOnboarding();
   const { resetForBusinessType } = useTemplateConfig();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(0); // 0 = welcome+business type, 1-3 = registration steps
 
   // Step 1: Business Type
   const [businessType, setBusinessType] = useState<BusinessType>("physical");
@@ -93,12 +92,14 @@ const Register = () => {
   };
 
   const handleNext = () => {
-    if (step === 1) {
-      // Save business type and configure template defaults
+    if (step === 0) {
+      // Save business type and configure template defaults on welcome screen
       saveBusinessType(businessType);
       resetForBusinessType(businessType);
+      setStep(1);
+      return;
     }
-    if (step < 4) setStep(step + 1);
+    if (step < 3) setStep(step + 1);
     else handleComplete();
   };
 
@@ -110,17 +111,17 @@ const Register = () => {
 
   const handleGoogleSignIn = () => {
     toast({ title: "تم تسجيل الدخول بنجاح", description: "مرحباً بك!" });
-    setStep(1);
+    // Don't auto-advance, let user pick business type and click next
   };
 
   const basicPrice = billingPeriod === "yearly" ? 12000 : 15000;
   const proPrice = billingPeriod === "yearly" ? 28000 : 35000;
 
-  // Step 0: Welcome / Google Sign-In
+  // Step 0: Welcome + Business Type Selection
   if (step === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir="rtl">
-        <div className="w-full max-w-sm space-y-8 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8" dir="rtl">
+        <div className="w-full max-w-sm space-y-6 text-center">
           <div className="space-y-3">
             <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto">
               <img src={logoLight} alt="ماتاجر" className="w-full h-full object-cover" />
@@ -131,19 +132,35 @@ const Register = () => {
             </p>
           </div>
 
-          <div className="space-y-3">
-            {[
-              { icon: Zap, text: "إعداد سريع بخطوات بسيطة" },
-              { icon: Globe, text: "نطاق فرعي مجاني .matager.store" },
-              { icon: Truck, text: "ربط مع شركات التوصيل" },
-            ].map((f) => (
-              <div key={f.text} className="flex items-center gap-3 bg-card border border-border rounded-xl p-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <f.icon className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-xs font-medium text-foreground">{f.text}</span>
-              </div>
-            ))}
+          {/* Business Type Selection */}
+          <div className="space-y-2 text-right">
+            <p className="text-xs font-semibold text-muted-foreground text-center">شنو نوع نشاطك؟</p>
+            <div className="space-y-2">
+              {BUSINESS_TYPES.map((type) => {
+                const isSelected = businessType === type.id;
+                return (
+                  <button key={type.id} onClick={() => setBusinessType(type.id)}
+                    className={`w-full text-right bg-card border-2 rounded-xl p-3.5 transition-all ${
+                      isSelected ? "border-primary shadow-sm" : "border-border hover:border-primary/30"
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{type.emoji}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xs font-bold text-foreground">{type.label}</h3>
+                          {isSelected && (
+                            <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{type.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -155,6 +172,9 @@ const Register = () => {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               المتابعة عبر Google
+            </Button>
+            <Button onClick={handleNext} className="w-full h-12 rounded-xl text-sm font-bold gap-2">
+              <Sparkles className="h-4 w-4" /> ابدأ الآن
             </Button>
             <p className="text-[10px] text-muted-foreground">
               بالمتابعة، أنت توافق على <span className="text-primary">شروط الاستخدام</span> و <span className="text-primary">سياسة الخصوصية</span>
@@ -174,7 +194,7 @@ const Register = () => {
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <span className="text-sm font-bold text-foreground">إعداد المتجر</span>
-          <span className="text-xs text-muted-foreground">{step}/4</span>
+          <span className="text-xs text-muted-foreground">{step}/3</span>
         </div>
       </header>
 
@@ -182,7 +202,7 @@ const Register = () => {
       <div className="container mx-auto px-6 pt-5 pb-2">
         <div className="flex items-center justify-between relative">
           <div className="absolute top-4 right-6 left-6 h-0.5 bg-border" />
-          <div className="absolute top-4 right-6 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 3) * (100 - 12)}%` }} />
+          <div className="absolute top-4 right-6 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 2) * (100 - 12)}%` }} />
           {STEPS.map((s) => (
             <div key={s.id} className="flex flex-col items-center gap-1.5 relative z-10">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -201,59 +221,8 @@ const Register = () => {
       {/* Content */}
       <div className="flex-1 container mx-auto px-4 py-6 overflow-y-auto pb-28">
 
-        {/* Step 1: Business Type */}
+        {/* Step 1: Store Info */}
         {step === 1 && (
-          <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
-            <div className="text-center">
-              <h2 className="text-lg font-bold text-foreground">شنو نوع نشاطك؟</h2>
-              <p className="text-xs text-muted-foreground mt-1">هذا يحدد القالب والإعدادات المناسبة لك</p>
-            </div>
-
-            <div className="space-y-3">
-              {BUSINESS_TYPES.map((type) => {
-                const Icon = type.icon;
-                const isSelected = businessType === type.id;
-                return (
-                  <button key={type.id} onClick={() => setBusinessType(type.id)}
-                    className={`w-full text-right bg-card border-2 rounded-2xl p-5 transition-all ${
-                      isSelected ? "border-primary shadow-md" : "border-border hover:border-primary/30"
-                    }`}>
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-colors ${
-                        isSelected ? "bg-primary/10" : "bg-muted"
-                      }`}>
-                        {type.emoji}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-foreground">{type.label}</h3>
-                          {isSelected && (
-                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                              <Check className="h-3 w-3 text-primary-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{type.desc}</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                {businessType === "digital" && "ستتمكن من بيع الملفات والدورات عبر رابط تحميل أو بريد إلكتروني."}
-                {businessType === "service" && "ستحصل على صفحة هبوط ومعرض أعمال مع إمكانية إنشاء روابط دفع سريعة."}
-                {businessType === "physical" && "ستتمكن من إضافة منتجاتك وإدارة الطلبات والتوصيل بسهولة."}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Store Info */}
-        {step === 2 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">معلومات المتجر</h2>
@@ -326,8 +295,8 @@ const Register = () => {
           </div>
         )}
 
-        {/* Step 3: Social Links */}
-        {step === 3 && (
+        {/* Step 2: Social Links */}
+        {step === 2 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">روابط التواصل الاجتماعي</h2>
@@ -353,8 +322,8 @@ const Register = () => {
           </div>
         )}
 
-        {/* Step 4: Plan Selection */}
-        {step === 4 && (
+        {/* Step 3: Plan Selection */}
+        {step === 3 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">اختر باقتك</h2>
@@ -435,14 +404,14 @@ const Register = () => {
       {/* Bottom CTA */}
       <div className="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border p-4">
         <Button onClick={handleNext} className="w-full h-12 rounded-xl text-sm font-bold gap-2">
-          {step === 4 ? (
+          {step === 3 ? (
             <><Sparkles className="h-4 w-4" /> إنشاء المتجر - {selectedPlan === "basic" ? basicPrice.toLocaleString("ar-IQ") : proPrice.toLocaleString("ar-IQ")} د.ع/شهر</>
           ) : (
             "التالي"
           )}
         </Button>
-        {step === 3 && (
-          <button onClick={() => setStep(4)} className="w-full text-center mt-2">
+        {step === 2 && (
+          <button onClick={() => setStep(3)} className="w-full text-center mt-2">
             <span className="text-[11px] text-muted-foreground">تخطي هذه الخطوة</span>
           </button>
         )}

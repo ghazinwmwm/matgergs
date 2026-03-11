@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers } from "lucide-react";
+import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers, File } from "lucide-react";
 import type { Product } from "@/types/product";
+import { toast } from "@/hooks/use-toast";
 
 
 const EXAMPLE_SIZES = ["S", "M", "L", "XL"];
@@ -70,6 +71,10 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [downloadLink, setDownloadLink] = useState("");
   const [lessonCount, setLessonCount] = useState("");
   const [duration, setDuration] = useState("");
+  const [digitalFile, setDigitalFile] = useState<{ name: string; size: number; dataUrl: string } | null>(null);
+
+  const digitalFileInputRef = useRef<HTMLInputElement>(null);
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -269,10 +274,55 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
                   <SelectContent>{FILE_TYPES.map(ft => <SelectItem key={ft.value} value={ft.value}>{ft.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
+
+              {/* File Upload */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" /> رفع الملف (حد أقصى 50 ميكابايت)</Label>
+                <input
+                  ref={digitalFileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > MAX_FILE_SIZE) {
+                      toast({ title: "حجم الملف كبير جداً", description: "الحد الأقصى 50 ميكابايت", variant: "destructive" });
+                      e.target.value = "";
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onloadend = () => setDigitalFile({ name: file.name, size: file.size, dataUrl: reader.result as string });
+                    reader.readAsDataURL(file);
+                    e.target.value = "";
+                  }}
+                />
+                {digitalFile ? (
+                  <div className="flex items-center gap-3 bg-muted/30 border border-border rounded-xl p-3">
+                    <File className="h-5 w-5 text-primary flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{digitalFile.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{(digitalFile.size / (1024 * 1024)).toFixed(1)} MB</p>
+                    </div>
+                    <button onClick={() => setDigitalFile(null)} className="p-1 rounded-full hover:bg-destructive/10 transition-colors">
+                      <X className="h-3.5 w-3.5 text-destructive" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => digitalFileInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                  >
+                    <Upload className="h-6 w-6" />
+                    <span className="text-xs font-medium">اضغط لرفع ملف</span>
+                    <span className="text-[10px]">PDF, ZIP, MP4, صور...</span>
+                  </button>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Link2 className="h-3.5 w-3.5 text-muted-foreground" /> رابط التحميل / الوصول</Label>
                 <Input value={downloadLink} onChange={(e) => setDownloadLink(e.target.value)} placeholder="https://..." dir="ltr" />
-                <p className="text-[10px] text-muted-foreground">سيتم إرسال الرابط للعميل بعد الشراء</p>
+                <p className="text-[10px] text-muted-foreground">أو أضف رابط خارجي بدلاً من رفع ملف</p>
               </div>
               {digitalCategory === "دورات" && (
                 <div className="grid grid-cols-2 gap-4">
