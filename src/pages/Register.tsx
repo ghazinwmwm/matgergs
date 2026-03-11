@@ -322,8 +322,8 @@ const Register = () => {
           </div>
         )}
 
-        {/* Step 4: Plan Selection */}
-        {step === 4 && (
+        {/* Step 3: Plan Selection */}
+        {step === 3 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">اختر باقتك</h2>
