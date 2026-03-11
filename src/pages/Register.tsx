@@ -92,12 +92,14 @@ const Register = () => {
   };
 
   const handleNext = () => {
-    if (step === 1) {
-      // Save business type and configure template defaults
+    if (step === 0) {
+      // Save business type and configure template defaults on welcome screen
       saveBusinessType(businessType);
       resetForBusinessType(businessType);
+      setStep(1);
+      return;
     }
-    if (step < 4) setStep(step + 1);
+    if (step < 3) setStep(step + 1);
     else handleComplete();
   };
 
