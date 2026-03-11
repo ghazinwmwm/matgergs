@@ -202,7 +202,7 @@ const Register = () => {
       <div className="container mx-auto px-6 pt-5 pb-2">
         <div className="flex items-center justify-between relative">
           <div className="absolute top-4 right-6 left-6 h-0.5 bg-border" />
-          <div className="absolute top-4 right-6 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 3) * (100 - 12)}%` }} />
+          <div className="absolute top-4 right-6 h-0.5 bg-primary transition-all duration-500" style={{ width: `${((step - 1) / 2) * (100 - 12)}%` }} />
           {STEPS.map((s) => (
             <div key={s.id} className="flex flex-col items-center gap-1.5 relative z-10">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
