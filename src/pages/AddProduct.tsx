@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers, File } from "lucide-react";
 import type { Product } from "@/types/product";
+import { toast } from "@/hooks/use-toast";
 
 
 const EXAMPLE_SIZES = ["S", "M", "L", "XL"];
