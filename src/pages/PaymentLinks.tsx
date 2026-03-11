@@ -39,7 +39,14 @@ const PaymentLinks = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const generateLink = (link: PaymentLink) => {
-    return `${window.location.origin}/pay/${link.id}`;
+    const data = btoa(encodeURIComponent(JSON.stringify({
+      id: link.id,
+      title: link.title,
+      amount: link.amount,
+      description: link.description,
+      createdAt: link.createdAt,
+    })));
+    return `${window.location.origin}/pay/${link.id}?d=${data}`;
   };
 
   const handleCreate = () => {

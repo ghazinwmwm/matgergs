@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers } from "lucide-react";
+import { ArrowRight, Upload, X, ChevronDown, ChevronUp, Plus, Package, FileText, Monitor, Download, Link2, Clock, Layers, File } from "lucide-react";
 import type { Product } from "@/types/product";
 
 

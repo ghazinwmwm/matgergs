@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { ShieldCheck, CreditCard, Banknote, Send, CheckCircle2, Store, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ const STORAGE_KEY = "matager_payment_links";
 
 const PaymentPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [link, setLink] = useState<PaymentLink | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -28,6 +29,17 @@ const PaymentPage = () => {
 
   useEffect(() => {
     try {
+      // Try URL-encoded data first (works across tabs/contexts)
+      const encodedData = searchParams.get("d");
+      if (encodedData) {
+        const decoded: PaymentLink = JSON.parse(decodeURIComponent(atob(encodedData)));
+        if (decoded && decoded.id === id) {
+          setLink(decoded);
+          setLoading(false);
+          return;
+        }
+      }
+      // Fallback to localStorage
       const saved = localStorage.getItem(STORAGE_KEY);
       const links: PaymentLink[] = saved ? JSON.parse(saved) : [];
       const found = links.find((l) => l.id === id);
@@ -40,7 +52,7 @@ const PaymentPage = () => {
       setNotFound(true);
     }
     setLoading(false);
-  }, [id]);
+  }, [id, searchParams]);
 
   const handleSubmit = () => {
     if (!payerName.trim() || !payerPhone.trim() || !payMethod) {
