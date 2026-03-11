@@ -70,6 +70,10 @@ const AddProductPage = ({ categories, onAdd, onAddCategory }: AddProductPageProp
   const [downloadLink, setDownloadLink] = useState("");
   const [lessonCount, setLessonCount] = useState("");
   const [duration, setDuration] = useState("");
+  const [digitalFile, setDigitalFile] = useState<{ name: string; size: number; dataUrl: string } | null>(null);
+
+  const digitalFileInputRef = useRef<HTMLInputElement>(null);
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
