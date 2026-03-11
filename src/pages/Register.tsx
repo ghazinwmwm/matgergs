@@ -295,8 +295,8 @@ const Register = () => {
           </div>
         )}
 
-        {/* Step 3: Social Links */}
-        {step === 3 && (
+        {/* Step 2: Social Links */}
+        {step === 2 && (
           <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
             <div>
               <h2 className="text-lg font-bold text-foreground">روابط التواصل الاجتماعي</h2>
