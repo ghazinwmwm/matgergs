@@ -194,7 +194,7 @@ const Register = () => {
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <span className="text-sm font-bold text-foreground">إعداد المتجر</span>
-          <span className="text-xs text-muted-foreground">{step}/4</span>
+          <span className="text-xs text-muted-foreground">{step}/3</span>
         </div>
       </header>
 
