@@ -14,10 +14,9 @@ import { useOnboarding, type BusinessType } from "@/hooks/useOnboarding";
 import { useTemplateConfig } from "@/hooks/useTemplateConfig";
 
 const STEPS = [
-  { id: 1, label: "النشاط", icon: Store },
-  { id: 2, label: "المتجر", icon: Palette },
-  { id: 3, label: "التواصل", icon: Link2 },
-  { id: 4, label: "الباقة", icon: CreditCard },
+  { id: 1, label: "المتجر", icon: Palette },
+  { id: 2, label: "التواصل", icon: Link2 },
+  { id: 3, label: "الباقة", icon: CreditCard },
 ];
 
 const BUSINESS_TYPES: { id: BusinessType; label: string; desc: string; icon: React.ElementType; emoji: string }[] = [
