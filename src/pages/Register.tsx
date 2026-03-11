@@ -59,7 +59,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { completeOnboarding, setBusinessType: saveBusinessType } = useOnboarding();
   const { resetForBusinessType } = useTemplateConfig();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(0); // 0 = welcome+business type, 1-3 = registration steps
 
   // Step 1: Business Type
   const [businessType, setBusinessType] = useState<BusinessType>("physical");
