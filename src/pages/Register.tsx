@@ -404,14 +404,14 @@ const Register = () => {
       {/* Bottom CTA */}
       <div className="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border p-4">
         <Button onClick={handleNext} className="w-full h-12 rounded-xl text-sm font-bold gap-2">
-          {step === 4 ? (
+          {step === 3 ? (
             <><Sparkles className="h-4 w-4" /> إنشاء المتجر - {selectedPlan === "basic" ? basicPrice.toLocaleString("ar-IQ") : proPrice.toLocaleString("ar-IQ")} د.ع/شهر</>
           ) : (
             "التالي"
           )}
         </Button>
-        {step === 3 && (
-          <button onClick={() => setStep(4)} className="w-full text-center mt-2">
+        {step === 2 && (
+          <button onClick={() => setStep(3)} className="w-full text-center mt-2">
             <span className="text-[11px] text-muted-foreground">تخطي هذه الخطوة</span>
           </button>
         )}
