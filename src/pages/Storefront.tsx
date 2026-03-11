@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Search, ShoppingCart, Star, Heart, X, Shield, CreditCard,
   Instagram, MessageCircle, Minus, Plus, ArrowRight, Download, Play,
   FileText, BookOpen, Award, User, Globe, Quote, Layers,
   Check, ChevronLeft, Phone, Sparkles, ArrowDown, Mail,
   Palette, Code, Camera, PenTool, Monitor, Briefcase,
-  ChevronRight, ExternalLink, Menu, Zap, Heart as HeartIcon
+  ChevronRight, ExternalLink, Menu, Zap, Heart as HeartIcon,
+  Package, Shirt, Watch, Smartphone, Footprints, Truck
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useTemplateConfig } from "@/hooks/useTemplateConfig";
@@ -15,7 +16,12 @@ import type { Product } from "@/types/product";
 type CheckoutStep = "cart" | "info" | "confirm" | "success";
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Palette, Monitor, Code, Camera, PenTool, Briefcase, Sparkles, Zap, HeartIcon, Star, 
+  Palette, Monitor, Code, Camera, PenTool, Briefcase, Sparkles, Zap, HeartIcon, Star,
+  Package, Shirt, Watch, Smartphone, Footprints, Truck, Play, BookOpen, Layers, FileText,
+};
+
+const getCategoryIcon = (iconName: string): React.ElementType => {
+  return ICON_MAP[iconName] || Package;
 };
 
 const Storefront = () => {
@@ -30,6 +36,7 @@ const Storefront = () => {
   const [activeCategory, setActiveCategory] = useState("الكل");
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [currentBanner, setCurrentBanner] = useState(0);
 
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>("cart");
   const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "", email: "", notes: "" });
@@ -64,13 +71,16 @@ const Storefront = () => {
 
   const getDiscountedPrice = (p: Product) => p.discount ? p.price - (p.price * p.discount / 100) : p.price;
 
+  // Dummy products for preview
   const dummyProducts: Product[] = [
-    { id: "d1", name: "دورة تصميم UI/UX الشاملة", description: "من الصفر للاحتراف - تعلم Figma و Adobe XD مع ٤٥ درس فيديو.", category: "دورات", price: 75000, discount: 35, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
-    { id: "d2", name: "دورة البرمجة بلغة Python", description: "تعلم البرمجة من الصفر مع تطبيقات عملية. ٦٠ درس.", category: "دورات", price: 60000, discount: 20, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
-    { id: "d3", name: "كتاب التسويق الرقمي الشامل", description: "دليل شامل لاستراتيجيات التسويق. ٢٤٠ صفحة.", category: "كتب", price: 15000, discount: 0, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
-    { id: "d4", name: "قوالب تصميم سوشال ميديا", description: "٥٠ قالب احترافي بصيغة PSD و Canva.", category: "قوالب", price: 25000, discount: 15, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
-    { id: "d5", name: "دورة التصوير الاحترافي", description: "أساسيات التصوير مع Lightroom و Photoshop.", category: "دورات", price: 45000, discount: 0, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
-    { id: "d6", name: "حزمة أيقونات SVG احترافية", description: "١,٠٠٠ أيقونة بصيغة SVG.", category: "قوالب", price: 10000, discount: 30, images: [], sizes: [], colors: [], returnPolicy: "no-return", deliveryDays: null, stock: undefined },
+    { id: "d1", name: "قميص بولو كلاسيكي", description: "قميص بولو أنيق مصنوع من القطن الممتاز", category: "ملابس رجالية", price: 35000, discount: 15, images: [], sizes: ["S","M","L"], colors: ["#1E3A5F"], returnPolicy: "7-days", deliveryDays: 3, stock: 10 },
+    { id: "d2", name: "حذاء رياضي نايك", description: "حذاء رياضي مريح للركض والتمارين", category: "أحذية", price: 85000, discount: 20, images: [], sizes: ["40","41","42"], colors: ["#000"], returnPolicy: "14-days", deliveryDays: 5, stock: 8 },
+    { id: "d3", name: "ساعة كاسيو كلاسيك", description: "ساعة يد كلاسيكية أنيقة", category: "إكسسوارات", price: 45000, discount: 0, images: [], sizes: [], colors: ["#C0C0C0"], returnPolicy: "30-days", deliveryDays: 2, stock: 15 },
+    { id: "d4", name: "سماعات بلوتوث لاسلكية", description: "سماعات عالية الجودة مع عزل للضوضاء", category: "إلكترونيات", price: 55000, discount: 30, images: [], sizes: [], colors: ["#000","#FFF"], returnPolicy: "7-days", deliveryDays: 3, stock: 20 },
+    { id: "d5", name: "تيشيرت قطن رجالي", description: "تيشيرت مريح من القطن الطبيعي ١٠٠٪", category: "ملابس رجالية", price: 18000, discount: 0, images: [], sizes: ["M","L","XL"], colors: ["#000","#FFF","#1E3A5F"], returnPolicy: "7-days", deliveryDays: 3, stock: 25 },
+    { id: "d6", name: "شاحن سريع USB-C", description: "شاحن ٦٥ واط يدعم الشحن السريع", category: "إلكترونيات", price: 22000, discount: 10, images: [], sizes: [], colors: ["#FFF"], returnPolicy: "14-days", deliveryDays: 2, stock: 30 },
+    { id: "d7", name: "حذاء رسمي جلد طبيعي", description: "حذاء رسمي من الجلد الطبيعي الأصلي", category: "أحذية", price: 120000, discount: 0, images: [], sizes: ["41","42","43","44"], colors: ["#000","#8B4513"], returnPolicy: "14-days", deliveryDays: 5, stock: 6 },
+    { id: "d8", name: "نظارة شمسية بولارايزد", description: "نظارة شمسية مستقطبة بحماية UV400", category: "إكسسوارات", price: 28000, discount: 25, images: [], sizes: [], colors: ["#000"], returnPolicy: "7-days", deliveryDays: 2, stock: 12 },
   ];
 
   const displayProducts = products.length > 1 ? products : [...products, ...dummyProducts];
@@ -81,11 +91,15 @@ const Storefront = () => {
     return matchCat && matchSearch;
   });
 
+  const getProductsByCat = (cat: string) => displayProducts.filter(p => p.category === cat);
+
   const getProductIcon = (cat: string) => {
-    switch (cat) { case "دورات": return Play; case "كتب": return BookOpen; case "قوالب": return Layers; default: return FileText; }
+    const iconItem = config.categoryIcons.find(ci => ci.category === cat);
+    if (iconItem) return getCategoryIcon(iconItem.icon);
+    switch (cat) { case "دورات": return Play; case "كتب": return BookOpen; case "قوالب": return Layers; default: return Package; }
   };
   const getFileType = (cat: string) => {
-    switch (cat) { case "دورات": return "فيديو"; case "كتب": return "PDF"; case "قوالب": return "PSD/SVG"; default: return "ملف"; }
+    switch (cat) { case "دورات": return "فيديو"; case "كتب": return "PDF"; case "قوالب": return "PSD/SVG"; default: return "منتج"; }
   };
 
   const openCartDrawer = () => { setCheckoutStep("cart"); setShowCart(true); };
@@ -100,12 +114,10 @@ const Storefront = () => {
     setShowMobileMenu(false);
   };
 
-  // Build enabled sections in order
   const enabledSections = config.sections.filter(s => s.enabled);
   const isSectionEnabled = (id: string) => enabledSections.some(s => s.id === id || s.id.startsWith(id));
   const storeEnabled = isSectionEnabled("store");
 
-  // Dynamic nav items from enabled sections
   const sectionIdToNav: Record<string, { id: string; label: string }> = {
     hero: { id: "hero-section", label: "الرئيسية" },
     services: { id: "services-section", label: "الخدمات" },
@@ -119,7 +131,6 @@ const Storefront = () => {
     .filter(s => sectionIdToNav[s.id])
     .map(s => sectionIdToNav[s.id]);
 
-  // Style overrides from config
   const storeStyle: React.CSSProperties = {
     fontFamily: config.bodyFont,
     fontSize: `${config.baseFontSize}px`,
@@ -129,12 +140,20 @@ const Storefront = () => {
     fontFamily: config.headingFont,
   };
 
+  // Banner navigation
+  const banners = config.bannerImages.length > 0 ? config.bannerImages : [];
+  const nextBanner = () => setCurrentBanner(p => (p + 1) % banners.length);
+  const prevBanner = () => setCurrentBanner(p => (p - 1 + banners.length) % banners.length);
+
+  // Category sections
+  const enabledCategorySections = config.categorySections.filter(cs => cs.enabled);
+
   // ═══════════════════════════════════════
   // RENDER SECTIONS IN ORDER
   // ═══════════════════════════════════════
 
   const renderSection = (section: typeof enabledSections[0]) => {
-    const baseId = section.id.split("-")[0]; // handle duplicated sections like "services-copy-123"
+    const baseId = section.id.split("-")[0];
 
     switch (baseId) {
       case "hero":
@@ -148,7 +167,7 @@ const Storefront = () => {
               <div className="max-w-2xl mx-auto text-center">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-6 border" style={{ backgroundColor: `${colors.primary}15`, borderColor: `${colors.primary}30` }}>
                   <Zap className="h-3 w-3" style={{ color: colors.primary }} />
-                  <span className="text-[11px] font-semibold" style={{ color: colors.primary }}>منتجات رقمية • دورات • خدمات احترافية</span>
+                  <span className="text-[11px] font-semibold" style={{ color: colors.primary }}>منتجات مميزة • عروض حصرية</span>
                 </div>
 
                 <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight mb-4 tracking-tight" style={{ ...headingStyle, color: colors.text }}>
@@ -176,7 +195,7 @@ const Storefront = () => {
                 <div className="flex items-center justify-center gap-8 mt-12">
                   {[
                     { value: "٥,٠٠٠+", label: "عميل سعيد" },
-                    { value: "١٥٠+", label: "منتج رقمي" },
+                    { value: "١٥٠+", label: "منتج" },
                     { value: "٤.٩", label: "تقييم" },
                   ].map(s => (
                     <div key={s.label} className="text-center">
@@ -200,15 +219,14 @@ const Storefront = () => {
               <div className="text-center mb-10">
                 <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ color: colors.primary, backgroundColor: `${colors.primary}15` }}>خدماتنا</span>
                 <h2 className="text-xl sm:text-2xl font-bold mt-4" style={{ ...headingStyle, color: colors.text }}>ماذا نقدم لك؟</h2>
-                <p className="text-xs sm:text-sm mt-2 max-w-md mx-auto" style={{ color: `${colors.text}88` }}>حلول رقمية شاملة تغطي جميع احتياجاتك</p>
+                <p className="text-xs sm:text-sm mt-2 max-w-md mx-auto" style={{ color: `${colors.text}88` }}>حلول شاملة تغطي جميع احتياجاتك</p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {config.services.map((s) => {
                   const SIcon = getIconComponent(s.icon);
                   return (
-                    <div key={s.title} className="bg-card border border-border rounded-2xl p-4 sm:p-5 text-center hover:shadow-md transition-all group cursor-pointer"
-                      style={{ '--hover-border': `${colors.primary}40` } as React.CSSProperties}>
+                    <div key={s.title} className="bg-card border border-border rounded-2xl p-4 sm:p-5 text-center hover:shadow-md transition-all group cursor-pointer">
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 transition-colors"
                         style={{ backgroundColor: `${colors.primary}15` }}>
                         <SIcon className="h-5 w-5" style={{ color: colors.primary }} />
@@ -230,7 +248,6 @@ const Storefront = () => {
               <div className="text-center mb-10">
                 <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ color: colors.primary, backgroundColor: `${colors.primary}15` }}>معرض الأعمال</span>
                 <h2 className="text-xl sm:text-2xl font-bold mt-4" style={{ ...headingStyle, color: colors.text }}>أعمال نفتخر بها</h2>
-                <p className="text-xs sm:text-sm mt-2" style={{ color: `${colors.text}88` }}>نماذج من مشاريعنا الناجحة</p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -263,113 +280,164 @@ const Storefront = () => {
 
       case "store":
         return (
-          <section key={section.id} id="store-section" className="py-16 sm:py-20" style={{ backgroundColor: `${colors.primary}06` }}>
+          <section key={section.id} id="store-section" className="py-10 sm:py-16">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">
-              <div className="text-center mb-8">
-                <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ color: colors.primary, backgroundColor: `${colors.primary}15` }}>المتجر الرقمي</span>
-                <h2 className="text-xl sm:text-2xl font-bold mt-4" style={{ ...headingStyle, color: colors.text }}>منتجات رقمية مميزة</h2>
-                <p className="text-xs sm:text-sm mt-2" style={{ color: `${colors.text}88` }}>دورات، كتب، قوالب وأدوات تساعدك</p>
-              </div>
 
+              {/* Search */}
               <div className="max-w-md mx-auto mb-6">
                 <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-card border border-border">
                   <Search className="h-4 w-4 text-muted-foreground" />
                   <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="ابحث عن دورة، كتاب، أو قالب..."
+                    placeholder="ابحث عن منتج..."
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
                   {searchQuery && <button onClick={() => setSearchQuery("")}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>}
                 </div>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-3 mb-6 justify-center">
-                {displayCategories.map((cat) => (
-                  <button key={cat} onClick={() => setActiveCategory(cat)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                      activeCategory === cat ? "text-white shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                    }`}
-                    style={activeCategory === cat ? { backgroundColor: colors.primary } : undefined}>
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              {displayProducts.length > 0 && (
-                <div className="mb-8">
-                  <button onClick={() => setSelectedProduct(displayProducts[0])}
-                    className="w-full sm:max-w-2xl sm:mx-auto block rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg transition-shadow text-right">
-                    <div className="sm:flex">
-                      <div className="h-44 sm:h-auto sm:w-64 flex items-center justify-center relative"
-                        style={{ background: `linear-gradient(135deg, ${colors.primary}15, ${colors.primary}08)` }}>
-                        <Play className="h-12 w-12" style={{ color: `${colors.primary}30` }} />
-                        <span className="absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: colors.primary }}>⭐ الأكثر مبيعاً</span>
-                      </div>
-                      <div className="p-5 flex-1">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{displayProducts[0].category}</span>
-                        <h3 className="text-base font-bold text-foreground mt-2 mb-1">{displayProducts[0].name}</h3>
-                        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{displayProducts[0].description}</p>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-xl font-bold" style={{ color: colors.primary }}>{getDiscountedPrice(displayProducts[0]).toLocaleString("ar-IQ")}</span>
-                            <span className="text-xs text-muted-foreground mr-1">د.ع</span>
-                            {displayProducts[0].discount > 0 && <span className="text-xs line-through text-muted-foreground mr-2">{displayProducts[0].price.toLocaleString("ar-IQ")}</span>}
-                          </div>
-                          <span onClick={(e) => { e.stopPropagation(); buyNow(displayProducts[0]); }}
-                            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white active:scale-95 transition-transform cursor-pointer"
-                            style={{ backgroundColor: colors.primary }}>
-                            اشتري الآن
-                          </span>
+              {/* Category Icons / Pills */}
+              {config.categoryDisplayMode === "icons" ? (
+                <div className="flex gap-4 overflow-x-auto pb-4 mb-6 justify-start sm:justify-center px-2">
+                  {displayCategories.map((cat) => {
+                    const iconItem = config.categoryIcons.find(ci => ci.category === cat);
+                    const CatIcon = cat === "الكل" ? Package : getCategoryIcon(iconItem?.icon || "Package");
+                    const isActive = activeCategory === cat;
+                    return (
+                      <button key={cat} onClick={() => setActiveCategory(cat)}
+                        className="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[60px] transition-all">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all overflow-hidden ${
+                          isActive ? "shadow-md" : "border-border bg-card"
+                        }`}
+                          style={isActive ? { borderColor: colors.primary, backgroundColor: `${colors.primary}15` } : undefined}>
+                          {iconItem?.image ? (
+                            <img src={iconItem.image} alt={cat} className="w-full h-full object-cover rounded-xl" />
+                          ) : (
+                            <CatIcon className="h-6 w-6 transition-colors" style={{ color: isActive ? colors.primary : undefined }} />
+                          )}
                         </div>
-                      </div>
-                    </div>
-                  </button>
+                        <span className={`text-[10px] font-semibold transition-colors ${isActive ? "" : "text-muted-foreground"}`}
+                          style={isActive ? { color: colors.primary } : undefined}>
+                          {cat}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex gap-2 overflow-x-auto pb-3 mb-6 justify-center">
+                  {displayCategories.map((cat) => (
+                    <button key={cat} onClick={() => setActiveCategory(cat)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                        activeCategory === cat ? "text-white shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                      style={activeCategory === cat ? { backgroundColor: colors.primary } : undefined}>
+                      {cat}
+                    </button>
+                  ))}
                 </div>
               )}
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {displayFiltered.slice(1).map((product) => {
-                  const finalPrice = getDiscountedPrice(product);
-                  const Icon = getProductIcon(product.category);
-                  return (
-                    <div key={product.id} className="rounded-2xl overflow-hidden bg-card border border-border hover:shadow-md transition-all group">
-                      <button onClick={() => setSelectedProduct(product)} className="w-full text-right">
-                        <div className="h-32 sm:h-36 relative flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted/50 to-muted/20">
-                          <Icon className="h-8 w-8 text-muted-foreground/15 group-hover:scale-110 transition-transform" />
-                          <span className="text-[8px] px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>{getFileType(product.category)}</span>
-                          {product.discount > 0 && (
-                            <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[8px] font-bold bg-destructive text-destructive-foreground">
-                              خصم {product.discount}٪
-                            </span>
-                          )}
-                          <button onClick={(e) => { e.stopPropagation(); toggleLike(product.id); }}
-                            className="absolute top-2 left-2 w-7 h-7 rounded-full bg-card/90 flex items-center justify-center shadow-sm">
-                            <Heart className={`h-3.5 w-3.5 ${liked.includes(product.id) ? "text-destructive fill-current" : "text-muted-foreground"}`} />
+              {/* Category Sections (horizontal rows per category) */}
+              {enabledCategorySections.length > 0 && activeCategory === "الكل" && !searchQuery ? (
+                <div className="space-y-8">
+                  {enabledCategorySections.map(cs => {
+                    const catProducts = getProductsByCat(cs.category);
+                    if (catProducts.length === 0) return null;
+                    return (
+                      <div key={cs.id}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const iconItem = config.categoryIcons.find(ci => ci.category === cs.category);
+                              const CI = getCategoryIcon(iconItem?.icon || "Package");
+                              return (
+                                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${colors.primary}15` }}>
+                                  <CI className="h-4 w-4" style={{ color: colors.primary }} />
+                                </div>
+                              );
+                            })()}
+                            <h3 className="text-sm font-bold text-foreground" style={headingStyle}>{cs.category}</h3>
+                            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{catProducts.length}</span>
+                          </div>
+                          <button onClick={() => setActiveCategory(cs.category)}
+                            className="text-[11px] font-semibold flex items-center gap-1" style={{ color: colors.primary }}>
+                            عرض الكل <ChevronLeft className="h-3 w-3" />
                           </button>
                         </div>
-                        <div className="p-3">
-                          <p className="text-[11px] font-bold text-foreground mb-1 leading-tight line-clamp-2">{product.name}</p>
-                          <div className="flex items-center gap-1 mb-1.5">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="h-2.5 w-2.5" style={{ color: colors.primary, fill: s <= 4 ? 'currentColor' : 'none' }} />
-                            ))}
-                            <span className="text-[8px] text-muted-foreground">(4.0)</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold" style={{ color: colors.primary }}>{finalPrice.toLocaleString("ar-IQ")}</span>
-                            <span className="text-[8px] text-muted-foreground">د.ع</span>
-                          </div>
+                        <div className="flex gap-3 overflow-x-auto pb-2">
+                          {catProducts.map(product => (
+                            <div key={product.id} className="flex-shrink-0 w-40 sm:w-48 rounded-2xl overflow-hidden bg-card border border-border hover:shadow-md transition-all group">
+                              <button onClick={() => setSelectedProduct(product)} className="w-full text-right">
+                                <div className="h-32 relative flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted/50 to-muted/20">
+                                  {product.images?.[0] ? (
+                                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Package className="h-8 w-8 text-muted-foreground/15" />
+                                  )}
+                                  {product.discount > 0 && (
+                                    <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[8px] font-bold bg-destructive text-destructive-foreground">
+                                      خصم {product.discount}٪
+                                    </span>
+                                  )}
+                                  <button onClick={(e) => { e.stopPropagation(); toggleLike(product.id); }}
+                                    className="absolute top-2 left-2 w-7 h-7 rounded-full bg-card/90 flex items-center justify-center shadow-sm">
+                                    <Heart className={`h-3.5 w-3.5 ${liked.includes(product.id) ? "text-destructive fill-current" : "text-muted-foreground"}`} />
+                                  </button>
+                                </div>
+                                <div className="p-3">
+                                  <p className="text-[11px] font-bold text-foreground mb-1 leading-tight line-clamp-2">{product.name}</p>
+                                  <div className="flex items-center gap-1 mb-1.5">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                      <Star key={s} className="h-2.5 w-2.5" style={{ color: colors.primary, fill: s <= 4 ? 'currentColor' : 'none' }} />
+                                    ))}
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold" style={{ color: colors.primary }}>{getDiscountedPrice(product).toLocaleString("ar-IQ")}</span>
+                                    <span className="text-[8px] text-muted-foreground">د.ع</span>
+                                  </div>
+                                </div>
+                              </button>
+                              <div className="px-3 pb-3">
+                                <button onClick={() => addToCart(product)}
+                                  className="w-full py-2 rounded-xl text-[10px] font-bold text-white flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                                  style={{ backgroundColor: colors.primary }}>
+                                  <ShoppingCart className="h-3 w-3" /> أضف للسلة
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </button>
-                      <div className="px-3 pb-3">
-                        <button onClick={() => buyNow(product)}
-                          className="w-full py-2.5 rounded-xl text-[11px] font-bold text-white flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
-                          style={{ backgroundColor: colors.primary }}>
-                          <Sparkles className="h-3 w-3" /> شراء سريع
-                        </button>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+
+                  {/* Remaining products not in sections */}
+                  {(() => {
+                    const sectionCategories = enabledCategorySections.map(cs => cs.category);
+                    const remaining = displayProducts.filter(p => !sectionCategories.includes(p.category));
+                    if (remaining.length === 0) return null;
+                    return (
+                      <div>
+                        <h3 className="text-sm font-bold text-foreground mb-3" style={headingStyle}>منتجات أخرى</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {remaining.map(product => renderProductCard(product))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                /* Regular grid when a specific category is selected or searching */
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {displayFiltered.map(product => renderProductCard(product))}
+                </div>
+              )}
+
+              {displayFiltered.length === 0 && (activeCategory !== "الكل" || searchQuery) && (
+                <div className="text-center py-16">
+                  <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" />
+                  <p className="text-sm text-muted-foreground">لا توجد منتجات</p>
+                </div>
+              )}
             </div>
           </section>
         );
@@ -385,7 +453,7 @@ const Storefront = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {config.testimonials.map((t) => (
-                  <div key={t.name} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-colors" style={{ borderColor: 'var(--border)' }}>
+                  <div key={t.name} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-colors">
                     <Quote className="h-5 w-5 mb-3" style={{ color: `${colors.primary}25` }} />
                     <p className="text-xs text-muted-foreground leading-relaxed mb-4">{t.text}</p>
                     <div className="flex items-center gap-2">
@@ -437,7 +505,7 @@ const Storefront = () => {
               <div className="sm:flex items-start gap-10">
                 <div className="flex-1 mb-8 sm:mb-0">
                   <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ color: colors.primary, backgroundColor: `${colors.primary}15` }}>من نحن</span>
-                  <h2 className="text-xl sm:text-2xl font-bold mt-4 mb-3" style={{ ...headingStyle, color: colors.text }}>فريق شغوف بالإبداع الرقمي</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold mt-4 mb-3" style={{ ...headingStyle, color: colors.text }}>فريق شغوف بالإبداع</h2>
                   <p className="text-xs sm:text-sm leading-relaxed mb-4" style={{ color: `${colors.text}99` }}>
                     {config.aboutText}
                   </p>
@@ -480,8 +548,63 @@ const Storefront = () => {
     }
   };
 
+  const renderProductCard = (product: Product) => {
+    const finalPrice = getDiscountedPrice(product);
+    return (
+      <div key={product.id} className="rounded-2xl overflow-hidden bg-card border border-border hover:shadow-md transition-all group">
+        <button onClick={() => setSelectedProduct(product)} className="w-full text-right">
+          <div className="h-32 sm:h-36 relative flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted/50 to-muted/20">
+            {product.images?.[0] ? (
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            ) : (
+              <Package className="h-8 w-8 text-muted-foreground/15 group-hover:scale-110 transition-transform" />
+            )}
+            {product.discount > 0 && (
+              <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[8px] font-bold bg-destructive text-destructive-foreground">
+                خصم {product.discount}٪
+              </span>
+            )}
+            <button onClick={(e) => { e.stopPropagation(); toggleLike(product.id); }}
+              className="absolute top-2 left-2 w-7 h-7 rounded-full bg-card/90 flex items-center justify-center shadow-sm">
+              <Heart className={`h-3.5 w-3.5 ${liked.includes(product.id) ? "text-destructive fill-current" : "text-muted-foreground"}`} />
+            </button>
+          </div>
+          <div className="p-3">
+            <p className="text-[11px] font-bold text-foreground mb-1 leading-tight line-clamp-2">{product.name}</p>
+            <div className="flex items-center gap-1 mb-1.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} className="h-2.5 w-2.5" style={{ color: colors.primary, fill: s <= 4 ? 'currentColor' : 'none' }} />
+              ))}
+              <span className="text-[8px] text-muted-foreground">(4.0)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold" style={{ color: colors.primary }}>{finalPrice.toLocaleString("ar-IQ")}</span>
+              <span className="text-[8px] text-muted-foreground">د.ع</span>
+              {product.discount > 0 && <span className="text-[9px] line-through text-muted-foreground">{product.price.toLocaleString("ar-IQ")}</span>}
+            </div>
+          </div>
+        </button>
+        <div className="px-3 pb-3">
+          <button onClick={() => addToCart(product)}
+            className="w-full py-2.5 rounded-xl text-[11px] font-bold text-white flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+            style={{ backgroundColor: colors.primary }}>
+            <ShoppingCart className="h-3 w-3" /> أضف للسلة
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen" style={{ ...storeStyle, ...storefrontCssVars, backgroundColor: colors.bg, color: colors.text }}>
+
+      {/* ══════════════ ANNOUNCEMENT BAR ══════════════ */}
+      {config.announcementBar.enabled && (
+        <div className="text-center py-2 px-4 text-xs font-semibold"
+          style={{ backgroundColor: config.announcementBar.bgColor, color: config.announcementBar.textColor }}>
+          {config.announcementBar.text}
+        </div>
+      )}
 
       {/* ══════════════ NAVBAR ══════════════ */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-border" style={{ backgroundColor: `${colors.bg}CC` }}>
@@ -536,6 +659,32 @@ const Storefront = () => {
         )}
       </nav>
 
+      {/* ══════════════ BANNER CAROUSEL ══════════════ */}
+      {banners.length > 0 && (
+        <div className="relative">
+          <div className="w-full overflow-hidden" style={{ maxHeight: 300 }}>
+            <img src={banners[currentBanner]} alt="بنر" className="w-full h-48 sm:h-72 object-cover" />
+          </div>
+          {banners.length > 1 && (
+            <>
+              <button onClick={prevBanner} className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm">
+                <ChevronLeft className="h-4 w-4 text-foreground" />
+              </button>
+              <button onClick={nextBanner} className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm">
+                <ChevronRight className="h-4 w-4 text-foreground" />
+              </button>
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {banners.map((_, i) => (
+                  <button key={i} onClick={() => setCurrentBanner(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${i === currentBanner ? "w-6" : "bg-white/50"}`}
+                    style={i === currentBanner ? { backgroundColor: colors.primary } : undefined} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* ══════════════ DYNAMIC SECTIONS ══════════════ */}
       {enabledSections.map(section => renderSection(section))}
 
@@ -580,8 +729,11 @@ const Storefront = () => {
           </div>
 
           <div className="h-52 flex flex-col items-center justify-center relative" style={{ background: `linear-gradient(135deg, ${colors.primary}15, ${colors.primary}08)` }}>
-            {(() => { const Icon = getProductIcon(selectedProduct.category); return <Icon className="h-14 w-14" style={{ color: `${colors.primary}30` }} />; })()}
-            <span className="mt-2 text-[10px] px-3 py-1 rounded-full font-medium" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>{getFileType(selectedProduct.category)}</span>
+            {selectedProduct.images?.[0] ? (
+              <img src={selectedProduct.images[0]} alt={selectedProduct.name} className="w-full h-full object-cover" />
+            ) : (
+              <Package className="h-14 w-14" style={{ color: `${colors.primary}30` }} />
+            )}
             {selectedProduct.discount > 0 && (
               <span className="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold bg-destructive text-destructive-foreground">خصم {selectedProduct.discount}٪</span>
             )}
@@ -607,13 +759,33 @@ const Storefront = () => {
               <p className="text-xs font-bold text-foreground mb-1">الوصف</p>
               <p className="text-xs text-muted-foreground leading-relaxed">{selectedProduct.description}</p>
             </div>
+            {selectedProduct.sizes.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-foreground mb-2">المقاسات المتوفرة</p>
+                <div className="flex gap-2">
+                  {selectedProduct.sizes.map(s => (
+                    <span key={s} className="px-3 py-1.5 rounded-lg border border-border text-[11px] font-medium text-foreground">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {selectedProduct.colors.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-foreground mb-2">الألوان</p>
+                <div className="flex gap-2">
+                  {selectedProduct.colors.map(c => (
+                    <div key={c} className="w-7 h-7 rounded-full border-2 border-border" style={{ backgroundColor: c }} />
+                  ))}
+                </div>
+              </div>
+            )}
             <div>
-              <p className="text-xs font-bold text-foreground mb-2">ماذا ستحصل عليه</p>
+              <p className="text-xs font-bold text-foreground mb-2">مميزات</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: Download, text: "تحميل فوري" },
-                  { icon: Shield, text: "وصول مدى الحياة" },
-                  { icon: Award, text: "شهادة إتمام" },
+                  { icon: Truck, text: selectedProduct.deliveryDays ? `توصيل خلال ${selectedProduct.deliveryDays} أيام` : "توصيل سريع" },
+                  { icon: Shield, text: "ضمان الجودة" },
+                  { icon: Award, text: "منتج أصلي" },
                   { icon: MessageCircle, text: "دعم فني" },
                 ].map(item => (
                   <div key={item.text} className="flex items-center gap-2 bg-muted/50 rounded-xl p-2.5">
@@ -639,7 +811,7 @@ const Storefront = () => {
         </div>
       )}
 
-      {/* ══════════════ CHECKOUT DRAWER (SINGLE PAGE) ══════════════ */}
+      {/* ══════════════ CHECKOUT DRAWER ══════════════ */}
       {showCart && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={() => { setShowCart(false); setCheckoutStep("cart"); }} />
@@ -666,14 +838,6 @@ const Storefront = () => {
                   <h2 className="text-xl font-bold text-foreground mb-2">تم تأكيد طلبك! 🎉</h2>
                   <p className="text-sm text-muted-foreground mb-1">رقم الطلب: #{Math.floor(1000 + Math.random() * 9000)}</p>
                   <p className="text-xs text-muted-foreground mb-6">سيتم التواصل معك عبر الواتساب</p>
-                  <div className="flex gap-3">
-                    <div className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-medium" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>
-                      <Download className="h-3.5 w-3.5" /> تحميل فوري
-                    </div>
-                    <div className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-medium" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>
-                      <MessageCircle className="h-3.5 w-3.5" /> واتساب
-                    </div>
-                  </div>
                 </div>
               ) : cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
@@ -682,16 +846,18 @@ const Storefront = () => {
                 </div>
               ) : (
                 <div className="p-4 space-y-5">
-                  {/* Cart Items */}
                   <div className="space-y-2">
                     <p className="text-xs font-bold text-foreground">المنتجات</p>
                     {cart.map(({ product, qty }) => {
                       const price = getDiscountedPrice(product);
-                      const Icon = getProductIcon(product.category);
                       return (
                         <div key={product.id} className="flex gap-3 bg-muted/30 rounded-xl p-3">
                           <div className="w-12 h-12 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-5 w-5 text-muted-foreground/30" />
+                            {product.images?.[0] ? (
+                              <img src={product.images[0]} alt="" className="w-full h-full object-cover rounded-lg" />
+                            ) : (
+                              <Package className="h-5 w-5 text-muted-foreground/30" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[11px] font-medium text-foreground line-clamp-1">{product.name}</p>
@@ -714,7 +880,6 @@ const Storefront = () => {
                     })}
                   </div>
 
-                  {/* Customer Info */}
                   <div className="space-y-3">
                     <p className="text-xs font-bold text-foreground">معلومات الطلب</p>
                     <div>
@@ -737,7 +902,6 @@ const Storefront = () => {
                     </div>
                   </div>
 
-                  {/* Payment Method */}
                   <div>
                     <p className="text-xs font-bold text-foreground mb-2">طريقة الدفع</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -756,7 +920,6 @@ const Storefront = () => {
                     </div>
                   </div>
 
-                  {/* Notes */}
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-1 block">ملاحظات (اختياري)</label>
                     <textarea value={customerInfo.notes} onChange={(e) => setCustomerInfo(p => ({ ...p, notes: e.target.value }))}
