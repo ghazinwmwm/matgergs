@@ -214,6 +214,28 @@ const DEFAULT_CONFIG: TemplateConfig = {
   aboutText: "نقدم أفضل الخدمات والمنتجات.",
   aboutFeatures: ["جودة عالية", "تسليم سريع", "دعم مستمر"],
 
+  announcementBar: {
+    enabled: true,
+    text: "🚚 التوصيل مجاني لكل محافظات العراق",
+    bgColor: "#0EA5E9",
+    textColor: "#FFFFFF",
+  },
+  bannerImages: [],
+  categorySections: [
+    { id: "cs-1", category: "ملابس رجالية", enabled: true },
+    { id: "cs-2", category: "أحذية", enabled: true },
+    { id: "cs-3", category: "إلكترونيات", enabled: true },
+  ],
+  categoryIcons: [
+    { category: "ملابس رجالية", image: null, icon: "Shirt" },
+    { category: "ملابس نسائية", image: null, icon: "Sparkles" },
+    { category: "أحذية", image: null, icon: "Footprints" },
+    { category: "إكسسوارات", image: null, icon: "Watch" },
+    { category: "إلكترونيات", image: null, icon: "Smartphone" },
+    { category: "أخرى", image: null, icon: "Package" },
+  ],
+  categoryDisplayMode: "icons",
+
   contactEmail: "",
   contactPhone: "",
   contactInstagram: "",
