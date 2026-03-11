@@ -117,11 +117,11 @@ const Register = () => {
   const basicPrice = billingPeriod === "yearly" ? 12000 : 15000;
   const proPrice = billingPeriod === "yearly" ? 28000 : 35000;
 
-  // Step 0: Welcome / Google Sign-In
+  // Step 0: Welcome + Business Type Selection
   if (step === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6" dir="rtl">
-        <div className="w-full max-w-sm space-y-8 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8" dir="rtl">
+        <div className="w-full max-w-sm space-y-6 text-center">
           <div className="space-y-3">
             <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto">
               <img src={logoLight} alt="ماتاجر" className="w-full h-full object-cover" />
@@ -132,19 +132,35 @@ const Register = () => {
             </p>
           </div>
 
-          <div className="space-y-3">
-            {[
-              { icon: Zap, text: "إعداد سريع بخطوات بسيطة" },
-              { icon: Globe, text: "نطاق فرعي مجاني .matager.store" },
-              { icon: Truck, text: "ربط مع شركات التوصيل" },
-            ].map((f) => (
-              <div key={f.text} className="flex items-center gap-3 bg-card border border-border rounded-xl p-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <f.icon className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-xs font-medium text-foreground">{f.text}</span>
-              </div>
-            ))}
+          {/* Business Type Selection */}
+          <div className="space-y-2 text-right">
+            <p className="text-xs font-semibold text-muted-foreground text-center">شنو نوع نشاطك؟</p>
+            <div className="space-y-2">
+              {BUSINESS_TYPES.map((type) => {
+                const isSelected = businessType === type.id;
+                return (
+                  <button key={type.id} onClick={() => setBusinessType(type.id)}
+                    className={`w-full text-right bg-card border-2 rounded-xl p-3.5 transition-all ${
+                      isSelected ? "border-primary shadow-sm" : "border-border hover:border-primary/30"
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{type.emoji}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xs font-bold text-foreground">{type.label}</h3>
+                          {isSelected && (
+                            <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{type.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -156,6 +172,9 @@ const Register = () => {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               المتابعة عبر Google
+            </Button>
+            <Button onClick={handleNext} className="w-full h-12 rounded-xl text-sm font-bold gap-2">
+              <Sparkles className="h-4 w-4" /> ابدأ الآن
             </Button>
             <p className="text-[10px] text-muted-foreground">
               بالمتابعة، أنت توافق على <span className="text-primary">شروط الاستخدام</span> و <span className="text-primary">سياسة الخصوصية</span>
