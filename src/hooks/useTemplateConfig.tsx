@@ -193,6 +193,8 @@ const DEFAULT_CONFIG: TemplateConfig = {
   storeDescription: "متجر إلكتروني متكامل.",
   heroButtonText: "تصفح المنتجات",
   heroSecondaryButton: "تواصل معنا",
+  heroButtonAction: { type: "scroll", target: "store-section" },
+  heroSecondaryAction: { type: "whatsapp", message: "مرحباً، أريد الاستفسار" },
   logoImage: null,
 
   selectedPreset: 0,
@@ -222,6 +224,7 @@ const DEFAULT_CONFIG: TemplateConfig = {
   ctaTitle: "مستعد للبدء؟",
   ctaDesc: "تواصل معنا الآن.",
   ctaButton: "تواصل معنا",
+  ctaButtonAction: { type: "whatsapp", message: "مرحباً" },
   aboutText: "نقدم أفضل الخدمات والمنتجات.",
   aboutFeatures: ["جودة عالية", "تسليم سريع", "دعم مستمر"],
 
