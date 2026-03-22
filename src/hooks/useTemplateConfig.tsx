@@ -104,6 +104,8 @@ export interface TemplateConfig {
   storeDescription: string;
   heroButtonText: string;
   heroSecondaryButton: string;
+  heroButtonAction: ButtonAction;
+  heroSecondaryAction: ButtonAction;
   logoImage: string | null;
 
   // Style
@@ -125,6 +127,7 @@ export interface TemplateConfig {
   ctaTitle: string;
   ctaDesc: string;
   ctaButton: string;
+  ctaButtonAction: ButtonAction;
   aboutText: string;
   aboutFeatures: string[];
 
