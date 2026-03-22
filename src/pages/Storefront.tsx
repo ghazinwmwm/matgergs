@@ -500,7 +500,7 @@ const Storefront = () => {
                 <h2 className="text-xl sm:text-2xl font-bold mb-3" style={{ ...headingStyle, color: colors.text }}>{config.ctaTitle}</h2>
                 <p className="text-xs sm:text-sm mb-6" style={{ color: `${colors.text}88` }}>{config.ctaDesc}</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button onClick={() => scrollTo("store-section")}
+                  <button onClick={() => handleButtonAction(config.ctaButtonAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold text-white shadow-lg"
                     style={{ backgroundColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}30` }}>
                     {config.ctaButton}
