@@ -58,8 +58,16 @@ export interface TestimonialItem { name: string; role: string; text: string; rat
 
 export interface CustomFont {
   name: string;
-  url: string; // data URL from uploaded file
+  url: string;
 }
+
+export type ButtonAction =
+  | { type: "scroll"; target: string }
+  | { type: "url"; url: string }
+  | { type: "whatsapp"; message?: string }
+  | { type: "phone" }
+  | { type: "email" }
+  | { type: "none" };
 
 export interface TemplateColors {
   primary: string;
