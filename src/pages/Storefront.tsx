@@ -9,7 +9,7 @@ import {
   Package, Shirt, Watch, Smartphone, Footprints, Truck
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
-import { useTemplateConfig } from "@/hooks/useTemplateConfig";
+import { useTemplateConfig, type ButtonAction } from "@/hooks/useTemplateConfig";
 import { getIconComponent } from "@/pages/TemplateEditor";
 import type { Product } from "@/types/product";
 
