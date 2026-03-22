@@ -114,6 +114,23 @@ const Storefront = () => {
     setShowMobileMenu(false);
   };
 
+  const handleButtonAction = (action: ButtonAction) => {
+    if (!action) return;
+    switch (action.type) {
+      case "scroll": scrollTo(action.target); break;
+      case "url": if (action.url) window.open(action.url, "_blank"); break;
+      case "whatsapp": {
+        const num = config.whatsappNumber || config.contactPhone.replace(/\s+/g, "");
+        const msg = action.message ? `?text=${encodeURIComponent(action.message)}` : "";
+        window.open(`https://wa.me/${num}${msg}`, "_blank");
+        break;
+      }
+      case "phone": if (config.contactPhone) window.open(`tel:${config.contactPhone.replace(/\s+/g, "")}`); break;
+      case "email": if (config.contactEmail) window.open(`mailto:${config.contactEmail}`); break;
+      case "none": break;
+    }
+  };
+
   const enabledSections = config.sections.filter(s => s.enabled);
   const isSectionEnabled = (id: string) => enabledSections.some(s => s.id === id || s.id.startsWith(id));
   const storeEnabled = isSectionEnabled("store");
