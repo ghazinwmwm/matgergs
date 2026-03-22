@@ -9,7 +9,7 @@ import {
   Package, Shirt, Watch, Smartphone, Footprints, Truck
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
-import { useTemplateConfig } from "@/hooks/useTemplateConfig";
+import { useTemplateConfig, type ButtonAction } from "@/hooks/useTemplateConfig";
 import { getIconComponent } from "@/pages/TemplateEditor";
 import type { Product } from "@/types/product";
 
@@ -114,6 +114,23 @@ const Storefront = () => {
     setShowMobileMenu(false);
   };
 
+  const handleButtonAction = (action: ButtonAction) => {
+    if (!action) return;
+    switch (action.type) {
+      case "scroll": scrollTo(action.target); break;
+      case "url": if (action.url) window.open(action.url, "_blank"); break;
+      case "whatsapp": {
+        const num = config.whatsappNumber || config.contactPhone.replace(/\s+/g, "");
+        const msg = action.message ? `?text=${encodeURIComponent(action.message)}` : "";
+        window.open(`https://wa.me/${num}${msg}`, "_blank");
+        break;
+      }
+      case "phone": if (config.contactPhone) window.open(`tel:${config.contactPhone.replace(/\s+/g, "")}`); break;
+      case "email": if (config.contactEmail) window.open(`mailto:${config.contactEmail}`); break;
+      case "none": break;
+    }
+  };
+
   const enabledSections = config.sections.filter(s => s.enabled);
   const isSectionEnabled = (id: string) => enabledSections.some(s => s.id === id || s.id.startsWith(id));
   const storeEnabled = isSectionEnabled("store");
@@ -181,12 +198,12 @@ const Storefront = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button onClick={() => scrollTo("store-section")}
+                  <button onClick={() => handleButtonAction(config.heroButtonAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold text-white shadow-lg active:scale-[0.98] transition-all"
                     style={{ backgroundColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}40` }}>
                     {config.heroButtonText}
                   </button>
-                  <button onClick={() => scrollTo("works-section")}
+                  <button onClick={() => handleButtonAction(config.heroSecondaryAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold bg-card border border-border text-foreground hover:bg-muted transition-colors">
                     {config.heroSecondaryButton}
                   </button>
@@ -483,7 +500,7 @@ const Storefront = () => {
                 <h2 className="text-xl sm:text-2xl font-bold mb-3" style={{ ...headingStyle, color: colors.text }}>{config.ctaTitle}</h2>
                 <p className="text-xs sm:text-sm mb-6" style={{ color: `${colors.text}88` }}>{config.ctaDesc}</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button onClick={() => scrollTo("store-section")}
+                  <button onClick={() => handleButtonAction(config.ctaButtonAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold text-white shadow-lg"
                     style={{ backgroundColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}30` }}>
                     {config.ctaButton}

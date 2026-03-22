@@ -58,8 +58,16 @@ export interface TestimonialItem { name: string; role: string; text: string; rat
 
 export interface CustomFont {
   name: string;
-  url: string; // data URL from uploaded file
+  url: string;
 }
+
+export type ButtonAction =
+  | { type: "scroll"; target: string }
+  | { type: "url"; url: string }
+  | { type: "whatsapp"; message?: string }
+  | { type: "phone" }
+  | { type: "email" }
+  | { type: "none" };
 
 export interface TemplateColors {
   primary: string;
@@ -96,6 +104,8 @@ export interface TemplateConfig {
   storeDescription: string;
   heroButtonText: string;
   heroSecondaryButton: string;
+  heroButtonAction: ButtonAction;
+  heroSecondaryAction: ButtonAction;
   logoImage: string | null;
 
   // Style
@@ -117,6 +127,7 @@ export interface TemplateConfig {
   ctaTitle: string;
   ctaDesc: string;
   ctaButton: string;
+  ctaButtonAction: ButtonAction;
   aboutText: string;
   aboutFeatures: string[];
 
@@ -182,6 +193,8 @@ const DEFAULT_CONFIG: TemplateConfig = {
   storeDescription: "متجر إلكتروني متكامل.",
   heroButtonText: "تصفح المنتجات",
   heroSecondaryButton: "تواصل معنا",
+  heroButtonAction: { type: "scroll", target: "store-section" },
+  heroSecondaryAction: { type: "whatsapp", message: "مرحباً، أريد الاستفسار" },
   logoImage: null,
 
   selectedPreset: 0,
@@ -211,6 +224,7 @@ const DEFAULT_CONFIG: TemplateConfig = {
   ctaTitle: "مستعد للبدء؟",
   ctaDesc: "تواصل معنا الآن.",
   ctaButton: "تواصل معنا",
+  ctaButtonAction: { type: "whatsapp", message: "مرحباً" },
   aboutText: "نقدم أفضل الخدمات والمنتجات.",
   aboutFeatures: ["جودة عالية", "تسليم سريع", "دعم مستمر"],
 
