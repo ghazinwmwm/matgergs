@@ -198,12 +198,12 @@ const Storefront = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button onClick={() => scrollTo("store-section")}
+                  <button onClick={() => handleButtonAction(config.heroButtonAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold text-white shadow-lg active:scale-[0.98] transition-all"
                     style={{ backgroundColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}40` }}>
                     {config.heroButtonText}
                   </button>
-                  <button onClick={() => scrollTo("works-section")}
+                  <button onClick={() => handleButtonAction(config.heroSecondaryAction)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-2xl text-sm font-bold bg-card border border-border text-foreground hover:bg-muted transition-colors">
                     {config.heroSecondaryButton}
                   </button>
